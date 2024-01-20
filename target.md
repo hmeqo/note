@@ -1,0 +1,23 @@
+# Target
+
+- [ ] Python
+  - [ ] 人工智能
+    - [ ] 微积分
+  - [x] pyproject.toml
+  - [ ] Numpy 数据分析
+  - [ ] 爬虫
+  - [ ] Ursina 3D 游戏引擎
+  - [ ] FastAPI
+  - [ ] 办公自动化
+    - [X] Excel
+    - [ ] Word
+- [ ] Blender 建模
+- [ ] C/C++
+  - [ ] 数据结构与算法
+- [ ] Rust
+- [ ] UI 设计
+- [ ] Java
+  - [X] Spring
+  - [ ] Spring Boot
+  - [ ] Mybetis
+- [ ] Redis
