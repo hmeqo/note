@@ -1,4 +1,4 @@
-# 数学 (Mathematics)
+# 数学 (Math)
 
 ## 方程
 

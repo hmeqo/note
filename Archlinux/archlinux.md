@@ -221,87 +221,6 @@ useradd -m <username>
 passwd <username>
 ```
 
-### 字体安装
-
-| 包                  | 描述                |
-| ------------------- | ------------------- |
-| `noto-fonts-cjk`    | 中文                |
-| `noto-fonts-emoji`  | 表情                |
-| `ttf-fira-code`     | Fira Code           |
-| `ttf-firacode-nerd` | Fira Code Nerd Font |
-
-#### 设置中文字体优先级
-
-中文字体配置, 将此配置添加到 /etc/fonts/conf.d/50-user.conf 中
-
-```xml
-<fontconfig>
-  <!-- Chinese -->
-  <alias>
-    <family>Noto Sans CJK</family>
-    <prefer>
-      <family>Noto Sans CJK SC</family>
-      <family>Noto Sans CJK TC</family>
-      <family>Noto Sans CJK JP</family>
-      <family>Noto Sans CJK KR</family>
-      <family>Noto Color Emoji</family>
-      <family>Noto Emoji</family>
-    </prefer>
-  </alias>
-  <alias>
-    <family>Noto Serif CJK</family>
-    <prefer>
-      <family>Noto Serif CJK SC</family>
-      <family>Noto Serif CJK TC</family>
-      <family>Noto Serif CJK JP</family>
-      <family>Noto Serif CJK KR</family>
-      <family>Noto Color Emoji</family>
-      <family>Noto Emoji</family>
-    </prefer>
-  </alias>
-  <alias>
-    <family>Noto Sans Mono CJK</family>
-    <prefer>
-      <family>Noto Sans Mono CJK SC</family>
-      <family>Noto Sans Mono CJK TC</family>
-      <family>Noto Sans Mono CJK JP</family>
-      <family>Noto Sans Mono CJK KR</family>
-      <family>Noto Color Emoji</family>
-      <family>Noto Emoji</family>
-    </prefer>
-  </alias>
-  <alias>
-    <family>sans-serif</family>
-    <prefer>
-      <family>Noto Sans</family>
-      <family>Noto Sans CJK</family>
-    </prefer>
-  </alias>
-  <alias>
-    <family>serif</family>
-    <prefer>
-      <family>Noto Serif</family>
-      <family>Noto Serif CJK</family>
-    </prefer>
-  </alias>
-  <alias>
-    <family>monospace</family>
-    <prefer>
-      <family>Noto Sans Mono</family>
-      <family>Noto Sans Mono CJK</family>
-    </prefer>
-  </alias>
-</fontconfig>
-```
-
-## 安装桌面环境
-
-### KDE
-
-```bash
-pacman -S sddm xorg wayland qt6-wayland plasma konsole dolpin firefox
-```
-
 ## pacman
 
 ### pacman 的其他软件源
@@ -326,11 +245,45 @@ Include = /etc/pacman.d/mirrorlist
 Include = /etc/pacman.d/archlinuxcn-mirrorlist
 ```
 
+### Aur 助手安装
+
+选择喜欢的 Aur 助手安装即可, 使用 aur 助手代替 pacman
+
+#### yay
+
+```sh
+sudo pacman -S --needed base-devel
+git clone https://aur.archlinux.org/yay.git
+cd paru
+makepkg -si
+```
+
+#### paru
+
+GitHub: <https://github.com/Morganamilo/paru>
+
+```sh
+sudo pacman -S --needed base-devel
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si
+```
+
+### pacman 疑难解答
+
+如果使用 pacman 报密钥相关错误，可以尝试初始化密钥环
+
+```bash
+pacman-key --init
+pacman-key --populate archlinux
+```
+
 ## 软件
 
 | 软件                | 描述                 |
 | ------------------- | -------------------- |
-| [`paru`](#paru)     | Aur 包管理器         |
+| [`yay`](#yay)       | Aur 助手             |
+| [`paru`](#paru)     | Aur 助手             |
 | **终端**            |                      |
 | `yakuake`           | 终端                 |
 | `kitty`             | 终端                 |
@@ -344,9 +297,8 @@ Include = /etc/pacman.d/archlinuxcn-mirrorlist
 | [`tmux`](./tmux.md) | 终端复用             |
 | `bat`               | better cat           |
 | `exa`               | better ls            |
-| `zoxide`            | better cs            |
-| `fzf`               | 选择                 |
-| `ranger`            | 选择                 |
+| `fzf`               | 终端下的 select      |
+| `ranger`            | 终端下的 explorer    |
 | **搞怪**            |                      |
 | `sl`                | 火车                 |
 | `cmatrix`           | 黑客字幕             |
@@ -369,22 +321,18 @@ Include = /etc/pacman.d/archlinuxcn-mirrorlist
 | `gparted`           | 分区工具             |
 | `etcher`            | 刻录工具             |
 
-### paru
+### 字体安装
 
-GitHub: <https://github.com/Morganamilo/paru>
+| 包                  | 描述                |
+| ------------------- | ------------------- |
+| `noto-fonts-cjk`    | 中文                |
+| `noto-fonts-emoji`  | 表情                |
+| `noto-fonts-extra`  |                     |
+| `ttf-fira-code`     | Fira Code           |
+| `ttf-firacode-nerd` | Fira Code Nerd Font |
 
-```sh
-sudo pacman -S --needed base-devel
-git clone https://aur.archlinux.org/paru.git
-cd paru
-makepkg -si
-```
-
-### pacman 疑难解答
-
-如果使用 pacman 报密钥相关错误，可以尝试初始化密钥环
+### KDE
 
 ```bash
-pacman-key --init
-pacman-key --populate archlinux
+pacman -S sddm xorg wayland qt6-wayland plasma konsole dolpin ark
 ```
