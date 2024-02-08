@@ -320,6 +320,8 @@ pacman-key --populate archlinux
 | **磁盘管理**        |                      |
 | `gparted`           | 分区工具             |
 | `etcher`            | 刻录工具             |
+| **游戏**            |                      |
+| `mangohud`          | 游戏性能监控         |
 
 ### 字体安装
 
