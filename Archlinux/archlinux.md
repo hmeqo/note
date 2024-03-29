@@ -2,11 +2,11 @@
 
 ## 安装
 
-按照官网步骤安装: <https://wiki.archlinux.org/title/Installation_guide>  
+按照官网步骤安装: [https://wiki.archlinux.org/title/Installation_guide](https://wiki.archlinux.org/title/Installation_guide)
 刚开始可以先分个区
 
-BiliBili: <https://www.bilibili.com/video/BV1J34y1f74E>  
-BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
+BiliBili: [https://www.bilibili.com/video/BV1J34y1f74E](https://www.bilibili.com/video/BV1J34y1f74E)
+BiliBili: [https://www.bilibili.com/video/BV1XY4y1f77S](https://www.bilibili.com/video/BV1XY4y1f77S)
 
 ### 1. 准备
 
@@ -30,7 +30,7 @@ timedatectl set-ntp true
 
 可以用 `lsblk`、`fdisk -l` 检查电脑中可用的硬盘
 
-推荐使用 `cfdisk` 进行分区, `cfdist` 主界面可以按 h 查看帮助, 按 n 可以新建分区  
+推荐使用 `cfdisk` 进行分区, `cfdist` 主界面可以按 h 查看帮助, 按 n 可以新建分区
 对照下表设置分区的类型
 
 | 分区     | 类型             |
@@ -39,12 +39,12 @@ timedatectl set-ntp true
 | 一般分区 | Linux Filesystem |
 | swap     | Linux swap       |
 
-如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB  
+如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB
 Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需要把原来的 EFI 分区扩容到推荐大小即可
 
 ##### 创建 swapfile 作为 swap 分区
 
-如果不想通过分区使用 swap, 可以通过创建 swapfile 文件作为 swap 分区  
+如果不想通过分区使用 swap, 可以通过创建 swapfile 文件作为 swap 分区
 如果是系统安装时就要创建 swapfile, 如果作为跟目录的分区的挂载点是 /mnt, 应该把 of 路径改成 /mnt/swapfile
 
 ```bash
@@ -80,21 +80,21 @@ swapon /dev/swap_partition
 #### 镜像源
 
 如果需要可以先配置镜像
-调整 `/etc/pacman.d/mirrorlist` 中镜像的顺序即可  
+调整 `/etc/pacman.d/mirrorlist` 中镜像的顺序即可
 需要在运行 `pacstrap` 或 `pacman` 之前配置好
 
 如果安装镜像不是最新版本，先更新 archlinux-keyring
 
-```sh
+```bash
 pacman -Sy archlinux-keyring
 ```
 
 #### 安装基本软件包
 
-根据 CPU 选择安装 `intel-ucode` (Intel CPU) 或 `amd-ucode` (Amd CPU)  
+根据 CPU 选择安装 `intel-ucode` (Intel CPU) 或 `amd-ucode` (Amd CPU)
 这个安装项是可选的，如果装不了可以不用管
 
-```sh
+```bash
 pacstrap -K /mnt base linux-zen linux-zen-headers linux-firmware base-devel nano vim networkmanager [intel-ucode/amd-ucode]
 ```
 
@@ -155,29 +155,48 @@ mkinitcpio -P
 passwd
 ```
 
-#### 3.8 grub 开机引导
+#### 3.8 网络管理器
+
+`pacman` 安装 `networkmanager`, 然后 `systemctl enable NetworkManager` 设置开机启动
+
+#### 3.9 创建用户
+
+推荐方式, 创建用户，然后一个创建文件到 `/etc/sudoers.d/`，并添加这段配置 `<username> ALL=(ALL:ALL) ALL` 以允许新用户使用 `sudo`
+
+```bash
+# 创建用户
+useradd -m <username>
+# 设置密码
+passwd <username>
+```
+
+### 4. 开机引导
+
+常见的引导方式有 `Grub`、`systemd-boot`、`rEFInd` 选择一个引导方式即可
+
+#### grub
 
 ##### 安装 grub
 
-`os-prober` 是安装双系统推荐一并安装的依赖, 能够自动检测其他操作系统的 UEFI 启动项, 非双系统可以不安装  
-`efibootmgr` 是 UEFI 启动方式的依赖
+`efibootmgr` 是 UEFI 启动方式的依赖, 如果是 BIOS 启动可以不用安装
+`os-prober` 是安装双系统推荐一并安装的依赖, 能够自动检测其他操作系统的 UEFI 启动项, 非双系统可以不安装
 
-```sh
+```bash
 pacman -S grub [efibootmgr] [os-prober]
 ```
 
-如果安装了 os-prober, 需要注意os-prober 在新版 grub 默认禁用, 需要在 /etc/default/grub 修改配置手动启动
+如果安装了 os-prober, 需要注意 os-prober 在新版 grub 默认禁用, 修改 `/etc/default/grub` 取消注释 `GRUB_DISABLE_OS_PROBER=false` 即可启用 os-prober
 
-```sh
-# EFI 引导方式
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
-# BIOS 引导方式
-grub-install [--recheck] /dev/xxx
+```bash
+# UEFI 安装方式
+grub-install --efi-directory=esp --bootloader-id=GRUB
+# BIOS 安装方式
+grub-install /dev/xxx
 ```
 
 生成 grub 配置
 
-```sh
+```bash
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
@@ -201,25 +220,29 @@ menuentry 'Microsoft Windows 10' {
 
 ##### Grub 主题
 
-- `grub-theme-vimix`  
-     Github: <https://github.com/Se7endAY/grub2-theme-vimix>
-- Dark Matter GRUB Theme  
-     GitLab: <https://gitlab.com/VandalByte/darkmatter-grub-theme>
+- `grub-theme-vimix`Github: [https://github.com/Se7endAY/grub2-theme-vimix](https://github.com/Se7endAY/grub2-theme-vimix)
+- Dark Matter GRUB Theme
+  GitLab: [https://gitlab.com/VandalByte/darkmatter-grub-theme](https://gitlab.com/VandalByte/darkmatter-grub-theme)
 
-#### 3.9 网络管理器
+#### systemd-boot
 
-`pacman` 安装 `networkmanager`, 然后 `systemctl enable NetworkManager` 设置开机启动
+systemd-boot 是 systemd 全家桶的一部分, 在 arch 不需要额外安装
 
-#### 3.10 创建用户
+运行以下命令即可安装
 
-推荐方式, 创建用户，然后一个创建文件到 `/etc/sudoers.d/`，并添加这段配置 `<username> ALL=(ALL:ALL) ALL` 以允许新用户使用 `sudo`
-
-```sh
-# 创建用户
-useradd -m <username>
-# 设置密码
-passwd <username>
+```bash
+bootctl --esp-path=esp install
 ```
+
+#### rEFInd
+
+```bash
+refind-install
+```
+
+!!! warning
+    当 refind-install 运行在chroot环境下 (例如：安装Arch Linux时的live环境) /boot/refind_linux.conf 内将会添加live系统的内核选项，而不是安装它的系统。
+    编辑 /boot/refind_linux.conf 并确保其中的 内核参数 对于你的系统是正确的，否则下次启动可能会出现内核错误。
 
 ## pacman
 
@@ -242,32 +265,13 @@ Include = /etc/pacman.d/mirrorlist
 
 ```conf
 [archlinuxcn]
-Include = /etc/pacman.d/archlinuxcn-mirrorlist
+# 清华源
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
 ```
 
 ### Aur 助手安装
 
 选择喜欢的 Aur 助手安装即可, 使用 aur 助手代替 pacman
-
-#### yay
-
-```sh
-sudo pacman -S --needed base-devel
-git clone https://aur.archlinux.org/yay.git
-cd paru
-makepkg -si
-```
-
-#### paru
-
-GitHub: <https://github.com/Morganamilo/paru>
-
-```sh
-sudo pacman -S --needed base-devel
-git clone https://aur.archlinux.org/paru.git
-cd paru
-makepkg -si
-```
 
 ### pacman 疑难解答
 
@@ -278,30 +282,34 @@ pacman-key --init
 pacman-key --populate archlinux
 ```
 
-## 软件
+## 软件包
+
+### 软件推荐
 
 | 软件                | 描述                 |
 | ------------------- | -------------------- |
 | [`yay`](#yay)       | Aur 助手             |
 | [`paru`](#paru)     | Aur 助手             |
-| **终端**            |                      |
-| `yakuake`           | 终端                 |
-| `kitty`             | 终端                 |
-| `wezterm`           | 终端                 |
 | **Shell**           |                      |
 | `zsh`               | shell                |
-| `zimfw`             | zsh 扩展管理         |
-| `powerlevel10k`     | zsh 扩展             |
+| `zim`               | zsh 扩展管理         |
 | `fish`              | shell                |
+| `fisher`            | shell 扩展管理       |
 | **Shell 工具**      |                      |
 | [`tmux`](./tmux.md) | 终端复用             |
 | `bat`               | better cat           |
 | `exa`               | better ls            |
 | `fzf`               | 终端下的 select      |
+| `yazi`              | 终端下的 explorer    |
 | `ranger`            | 终端下的 explorer    |
+| **终端**            |                      |
+| `yakuake`           | 终端                 |
+| `wezterm`           | 终端                 |
+| `kitty`             | 终端                 |
 | **搞怪**            |                      |
 | `sl`                | 火车                 |
 | `cmatrix`           | 黑客字幕             |
+| `figlet`            | 艺术字               |
 | `toilet`            | 艺术字               |
 | `cowsay`            | 奶牛说               |
 | `asciiquarium`      | 水族馆               |
@@ -311,19 +319,47 @@ pacman-key --populate archlinux
 | `mpv`               | 精简视频播放器       |
 | `mplayer`           | 终端操控的视频播放器 |
 | **音乐播放器**      |                      |
-| `elisa`             |                      |
+| `elisa`             | 音乐播放器, 自带电台 |
 | **视频编辑**        |                      |
 | `kdenlive`          | 视频剪辑             |
 | **图像编辑**        |                      |
-| `gimp`              |                      |
-| `krita`             |                      |
+| `gimp`              | 修图                 |
+| `inkscape`          | 矢量图编辑           |
+| **文档**            |                      |
+| `okular`            | PDF/MD 阅读和编辑    |
+| `onlyoffice`        | 仿微软办公套件       |
+| `libreoffice`       | 办公套件             |
 | **磁盘管理**        |                      |
+| `partiionmanager`   | 分区工具             |
 | `gparted`           | 分区工具             |
 | `etcher`            | 刻录工具             |
 | **游戏**            |                      |
 | `mangohud`          | 游戏性能监控         |
+| `steam`             | Steam 客户端         |
+| `heroic`            | 第三方 Epic 客户端   |
+| `lutris`            | 游戏管理器           |
 
-### 字体安装
+#### yay
+
+```bash
+sudo pacman -S --needed base-devel
+git clone https://aur.archlinux.org/yay.git
+cd paru
+makepkg -si
+```
+
+#### paru
+
+GitHub: [https://github.com/Morganamilo/paru](https://github.com/Morganamilo/paru)
+
+```bash
+sudo pacman -S --needed base-devel
+git clone https://aur.archlinux.org/paru.git
+cd paru
+makepkg -si
+```
+
+### 字体
 
 | 包                  | 描述                |
 | ------------------- | ------------------- |
@@ -332,9 +368,3 @@ pacman-key --populate archlinux
 | `noto-fonts-extra`  |                     |
 | `ttf-fira-code`     | Fira Code           |
 | `ttf-firacode-nerd` | Fira Code Nerd Font |
-
-### KDE
-
-```bash
-pacman -S sddm xorg wayland qt6-wayland plasma konsole dolpin ark
-```
