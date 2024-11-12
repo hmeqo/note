@@ -7,41 +7,51 @@ Markdown 编辑器将 Markdown 文件翻译为 html 文件通过浏览器显示
 
 ## 常用语法
 
-!!! info
-    通过效果和源码对比学习  
-    **注意: 一些语法需要编辑器中打开对应的选项, 或编辑器不支持**
+> [!info]
+> 通过效果和源码对比学习  
+> **注意: 一些语法需要编辑器中打开对应的选项, 或编辑器不支持**
 
-!!! note 标题
-    # 一级标题
-    ## 二级标题
-    ### 三级标题
-    #### 四级标题
-    ##### 五级标题
-    ###### 六级标题
+> [!note]
+> 标题
+>
+> # 一级标题
+>
+> ## 二级标题
+>
+> ### 三级标题
+>
+> #### 四级标题
+>
+> ##### 五级标题
+>
+> ###### 六级标题
 
-* 无序号列表, 除了星号 (*) 也可以使用加号 (+) 和减号 (-)
-* 列表项2
+- 无序号列表, 除了星号 (*) 也可以使用加号 (+) 和减号 (-)
+- 列表项2
 
 1. 有序号列表
 2. 列表项2
 3. 列表可以嵌套使用
-   * 列表项1
-   * 列表项2
+   - 列表项1
+   - 列表项2
 
 > 段落引用  
 > 段落引用
-> > 段落引用  
+>
+> > 段落引用
+> >
 > > > 段落引用
 
 **加粗**
 
-*斜体*
+_斜体_
 
 ~~删除线~~
 
 ==高亮==
 
 ---
+
 分割线
 
 `行内代码块`  
@@ -54,9 +64,9 @@ b = 2
 a, b = b, a
 ```
 
-| 表格 | 左对齐 | 居中对齐 | 右对齐 |
-| --- | :--- | :---: | ---: |
-| 内容 | 内容 | 内容 | 内容 |
+| 表格            | 左对齐          |    居中对齐     |          右对齐 |
+| --------------- | :-------------- | :-------------: | --------------: |
+| 内容            | 内容            |      内容       |            内容 |
 | abcdefg hijklmn | abcdefg hijklmn | abcdefg hijklmn | abcdefg hijklmn |
 
 ## 链接
@@ -73,51 +83,45 @@ a, b = b, a
 
 ## 警告框
 
-!!! note
-    Note
+> [!info]
+> Info
 
-!!! note 笔记
-    Info
+> [!info]hello
+> Info
 
-!!! note ""
-    Info
+> [!abstract]
+> Abstract
 
-!!! info
-    Info
+> [!tip]
+> Tip
 
-!!! abstract
-    Abstract
+> [!question]
+> Question
 
-!!! tip
-    Tip
+> [!success]
+> Success
 
-!!! question
-    Question
+> [!warning}
+> Warning
 
-!!! success
-    Success
+> [!failure]
+> Failure
 
-!!! warning
-    Warning
+> [!error]
+> Error
 
-!!! failure
-    Failure
+> [!danger]
+> Danger
 
-!!! error
-    Error
+> [!bug]
+> Bug
 
-!!! danger
-    Danger
+> [!example]
+> Admonition扩展语法关键词包括：
+> Note，Abstract，Info，Tip，Success，Question，Warning，Failure，Danger，Bug，Example，Quote
 
-!!! bug
-    Bug
-
-!!! example
-    Admonition扩展语法关键词包括：
-    Note，Abstract，Info，Tip，Success，Question，Warning，Failure，Danger，Bug，Example，Quote
-
-!!! quote
-    Jeff Atwood: 一切能被JavaScript实现的终将会被JavaScript实现。
+> [!quote]
+> Jeff Atwood: 一切能被JavaScript实现的终将会被JavaScript实现。
 
 ## Details
 
@@ -131,6 +135,7 @@ a, b = b, a
 数学公式: $x + y$
 
 行间数学公式:
+
 $$
 x + y
 $$
@@ -172,25 +177,26 @@ flowchat
     op=>operation: Your Operation
     cond=>condition: Yes or No?
     e=>end
-    
+
     st->sub1->op->cond
     cond(yes)->e
     cond(no)->op
 ```
 
 语法:
+
 > 定义: `id=>样式: 文本`  
 > 连接: `id1->id2`, `id1->id2->id3`  
 > 指定条件和方向: `id1(yes)->id2`, `id1(right)->id2`, `id1(no, right)->id2`
 
-| 样式 | 描述 |
-| --- | --- |
-| start | 开始 |
-| end | 结束 |
-| operation | 操作 |
-| condition | 条件 |
+| 样式        | 描述     |
+| ----------- | -------- |
+| start       | 开始     |
+| end         | 结束     |
+| operation   | 操作     |
+| condition   | 条件     |
 | inputoutput | 输入输出 |
-| subroutine | 子程序 |
+| subroutine  | 子程序   |
 
 ### graph
 
@@ -211,6 +217,7 @@ subgraph 图表名;
 ```
 
 语法:
+
 > 定义, 指定样式和文本: `id1`, `id1[文本]`, `id1{文本}`  
 > 连接: `id1-->id2`
 
