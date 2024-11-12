@@ -41,8 +41,8 @@ Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需
 
 如果不想通过分区使用 swap, 可以通过创建 swapfile 文件作为 swap 分区
 
-!!! info
-    在Arch安装过程中, 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
+> [!info]
+> 在Arch安装过程中, 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
 
 ```bash
 # 创建制定大小的 swapfile, 示例中的实际大小为 1M x 8k = 8GB (bs x count)
@@ -54,7 +54,7 @@ dd if=/dev/zero of=/swapfile bs=1M count=8k status=progress
 fallocate -l 8G /swapfile
 
 # 设置 swapfile 的权限
-chmod 0600 /swapfile 
+chmod 0600 /swapfile
 
 mkswap /swapfile
 ```
@@ -88,7 +88,7 @@ swapon /dev/swap_partition
 调整 `/etc/pacman.d/mirrorlist` 中镜像的顺序即可
 需要在运行 `pacstrap` 或 `pacman` 之前配置好
 
-#### 密钥环
+#### 更新密钥环
 
 如果安装镜像不是最新版本, 先更新 archlinux-keyring
 
@@ -137,7 +137,7 @@ hwclock --systohc
 locale-gen
 ```
 
-设置地区, 编辑 `/etc/locale.conf`
+之后设置地区, 编辑 `/etc/locale.conf`, `LANG=你选择的地区`
 
 ```conf
 LANG=en_US.UTF-8
@@ -256,9 +256,9 @@ bootctl --esp-path=esp install
 refind-install
 ```
 
-!!! warning
-    当 refind-install 运行在chroot环境下 (例如：安装Arch Linux时的live环境) /boot/refind_linux.conf 内将会添加live系统的内核选项，而不是安装它的系统。
-    编辑 /boot/refind_linux.conf 并确保其中的 内核参数 对于你的系统是正确的，否则下次启动可能会出现内核错误。
+> [!warning]
+> 当 refind-install 运行在chroot环境下 (例如：安装Arch Linux时的live环境) /boot/refind_linux.conf 内将会添加live系统的内核选项，而不是安装它的系统。
+> 编辑 /boot/refind_linux.conf 并确保其中的 内核参数 对于你的系统是正确的，否则下次启动可能会出现内核错误。
 
 ## pacman
 
@@ -266,16 +266,16 @@ refind-install
 
 配置文件路径: `/etc/pacman.conf`
 
-- 启用 32 位软件源
+#### 32 位软件源
 
-取消配置文件中的 multilib 注释
+安装Steam或其他32位软件包需要此软件源, 取消注释配置文件中 multilib 的部分然后运行 `sudo pacman -Sy`
 
 ```conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 ```
 
-- archlinuxcn 源
+#### archlinuxcn 源
 
 将下面内容加入 pacman 配置文件
 
@@ -283,6 +283,17 @@ Include = /etc/pacman.d/mirrorlist
 [archlinuxcn]
 # 清华源
 Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+
+# 官方源 (需要魔法)
+# Server = https://repo.archlinuxcn.org/$arch
+```
+
+PS: 更多archlinuxcn镜像源查看此处 <https://github.com/archlinuxcn/mirrorlist-repo>
+
+然后安装archlinuxcn的密钥环
+
+```bash
+pacman -Sy archlinuxcn-keyring
 ```
 
 ### 初始化密钥环
@@ -304,59 +315,96 @@ pacman-key --populate archlinux
 
 ### 软件推荐
 
-| 软件                | 描述                 |
-| ------------------- | -------------------- |
-| [`yay`](#yay)       | Aur 助手             |
-| [`paru`](#paru)     | Aur 助手             |
-| **Shell**           |                      |
-| `zsh`               | shell                |
-| `zim`               | zsh 扩展管理         |
-| `fish`              | shell                |
-| `fisher`            | shell 扩展管理       |
-| **Shell 工具**      |                      |
-| [`tmux`](./tmux.md) | 终端复用             |
-| `bat`               | better cat           |
-| `exa`               | better ls            |
-| `fzf`               | 终端下的 select      |
-| `yazi`              | 终端下的 explorer    |
-| `ranger`            | 终端下的 explorer    |
-| **终端**            |                      |
-| `yakuake`           | 终端                 |
-| `wezterm`           | 终端                 |
-| `kitty`             | 终端                 |
-| **搞怪**            |                      |
-| `sl`                | 火车                 |
-| `cmatrix`           | 黑客字幕             |
-| `figlet`            | 艺术字               |
-| `toilet`            | 艺术字               |
-| `cowsay`            | 奶牛说               |
-| `asciiquarium`      | 水族馆               |
-| `lolcat`            | 渐变色输出           |
-| **视频播放器**      |                      |
-| `vlc`               | 视频播放器           |
-| `mpv`               | 精简视频播放器       |
-| `mplayer`           | 终端操控的视频播放器 |
-| **音乐播放器**      |                      |
-| `elisa`             | 音乐播放器, 自带电台 |
-| **视频编辑**        |                      |
-| `kdenlive`          | 视频剪辑             |
-| **图像编辑**        |                      |
-| `gimp`              | 修图                 |
-| `inkscape`          | 矢量图编辑           |
-| **文档**            |                      |
-| `okular`            | PDF/MD 阅读和编辑    |
-| `onlyoffice`        | 仿微软办公套件       |
-| `libreoffice`       | 办公套件             |
-| **磁盘管理**        |                      |
-| `partiionmanager`   | 分区工具             |
-| `gparted`           | 分区工具             |
-| `etcher`            | 刻录工具             |
-| **游戏**            |                      |
-| `mangohud`          | 游戏性能监控         |
-| `gamemode`          | 使用游戏模式运行游戏 |
-| `steam`             | Steam 客户端         |
-| `heroic`            | 第三方 Epic 客户端   |
-| `lutris`            | 游戏管理器           |
+| 软件                | 描述                        |
+| ------------------- | --------------------------- |
+| [`yay`](#yay)       | Aur 助手                    |
+| [`paru`](#paru)     | Aur 助手                    |
+| `debtap`            | deb包转pacman包             |
+| **Shell**           |                             |
+| `zsh`               | shell                       |
+| `zim`               | zsh 扩展管理                |
+| `fish`              | shell                       |
+| `fisher`            | shell 扩展管理              |
+| **终端**            |                             |
+| `yakuake`           | 终端                        |
+| `wezterm`           | 终端                        |
+| `kitty`             | 终端                        |
+| **Shell 工具**      |                             |
+| [`tmux`](./tmux.md) | 终端复用                    |
+| `bat`               | better cat                  |
+| `exa`               | better ls                   |
+| `fzf`               | 终端下的 select             |
+| `yazi`              | 终端下的 explorer           |
+| `hyperfine`         | 命令行性能测试              |
+| **基础设施**        |                             |
+| `watch`             | watch 命令                  |
+| `lsblk`             |                             |
+| `lscpu`             |                             |
+| `lspci`             |                             |
+| `lsusb`             |                             |
+| `cfdisk`            |                             |
+| `btop`              | 终端资源监视器              |
+| `nvtop`             | 终端GPU监视器               |
+| `cpupower`          |                             |
+| `turbostat`         | CPU 温度频率监测            |
+| `btmgmt`            | BT 管理                     |
+| `pw-top`            | pipewire top                |
+| **GUI 工具**        |                             |
+| `pavu-control`      | pipewire GUI                |
+| `qpwgraph`          | 音频控制                    |
+| `mission-center`    | 类 Windows 任务管理器       |
+| `cpu-x`             | CPU 信息监测                |
+| **视频**            |                             |
+| `vlc`               | 视频播放器                  |
+| `mpv`               | 精简视频播放器              |
+| `kdenlive`          | 视频剪辑                    |
+| `obs-studio`        | 视频录制/推流               |
+| **音频**            |                             |
+| `elisa`             | 音乐播放器, 自带电台        |
+| `easyeffects`       | 音频效果                    |
+| **图像**            |                             |
+| `gwenview`          | kde 图像查看器              |
+| `gimp`              | 修图                        |
+| `inkscape`          | 矢量图编辑                  |
+| **文档**            |                             |
+| `okular`            | PDF/MD 阅读和编辑           |
+| `onlyoffice`        | 仿微软办公套件              |
+| `calligra`          |                             |
+| **磁盘管理**        |                             |
+| `partiionmanager`   | 分区工具                    |
+| `gparted`           | 分区工具                    |
+| `etcher`            | 刻录工具                    |
+| **游戏**            |                             |
+| `mangohud`          | 游戏性能监控                |
+| `gamemode`          | 使用游戏模式运行游戏        |
+| `steam`             | Steam 客户端                |
+| `heroic`            | 第三方 Epic 客户端          |
+| `lutris`            | 游戏管理器                  |
+| `faugus-launcher`   | wine/proton 启动器          |
+| **远程**            |                             |
+| `Remmina`           | 远程连接工具，支持VNC/RDP等 |
+| `RustDesk`          | 屏幕分享                    |
+| `frpc/frps`         | 内网穿透                    |
+| `npc/nps`           | 内网穿透/P2P                |
+| **Proxy**           |                             |
+| `v2raya`            | v2ray web ui                |
+| `nekoray`           | sing-box GUI                |
+| `clash-verge-rev`   | clash-meta GUI              |
+| **搞怪**            |                             |
+| `sl`                | 火车                        |
+| `cmatrix`           | 黑客字幕                    |
+| `figlet`            | 艺术字                      |
+| `toilet`            | 艺术字                      |
+| `cowsay`            | 奶牛说                      |
+| `asciiquarium`      | 水族馆                      |
+| `lolcat`            | 渐变色输出                  |
+| **玩具**            |                             |
+| `carbonyl`          | 终端浏览器                  |
+| `GriddyCode`        | 代码编辑器                  |
+| **其他**            |                             |
+| `Teamspeak3`        | 语音服务器                  |
+| `Motrix`            | 下载工具                    |
+| `wireshark`         | 网络分析工具                |
 
 #### yay
 
