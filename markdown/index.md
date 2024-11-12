@@ -7,11 +7,11 @@ Markdown 编辑器将 Markdown 文件翻译为 html 文件通过浏览器显示
 
 ## 常用语法
 
-> [!info]
+> [!INFO]
 > 通过效果和源码对比学习  
 > **注意: 一些语法需要编辑器中打开对应的选项, 或编辑器不支持**
 
-> [!note]
+> [!NOTE]
 > 标题
 >
 > # 一级标题
@@ -26,7 +26,7 @@ Markdown 编辑器将 Markdown 文件翻译为 html 文件通过浏览器显示
 >
 > ###### 六级标题
 
-- 无序号列表, 除了星号 (*) 也可以使用加号 (+) 和减号 (-)
+- 无序号列表, 除了星号 (\*) 也可以使用加号 (+) 和减号 (-)
 - 列表项2
 
 1. 有序号列表
@@ -83,44 +83,44 @@ a, b = b, a
 
 ## 警告框
 
-> [!info]
+> [!INFO]
 > Info
 
-> [!info]hello
+> [!INFO]hello
 > Info
 
-> [!abstract]
+> [!ABSTRACT]
 > Abstract
 
-> [!tip]
+> [!TIP]
 > Tip
 
-> [!question]
+> [!QUESTION]
 > Question
 
-> [!success]
+> [!SUCCESS]
 > Success
 
-> [!warning}
+> [!WARNING]
 > Warning
 
-> [!failure]
+> [!FAILURE]
 > Failure
 
-> [!error]
+> [!ERROR]
 > Error
 
-> [!danger]
+> [!DANGER]
 > Danger
 
-> [!bug]
+> [!BUG]
 > Bug
 
-> [!example]
+> [!EXAMPLE]
 > Admonition扩展语法关键词包括：
 > Note，Abstract，Info，Tip，Success，Question，Warning，Failure，Danger，Bug，Example，Quote
 
-> [!quote]
+> [!QUOTE]
 > Jeff Atwood: 一切能被JavaScript实现的终将会被JavaScript实现。
 
 ## Details

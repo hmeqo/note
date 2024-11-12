@@ -41,7 +41,7 @@ Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需
 
 如果不想通过分区使用 swap, 可以通过创建 swapfile 文件作为 swap 分区
 
-> [!info]
+> [!IMPORTANT]
 > 在Arch安装过程中, 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
 
 ```bash
@@ -256,7 +256,7 @@ bootctl --esp-path=esp install
 refind-install
 ```
 
-> [!warning]
+> [!WARNING]
 > 当 refind-install 运行在chroot环境下 (例如：安装Arch Linux时的live环境) /boot/refind_linux.conf 内将会添加live系统的内核选项，而不是安装它的系统。
 > 编辑 /boot/refind_linux.conf 并确保其中的 内核参数 对于你的系统是正确的，否则下次启动可能会出现内核错误。
 
