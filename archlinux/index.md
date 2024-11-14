@@ -1,13 +1,18 @@
 # Arch Linux
 
+## 网站
+
+Archlinux: <https://www.archlinux.org/>
+Archlinuxcn: <https://www.archlinuxcn.org/>
+
 ## 安装
 
-可以配合官网步骤食用: [https://wiki.archlinux.org/title/Installation_guide](https://wiki.archlinux.org/title/Installation_guide)
+可以配合官网步骤食用: <https://wiki.archlinux.org/title/Installation_guide>
 
 ### 视频教程
 
-BiliBili: [https://www.bilibili.com/video/BV1J34y1f74E](https://www.bilibili.com/video/BV1J34y1f74E)  
-BiliBili: [https://www.bilibili.com/video/BV1XY4y1f77S](https://www.bilibili.com/video/BV1XY4y1f77S)
+BiliBili: <https://www.bilibili.com/video/BV1J34y1f74E>  
+BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 ### 1. 准备
 
@@ -262,33 +267,75 @@ refind-install
 
 ## pacman
 
-### pacman 的其他软件源
+配置文件路径: `/etc/pacman.conf`  
+镜像服务器列表路径: `/etc/pacman.d/mirrorlist`
 
-配置文件路径: `/etc/pacman.conf`
+### 初始化密钥环
 
-#### 32 位软件源
+一般正常安装 Archlinux 并不需要自己手动初始化密钥环, 某些情况例如 SteamOS 和 Termux 需要手动初始化
 
-安装Steam或其他32位软件包需要此软件源, 取消注释配置文件中 multilib 的部分然后运行 `sudo pacman -Sy`
+```bash
+pacman-key --init
+pacman-key --populate archlinux
+```
+
+### 配置
+
+#### 多线程下载
+
+在 pacman 配置文件找到并取消注释 `ParallelDownloads`
+
+```confini
+[options]
+...
+#VerbosePkgLists
+ParallelDownloads = 5
+...
+```
+
+#### 颜色
+
+在 pacman 配置文件中取消注释 `Color`
+
+```confini
+[options]
+...
+#UseSyslog
+Color
+#NoProgressBar
+...
+```
+
+#### pacman 的其他软件源
+
+##### 32 位软件源
+
+安装Steam或其他32位软件包需要此软件源, 在 pacman 配置文件中取消注释 multilib 部分然后运行 `sudo pacman -Sy`
 
 ```conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
 ```
 
-#### archlinuxcn 源
+##### archlinuxcn 源
 
-将下面内容加入 pacman 配置文件
+> Arch Linux 中文社区仓库是由 Arch Linux 中文社区驱动的非官方软件仓库，包含许多官方仓库未提供的额外的软件包，以及已有软件的 git 版本等变种。一部分软件包的打包脚本来源于 AUR，但也有许多包与 AUR 不一样。
+
+添加步骤: 将下面内容加入 pacman 配置文件末尾 `/etc/pacman.conf`
 
 ```conf
 [archlinuxcn]
-# 清华源
-Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+## 阿里云 (Global CDN)
+# Server = https://mirrors.aliyun.com/archlinuxcn/$arch
 
-# 官方源 (需要魔法)
+## 清华大学 (北京)
+Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+## 主仓库 (需要魔法)
 # Server = https://repo.archlinuxcn.org/$arch
 ```
 
-PS: 更多archlinuxcn镜像源查看此处 <https://github.com/archlinuxcn/mirrorlist-repo>
+> [!TIP]
+> 更多archlinuxcn镜像服务器查看此处 <https://github.com/archlinuxcn/mirrorlist-repo>
 
 然后安装archlinuxcn的密钥环
 
@@ -296,117 +343,171 @@ PS: 更多archlinuxcn镜像源查看此处 <https://github.com/archlinuxcn/mirro
 pacman -Sy archlinuxcn-keyring
 ```
 
-### 初始化密钥环
+2023年10月之后, 新系统下安装cn密钥环之前需要额外步骤, 需要在本地信任 farseerfc 的 GPG key
 
 ```bash
-pacman-key --init
-pacman-key --populate archlinux
+pacman-key --lsign-key "farseerfc@archlinux.org"
+```
+
+#### 彩蛋
+
+在 pacman 配置中加入 `ILoveCandy`, 进度条会被替换成吃豆人
+
+```confini
+[options]
+ILoveCandy
 ```
 
 ### Aur 助手安装
 
 可选的 aur 助手有: [yay](#yay)、[paru](#paru), 选择喜欢的 Aur 助手安装即可, 使用 aur 助手代替 pacman
 
-### pacman 疑难解答
+### pacman 常用格式
 
-如果使用 pacman 报密钥相关错误, 可以尝试[初始化密钥环](#初始化密钥环)
+以下为个人理解, 有些地方可能并不准确或非官方叫法
 
-## 软件包
+pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 
-### 软件推荐
+| 常用命令                       | 描述                                                              |
+| ------------------------------ | ----------------------------------------------------------------- |
+| `pacman -Syu`                  | 更新数据库(y)和软件包(u)                                          |
+| `pacman -Ss <regex>`           | 搜索软件包(s)                                                     |
+| `pacman -Si <软件包>`          | 查看软件包信息(i)                                                 |
+| `pacman -Syyuu`                | 强制更新数据库(yy)并升级/降级软件包(uu)                           |
+| `pacman -Rsn <软件包>`         | 删除软件包以及相关依赖(s)和配置文件(n)                            |
+| `pacman -Rsnc <软件包>`        | 删除软件包以及相关依赖(s)和配置文件(n), 并且删除依赖它的软件包(c) |
+| `pacman -Rsndd <软件包>`       | 强制删除软件包以及相关依赖(s)和配置文件(n), 忽略依赖问题(dd)      |
+| `pacman -c`                    | 删除不再需要的软件包 (不推荐, 不会删除软件包的依赖)               |
+| `pacman -Rsnc $(pacman -Qtdq)` | 删除所有孤包 (推荐)                                               |
+| `pacman -Q`                    | 列出已安装的软件包                                                |
+| `pacman -Qs <regex>`           | 搜索已安装的软件包(s)                                             |
+| `pacman -Qi <软件包>`          | 查看已安装的软件包信息(i)                                         |
+| `pacman -Qo <file>`            | 查询已安装的文件或命令所属软件包(o)                               |
+| `pacman -Qtdq`                 | 列出孤包(td), 不显示版本信息(q)                                   |
+| `pacman -F <file>`             | 查询文件或命令所属软件包                                          |
+| `pacman -Fy`                   | 更新文件数据库(y)                                                 |
+| `pacman -U <file>`             | 从文件安装软件包(package.tar.gz)                                  |
+| `paru -Gc <软件包>`            | 查看aur软件包评论                                                 |
 
-| 软件                | 描述                        |
-| ------------------- | --------------------------- |
-| [`yay`](#yay)       | Aur 助手                    |
-| [`paru`](#paru)     | Aur 助手                    |
-| `debtap`            | deb包转pacman包             |
-| **Shell**           |                             |
-| `zsh`               | shell                       |
-| `zim`               | zsh 扩展管理                |
-| `fish`              | shell                       |
-| `fisher`            | shell 扩展管理              |
-| **终端**            |                             |
-| `yakuake`           | 终端                        |
-| `wezterm`           | 终端                        |
-| `kitty`             | 终端                        |
-| **Shell 工具**      |                             |
-| [`tmux`](./tmux.md) | 终端复用                    |
-| `bat`               | better cat                  |
-| `exa`               | better ls                   |
-| `fzf`               | 终端下的 select             |
-| `yazi`              | 终端下的 explorer           |
-| `hyperfine`         | 命令行性能测试              |
-| **基础设施**        |                             |
-| `watch`             | watch 命令                  |
-| `lsblk`             |                             |
-| `lscpu`             |                             |
-| `lspci`             |                             |
-| `lsusb`             |                             |
-| `cfdisk`            |                             |
-| `btop`              | 终端资源监视器              |
-| `nvtop`             | 终端GPU监视器               |
-| `cpupower`          |                             |
-| `turbostat`         | CPU 温度频率监测            |
-| `btmgmt`            | BT 管理                     |
-| `pw-top`            | pipewire top                |
-| **GUI 工具**        |                             |
-| `pavu-control`      | pipewire GUI                |
-| `qpwgraph`          | 音频控制                    |
-| `mission-center`    | 类 Windows 任务管理器       |
-| `cpu-x`             | CPU 信息监测                |
-| **视频**            |                             |
-| `vlc`               | 视频播放器                  |
-| `mpv`               | 精简视频播放器              |
-| `kdenlive`          | 视频剪辑                    |
-| `obs-studio`        | 视频录制/推流               |
-| **音频**            |                             |
-| `elisa`             | 音乐播放器, 自带电台        |
-| `easyeffects`       | 音频效果                    |
-| **图像**            |                             |
-| `gwenview`          | kde 图像查看器              |
-| `gimp`              | 修图                        |
-| `inkscape`          | 矢量图编辑                  |
-| **文档**            |                             |
-| `okular`            | PDF/MD 阅读和编辑           |
-| `onlyoffice`        | 仿微软办公套件              |
-| `calligra`          |                             |
-| **磁盘管理**        |                             |
-| `partiionmanager`   | 分区工具                    |
-| `gparted`           | 分区工具                    |
-| `etcher`            | 刻录工具                    |
-| **游戏**            |                             |
-| `mangohud`          | 游戏性能监控                |
-| `gamemode`          | 使用游戏模式运行游戏        |
-| `steam`             | Steam 客户端                |
-| `heroic`            | 第三方 Epic 客户端          |
-| `lutris`            | 游戏管理器                  |
-| `faugus-launcher`   | wine/proton 启动器          |
-| **远程**            |                             |
-| `Remmina`           | 远程连接工具，支持VNC/RDP等 |
-| `RustDesk`          | 屏幕分享                    |
-| `frpc/frps`         | 内网穿透                    |
-| `npc/nps`           | 内网穿透/P2P                |
-| **Proxy**           |                             |
-| `v2raya`            | v2ray web ui                |
-| `nekoray`           | sing-box GUI                |
-| `clash-verge-rev`   | clash-meta GUI              |
-| **搞怪**            |                             |
-| `sl`                | 火车                        |
-| `cmatrix`           | 黑客字幕                    |
-| `figlet`            | 艺术字                      |
-| `toilet`            | 艺术字                      |
-| `cowsay`            | 奶牛说                      |
-| `asciiquarium`      | 水族馆                      |
-| `lolcat`            | 渐变色输出                  |
-| **玩具**            |                             |
-| `carbonyl`          | 终端浏览器                  |
-| `GriddyCode`        | 代码编辑器                  |
-| **其他**            |                             |
-| `Teamspeak3`        | 语音服务器                  |
-| `Motrix`            | 下载工具                    |
-| `wireshark`         | 网络分析工具                |
+## 常用软件包/工具/命令
 
-#### yay
+| 软件包/工具/命令        | 描述                             |
+| ----------------------- | -------------------------------- |
+| [`yay`](#yay)           | Aur 助手                         |
+| [`paru`](#paru)         | Aur 助手                         |
+| `debtap`                | deb包转pacman包                  |
+| **Shell**               |                                  |
+| `zsh`                   | shell                            |
+| `zim`                   | zsh 扩展管理                     |
+| `fish`                  | shell                            |
+| `fisher`                | shell 扩展管理                   |
+| **终端**                |                                  |
+| `yakuake`               | 终端                             |
+| `wezterm`               | 终端                             |
+| `kitty`                 | 终端                             |
+| **Shell 工具**          |                                  |
+| [`tmux`](./tmux.md)     | 终端复用                         |
+| `bat`                   | better cat                       |
+| `exa`                   | better ls                        |
+| `fzf`                   | 终端下的 select                  |
+| `yazi`                  | 终端下的 explorer                |
+| `superfile`             | 终端下的文件管理器               |
+| `hyperfine`             | 命令行性能测试                   |
+| `mirro-rs`              | 查找速度最快的pacman镜像服务器   |
+| **基础设施**            |                                  |
+| `watch`                 | watch 命令                       |
+| `lsblk`                 |                                  |
+| `lscpu`                 |                                  |
+| `lspci`                 |                                  |
+| `lsusb`                 |                                  |
+| `cfdisk`                |                                  |
+| `efibootmgr`            | EFI 启动管理                     |
+| `btop`                  | 终端资源监视器                   |
+| `nvtop`                 | 终端GPU监视器                    |
+| `cpupower`              |                                  |
+| `turbostat`             | CPU 温度频率监测                 |
+| `btmgmt`                | BT 管理                          |
+| `pw-top`                | pipewire top                     |
+| `power-profiles-deamon` | 电源管理                         |
+| **网络**                |                                  |
+| `dnsmasq`               | DNS 服务                         |
+| `openresolv`            | resolv.conf 管理                 |
+| `whois`                 | 域名查询                         |
+| `dig`                   | 域名解析工具                     |
+| `nslookup`              | 域名解析工具                     |
+| `netstat`               | 网络状态                         |
+| **GUI 工具**            |                                  |
+| `pavu-control`          | pipewire GUI                     |
+| `qpwgraph`              | 音频控制                         |
+| `mission-center`        | 类 Windows 任务管理器            |
+| `cpu-x`                 | CPU 信息监测                     |
+| **视频**                |                                  |
+| `vlc`                   | 视频播放器                       |
+| `mpv`                   | 精简视频播放器                   |
+| `kdenlive`              | 视频剪辑                         |
+| `obs-studio`            | 视频录制/推流                    |
+| **音频**                |                                  |
+| `elisa`                 | 音乐播放器, 自带电台             |
+| `easyeffects`           | 音频效果                         |
+| **图像**                |                                  |
+| `gwenview`              | kde 图像查看器                   |
+| `gimp`                  | 修图                             |
+| `inkscape`              | 矢量图编辑                       |
+| **办公**                |                                  |
+| `okular`                | PDF/MD 阅读                      |
+| `onlyoffice`            | 仿微软办公套件                   |
+| `calligra`              | KDE 推出的办公套件               |
+| **浏览器**              |                                  |
+| `firefox`               | Linux 玩家人手一个, 对吧         |
+| `zen-browser`           | 基于Firefox的浏览器              |
+| `tor-browser`           | 很安全的基于Firefox的浏览器      |
+| **磁盘管理**            |                                  |
+| `partiionmanager`       | 分区工具                         |
+| `gparted`               | 分区工具                         |
+| `etcher`                | 刻录工具                         |
+| **游戏**                |                                  |
+| `mangohud`              | 游戏性能监控                     |
+| `gamemode`              | 使用游戏模式运行游戏             |
+| `steam`                 | Steam 客户端                     |
+| `heroic`                | 第三方 Epic 客户端               |
+| `lutris`                | 游戏管理器                       |
+| `faugus-launcher`       | wine/proton 启动器               |
+| **远程**                |                                  |
+| `remmina`               | 远程连接工具，支持VNC/RDP等      |
+| `rustdesk`              | 屏幕分享                         |
+| `frpc/frps`             | 内网穿透                         |
+| `npc/nps`               | 内网穿透/P2P                     |
+| **代理/VPN**            |                                  |
+| `proxychains`           | 终端强制代理工具, 可代理ping流量 |
+| `v2raya`                | v2ray web ui                     |
+| `nekoray`               | sing-box GUI                     |
+| `clash-verge-rev`       | clash-meta GUI                   |
+| **搞怪**                |                                  |
+| `lolcat`                | 渐变色输出                       |
+| `sl`                    | 火车                             |
+| `cmatrix`               | 黑客字幕                         |
+| `figlet`                | 艺术字                           |
+| `pyfiglet`              | figlet Python 实现               |
+| `toilet`                | 艺术字                           |
+| `cowsay`                | 奶牛说                           |
+| `asciiquarium`          | 水族馆                           |
+| `nyancat`               | 彩虹猫                           |
+| **玩具**                |                                  |
+| `carbonyl`              | 终端浏览器                       |
+| `GriddyCode`            | 代码编辑器                       |
+| **其他**                |                                  |
+| `teamspeak3`            | 语音服务器                       |
+| `motrix`                | 下载工具                         |
+| `wireshark`             | 网络分析工具                     |
+| **字体**                |                                  |
+| `noto-fonts-cjk`        | 中文                             |
+| `noto-fonts-emoji`      | 表情                             |
+| `noto-fonts-extra`      |                                  |
+| `ttf-fira-code`         | Fira Code                        |
+| `ttf-firacode-nerd`     | Fira Code Nerd Font              |
+| `ttf-maple`             |                                  |
+
+### yay
 
 ```bash
 sudo pacman -S --needed base-devel
@@ -415,9 +516,9 @@ cd paru
 makepkg -si
 ```
 
-#### paru
+### paru
 
-GitHub: [https://github.com/Morganamilo/paru](https://github.com/Morganamilo/paru)
+GitHub: <https://github.com/Morganamilo/paru>
 
 ```bash
 sudo pacman -S --needed base-devel
@@ -426,12 +527,45 @@ cd paru
 makepkg -si
 ```
 
-### 字体
+#### 配置
 
-| 包                  | 描述                |
-| ------------------- | ------------------- |
-| `noto-fonts-cjk`    | 中文                |
-| `noto-fonts-emoji`  | 表情                |
-| `noto-fonts-extra`  |                     |
-| `ttf-fira-code`     | Fira Code           |
-| `ttf-firacode-nerd` | Fira Code Nerd Font |
+配置文件路径: `/etc/paru.conf`
+
+##### 倒叙排序
+
+在paru配置中取消注释 `BottomUp`
+
+```confini
+[options]
+...
+#AurOnly
+BottomUp
+#RemoveMake
+...
+```
+
+## 桌面环境配置
+
+### KDE
+
+#### 软件生态
+
+| 软件               | 描述                             |
+| ------------------ | -------------------------------- |
+| `dolphin`          | 文件管理                         |
+| `konsole`          | 终端                             |
+| `kate`             | 文件编辑器                       |
+| `yakuake`          | 下拉终端                         |
+| `ark`              | 归档/压缩文件管理                |
+| `filelight`        | 图形化文件占用, 类似spacesnipper |
+| `kdf`              | 磁盘使用量                       |
+| `partitionmanager` | 分区工具                         |
+| `spectacle`        | 屏幕截图/录制                    |
+| `gwenview`         | 图片查看                         |
+| `kdenlive`         | 视频剪辑工具                     |
+| `elisa`            | 音乐播放器                       |
+| `okular`           | PDF/MD 阅读                      |
+| `calligra`         | 办公套件                         |
+| `krdp`             | 远程桌面服务器                   |
+| `sweeper`          | 垃圾清理                         |
+| `kwalletmanager`   | KDE密钥管理                      |
