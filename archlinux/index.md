@@ -7,6 +7,9 @@ Archlinuxcn: <https://www.archlinuxcn.org/>
 
 ## 安装
 
+> [!NOTE]
+> 编程中有许多特殊符号, 例如 <xxx> 代表根据实际情况填写的必填项, [xxx] 代表可选项, 请根据上下文自行判断
+
 可以配合官网步骤食用: <https://wiki.archlinux.org/title/Installation_guide>
 
 ### 视频教程
@@ -20,18 +23,39 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 有线网络会自动连接, 不需要手动连接
 
-`ip link` 查看网络设备, 如果网卡被禁用可以使用 `rfkill list` 查询网卡列表, 使用 `rfkill unblock <device>` 解锁设备, 如果 WIFI 未启用, 使用 `ip link set <device> up` 启用设备
+`ip link` 可以查看网络设备  
+`rfkill` 或者 `rfkill list` 查询网卡列表  
+如果网卡被禁用(SOFT blocked)可以使用 `rfkill unblock <device>` 解锁设备  
+如果 WIFI 未启用(HARD blocked), 使用 `ip link set <device> up` 启用设备
 
-通过 `iwctl` 配对设备, `iwctl` 环境中使用 `station <device> scan` 扫描可用 WIFI, 使用 `station <device> get-networks` 列出可用 WIFI, 使用 `station <device> connect <SSID>` 连接 WIFI
+通过 `iwctl` 命令进入交互式环境配对设备  
+使用 `station <device> scan` 扫描可用 WIFI  
+使用 `station <device> get-networks` 列出可用 WIFI  
+使用 `station <device> connect <SSID>` 连接 WIFI  
+完成后按 `ctrl+d` 或输入 `exit` 即可退出, `ctrl+d` 算是 linux 下 cli 的通用退出快捷键了
 
-之后如果安装了 `networkmanager` 可以用 `nmtui` 连接 WIFI
+安装完系统之后, 如果装了 `networkmanager` 可以用 `nmtui`、`nmcli` 连接 WIFI, archiso环境中用的是 `iwd`, 所以命令不同
 
 #### 分区
 
-可以用 `lsblk`、`fdisk -l` 检查电脑中可用的硬盘
+##### 创建分区
+
+可以用 `lsblk`、`lsblk -f`、`fdisk -l` 检查电脑中可用的硬盘
 
 推荐使用 `cfdisk` 进行分区, `cfdist` 主界面可以按 h 查看帮助, 按 n 可以新建分区
-对照下表设置分区的类型
+
+几种主要的分区方案:
+
+- 一个EFI分区(对于UEFI) + 一个Linux文件系统分区(必须) + 一个swap分区(可选)
+- 一个EFI分区(对于UEFI) + 一个Linux文件系统分区(必须) + 一个swap分区(可选) + 一个home目录分区(可选)
+
+如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB  
+Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需要把原来的 EFI 分区扩容到推荐大小即可
+
+个人想法, 物理内存小于等于 8G 时, Swap 分区大小推荐同等于物理内存或一半, 大于 8G 时推荐物理内存到 8G 之间  
+主要看个人需求, 如果你不需要休眠功能, Swap分小点够用就行, 需要休眠功能的话, Swap分大点
+
+然后对照下表设置分区的类型
 
 | 分区     | 类型             |
 | -------- | ---------------- |
@@ -39,51 +63,62 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 | 一般分区 | Linux Filesystem |
 | swap     | Linux swap       |
 
-如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB
-Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需要把原来的 EFI 分区扩容到推荐大小即可
+`cfdisk` 编辑完之后记得 `Write`, 否则你的更改不会生效
 
-##### 创建 swapfile 作为 swap 分区
+> [!NOTE]
+> 也可以使用swapfile而非swap分区, 这样可以动态分配swapspace的大小, 无需调整分区, 可以等挂载完分区后再创建, [点击此处查看教程](#创建swapfile)  
+> 在Arch安装过程中(非arch-chroot下), 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
 
-如果不想通过分区使用 swap, 可以通过创建 swapfile 文件作为 swap 分区
+##### 格式化分区
 
-> [!IMPORTANT]
-> 在Arch安装过程中, 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
+创建完分区之后, 需要格式化分区
 
-```bash
-# 创建制定大小的 swapfile, 示例中的实际大小为 1M x 8k = 8GB (bs x count)
-# /swapfile 可以是你想要的任何路径, 常用的路径 /swapfile /swap.img
+- 对于 EFI 分区
 
-# 方式 1
-dd if=/dev/zero of=/swapfile bs=1M count=8k status=progress
-# 方式2
-fallocate -l 8G /swapfile
+  ```bash
+  mkfs.fat -F 32 /dev/efi_system_partition
+  ```
 
-# 设置 swapfile 的权限
-chmod 0600 /swapfile
+- Linux 文件系统分区
 
-mkswap /swapfile
-```
+  ```bash
+  # mkfs.<格式>, 可以选择其他的格式, 如 btrfs 等 (善用 tab 键和wiki)
+  mkfs.ext4 /dev/root_partition
+  ```
 
-#### 格式化和挂载路径
+- swap 分区
 
-按照表格找到对应的格式化和挂载方式
+  ```bash
+  mkswap /dev/swap_partition
+  ```
 
-| 名称               | 挂载点                 | 格式化命令                                                      |
-| ------------------ | ---------------------- | --------------------------------------------------------------- |
-| EFI 分区           | /boot                  | `mkfs.fat -F 32 /dev/efi_system_partition`                      |
-| Linux 文件系统分区 | 必须有一个 /, 其他随意 | `mkfs.ext4 /dev/root_partition` (也可以选择其他的格式, 如 btfs) |
-| Swap 分区          | 没有挂载点             | `mkswap /dev/swap_partition`                                    |
+##### 挂载分区
 
-##### 如何挂载分区
+- 首先挂载根分区到 `/mnt`
 
-```bash
-# mount 分区路径 u挂载点
-# 挂载点需要是已存在的文件夹, 如果挂载点对应的文件夹不存在, 可以加上 --mkdir 自动创建对应的文件夹
-mount /dev/sda1 /root
+  ```bash
+  mount /dev/<sda2> /mnt
+  ```
 
-# 如果是 swap 分区
-swapon /dev/swap_partition
-```
+  > [!NOTE]
+  > 如果你要创建swapfile, 这时候创建就很方便了, 直接创建到 `/mnt/swapfile`
+
+- 挂载EFI分区和其他分区
+
+  ```bash
+  # EFI 分区推荐挂载点
+  mount /dev/<sda1> /mnt/boot
+
+  ## 其他分区
+  # 例如你单独分配了 home 目录的分区
+  mount /dev/<sda3> /mnt/home
+  ```
+
+- swap分区 (如果你分配了swap的分区, 使用swapfile可以跳过这一步)
+
+  ```bash
+  swapon /dev/swap_partition
+  ```
 
 ### 2. 安装
 
@@ -91,7 +126,12 @@ swapon /dev/swap_partition
 
 如果需要可以先配置镜像
 调整 `/etc/pacman.d/mirrorlist` 中镜像的顺序即可
-需要在运行 `pacstrap` 或 `pacman` 之前配置好
+
+推荐一个国内速度较快的镜像源
+
+```conf
+Server = http://mirrors.jlu.edu.cn/archlinux/$repo/os/$arch
+```
 
 #### 更新密钥环
 
@@ -104,11 +144,12 @@ pacman -Sy archlinux-keyring
 
 #### 安装基本软件包
 
-根据 CPU 选择安装 `intel-ucode` (Intel CPU) 或 `amd-ucode` (Amd CPU)
-这个安装项是可选的，如果装不了可以不用管
+根据 CPU 选择安装 `intel-ucode` (Intel CPU) 或 `amd-ucode` (Amd CPU)  
+这个安装项是可选的，如果装不了可以不用管  
+不会用 `vi/vim/neovim` 可以装 `nano`
 
 ```bash
-pacstrap -K /mnt base linux-zen linux-zen-headers linux-firmware base-devel nano vim networkmanager [intel-ucode/amd-ucode]
+pacstrap -K /mnt base base-devel linux-zen linux-zen-headers linux-firmware vi vim neovim networkmanager [intel-ucode/amd-ucode]
 ```
 
 ### 3. 配置系统
@@ -208,14 +249,25 @@ pacman -S grub [efibootmgr] [os-prober]
 
 如果安装了 os-prober, 需要注意 os-prober 在新版 grub 默认禁用, 修改 `/etc/default/grub` 取消注释 `GRUB_DISABLE_OS_PROBER=false` 即可启用 os-prober
 
-```bash
-# UEFI 安装方式
-grub-install --efi-directory=esp --bootloader-id=GRUB
-# BIOS 安装方式
-grub-install /dev/xxx
-```
+- UEFI 安装方式
 
-生成 grub 配置
+  确保你安装了 `efibootmgr`
+
+  ```bash
+  # 将 esp 改为你的 EFI 分区路径, 例如 --efi-directory=/boot
+  grub-install [--target=x86_64-efi] --efi-directory=<esp> --bootloader-id=GRUB
+  ```
+
+  ```bash
+  grub-install --efi-directory=/boot --bootloader-id=GRUB
+  ```
+
+- BIOS 安装方式
+  ```bash
+  grub-install /dev/xxx
+  ```
+
+生成 grub 配置, 记住此命令, 后续如果修改了 `/etc/default/grub` 需要重新生成 grub 配置
 
 ```bash
 grub-mkconfig -o /boot/grub/grub.cfg
@@ -241,9 +293,9 @@ menuentry 'Microsoft Windows 10' {
 
 ##### Grub 主题
 
-- `grub-theme-vimix`Github: [https://github.com/Se7endAY/grub2-theme-vimix](https://github.com/Se7endAY/grub2-theme-vimix)
+- `grub-theme-vimix`Github: <https://github.com/Se7endAY/grub2-theme-vimix>
 - Dark Matter GRUB Theme
-  GitLab: [https://gitlab.com/VandalByte/darkmatter-grub-theme](https://gitlab.com/VandalByte/darkmatter-grub-theme)
+  GitLab: <https://gitlab.com/VandalByte/darkmatter-grub-theme>
 
 #### systemd-boot
 
@@ -252,8 +304,10 @@ systemd-boot 是 systemd 全家桶的一部分, 在 arch 不需要额外安装
 运行以下命令即可安装
 
 ```bash
-bootctl --esp-path=esp install
+bootctl --esp-path=<esp> install
 ```
+
+systemd-boot 使用教程请看此处: <https://wiki.archlinuxcn.org/wiki/Systemd-boot>
 
 #### rEFInd
 
@@ -264,6 +318,59 @@ refind-install
 > [!WARNING]
 > 当 refind-install 运行在chroot环境下 (例如：安装Arch Linux时的live环境) /boot/refind_linux.conf 内将会添加live系统的内核选项，而不是安装它的系统。
 > 编辑 /boot/refind_linux.conf 并确保其中的 内核参数 对于你的系统是正确的，否则下次启动可能会出现内核错误。
+
+## 系统配置
+
+### Swapspace
+
+#### 创建swapfile
+
+如果不想通过分区使用 swap, 可以创建 swapfile 作为 swapspace
+
+以下命令中的 /swapfile 可以是你想要的任何路径, 常用的路径有 `/swapfile`、`/swap.img`
+
+- 方式1 (Arch Linux 专用)
+
+  ```bash
+  mkswap -U clear --size 4G --file /swapfile
+  ```
+
+- 方式2 (快速, 所有发行版都支持)
+
+  ```bash
+  fallocate -l 8G /swapfile
+
+  chmod 0600 /swapfile
+  mkswap -U clear /swapfile
+  ```
+
+- 方式3
+
+  ```bash
+  # 创建指定大小的 swapfile, 示例中的实际大小为 1M x 8k = 8GB (bs x count)
+  dd if=/dev/zero of=/swapfile bs=1M count=8k status=progress
+
+  chmod 0600 /swapfile
+  mkswap -U clear /swapfile
+  ```
+
+创建完成后, 可以选择立即挂载Swap
+
+```bash
+swapon /swapfile
+```
+
+最后写入 /etc/fstab (如果你是在Arch安装过程, 挂载了swap, 并且还未运行genfstab, 可以跳过这一步, genfstab 会帮你写入)
+
+```bash
+# ...
+# Swap
+/swapfile           	none      	swap      	defaults  	0 0
+```
+
+### 休眠
+
+<!-- TODO -->
 
 ## pacman
 
@@ -326,10 +433,10 @@ Include = /etc/pacman.d/mirrorlist
 ```conf
 [archlinuxcn]
 ## 阿里云 (Global CDN)
-# Server = https://mirrors.aliyun.com/archlinuxcn/$arch
+Server = https://mirrors.aliyun.com/archlinuxcn/$arch
 
 ## 清华大学 (北京)
-Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+# Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
 ## 主仓库 (需要魔法)
 # Server = https://repo.archlinuxcn.org/$arch
 ```
@@ -402,18 +509,21 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `fish`                  | shell                            |
 | `fisher`                | shell 扩展管理                   |
 | **终端**                |                                  |
-| `yakuake`               | 终端                             |
+| `konsole`               | 终端                             |
+| `yakuake`               | 下拉终端                         |
 | `wezterm`               | 终端                             |
 | `kitty`                 | 终端                             |
 | **Shell 工具**          |                                  |
 | [`tmux`](./tmux.md)     | 终端复用                         |
 | `bat`                   | better cat                       |
 | `exa`                   | better ls                        |
-| `fzf`                   | 终端下的 select                  |
+| `fzf`                   | fuzzy finder                     |
 | `yazi`                  | 终端下的 explorer                |
 | `superfile`             | 终端下的文件管理器               |
 | `hyperfine`             | 命令行性能测试                   |
 | `mirro-rs`              | 查找速度最快的pacman镜像服务器   |
+| `btop`                  | 终端资源监视器                   |
+| `nvtop`                 | 终端GPU监视器                    |
 | **基础设施**            |                                  |
 | `watch`                 | watch 命令                       |
 | `lsblk`                 |                                  |
@@ -422,8 +532,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `lsusb`                 |                                  |
 | `cfdisk`                |                                  |
 | `efibootmgr`            | EFI 启动管理                     |
-| `btop`                  | 终端资源监视器                   |
-| `nvtop`                 | 终端GPU监视器                    |
 | `cpupower`              |                                  |
 | `turbostat`             | CPU 温度频率监测                 |
 | `btmgmt`                | BT 管理                          |
@@ -453,6 +561,12 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `gwenview`              | kde 图像查看器                   |
 | `gimp`                  | 修图                             |
 | `inkscape`              | 矢量图编辑                       |
+| `pureref`               | 多图片查看, 钉图, 编辑           |
+| **开发工具**            |                                  |
+| `neovide`               | nvim的GUI                        |
+| `blender`               | 建模                             |
+| **通信**                |                                  |
+| `thunderbird`           | 邮件                             |
 | **办公**                |                                  |
 | `okular`                | PDF/MD 阅读                      |
 | `onlyoffice`            | 仿微软办公套件                   |
@@ -473,6 +587,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `lutris`                | 游戏管理器                       |
 | `faugus-launcher`       | wine/proton 启动器               |
 | **远程**                |                                  |
+| `kdeconnect`            | 手机电脑局域网连接               |
+| `scrcpy`                | Android 屏幕远程控制             |
 | `remmina`               | 远程连接工具，支持VNC/RDP等      |
 | `rustdesk`              | 屏幕分享                         |
 | `frpc/frps`             | 内网穿透                         |
