@@ -2,7 +2,7 @@
 
 ## 网站
 
-Archlinux: <https://www.archlinux.org/>
+Archlinux: <https://www.archlinux.org/>  
 Archlinuxcn: <https://www.archlinuxcn.org/>
 
 ## 安装
@@ -23,7 +23,8 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 有线网络会自动连接, 不需要手动连接
 
-`ip link` 可以查看网络设备  
+`ip link` 可以查看网络设备, 确保你的网络设备有被列出
+
 `rfkill` 或者 `rfkill list` 查询网卡列表  
 如果网卡被禁用(SOFT blocked)可以使用 `rfkill unblock <device>` 解锁设备  
 如果 WIFI 未启用(HARD blocked), 使用 `ip link set <device> up` 启用设备
@@ -103,11 +104,11 @@ Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需
 
   ```bash
   # EFI 分区推荐挂载点
-  mount /dev/<sda1> /mnt/boot
+  mount --mkdir /dev/<sda1> /mnt/boot
 
   ## 其他分区
   # 例如你单独分配了 home 目录的分区
-  mount /dev/<sda3> /mnt/home
+  mount --mkdir /dev/<sda3> /mnt/home
   ```
 
 - swap分区 (如果你分配了swap的分区, 使用swapfile可以跳过这一步)
@@ -232,13 +233,13 @@ passwd <username>
 timedatectl set-ntp true
 ```
 
-### 4. 开机引导
+#### 3.11 开机引导
 
 常见的引导方式有 `Grub`、`systemd-boot`、`rEFInd` 选择一个引导方式即可
 
-#### grub
+##### grub
 
-##### 安装 grub
+###### 安装 grub
 
 `efibootmgr` 是 UEFI 启动方式的依赖, 如果是 BIOS 启动可以不用安装
 `os-prober` 是安装双系统推荐一并安装的依赖, 能够自动检测其他操作系统的 UEFI 启动项, 非双系统可以不安装
@@ -274,7 +275,7 @@ pacman -S grub [efibootmgr] [os-prober]
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-##### os-prober 找不到其他系统
+###### os-prober 找不到其他系统
 
 初次运行 grub-mkconfig 一般 os-prober 会找不到 Windows, 重启一次并重新生成 grub 配置就能检测到了
 
@@ -292,13 +293,13 @@ menuentry 'Microsoft Windows 10' {
 ### END /etc/grub.d/30_os-prober ###
 ```
 
-##### Grub 主题
+###### Grub 主题
 
 - `grub-theme-vimix`Github: <https://github.com/Se7endAY/grub2-theme-vimix>
 - Dark Matter GRUB Theme
   GitLab: <https://gitlab.com/VandalByte/darkmatter-grub-theme>
 
-#### systemd-boot
+##### systemd-boot
 
 systemd-boot 是 systemd 全家桶的一部分, 在 arch 不需要额外安装
 
@@ -310,7 +311,7 @@ bootctl --esp-path=<esp> install
 
 systemd-boot 使用教程请看此处: <https://wiki.archlinuxcn.org/wiki/Systemd-boot>
 
-#### rEFInd
+##### rEFInd
 
 ```bash
 refind-install
@@ -319,6 +320,92 @@ refind-install
 > [!WARNING]
 > 当 refind-install 运行在chroot环境下 (例如：安装Arch Linux时的live环境) /boot/refind_linux.conf 内将会添加live系统的内核选项，而不是安装它的系统。
 > 编辑 /boot/refind_linux.conf 并确保其中的 内核参数 对于你的系统是正确的，否则下次启动可能会出现内核错误。
+
+### 4. 重启
+
+安装完引导之后, `ctrl+d` 退出 chroot 环境, 重启电脑 (也可以在重启之前先把桌面装好)
+
+### 5. 后续操作
+
+#### 安装桌面环境
+
+建议创建一个非root用户再来安装桌面
+
+- KDE
+
+  参考 [KDE软件生态](#kde软件生态), 选择你需要的软件
+
+  ```bash
+  pacman -S plasma dolphin konsole yakuake zen-browser spectacle ark filelight
+  ```
+
+  然后设置自启sddm, sddm 是 kde 官方的会话管理器, 如果不喜欢你也可以换成别的
+
+  ```bash
+  systemctl enable sddm
+  ```
+
+  最后重启电脑即可
+
+#### 显卡驱动
+
+`mesa` 支持所有主流显卡, 基于 opengl
+
+```bash
+pacman -S mesa mesa-utils [lib32-mesa-utils]
+```
+
+- AMD
+
+  安装 Vulkan 驱动
+
+  ```bash
+  pacman -S vulkan-radeon [lib32-vulkan-radeon]
+  # 另一种选择, 但是不推荐
+  pacman -S amdvlk [lib32-amdvlk]
+  ```
+
+- Intel
+
+  安装 Vulkan 驱动
+
+  ```bash
+  pacman -S vulkan-intel [lib32-vulkan-intel]
+  ```
+
+  安装 VAAPI 驱动
+
+  ```bash
+  ## 对于新Intel显卡
+  # Intel Media Driver for VAAPI — Broadwell+ iGPUs
+  pacman -S intel-media-driver
+
+  ## 对于旧Intel显卡
+  # VA-API implementation for Intel G45 and HD Graphics family
+  pacman -S libva-intel-driver [lib32-libva-intel-driver]
+  ```
+
+- NVIDIA
+
+  首先安装主要驱动, 有NVIDIA官方驱动, 和社区开源驱动, 选择其一安装即可
+
+  官方驱动  
+  NVIDIA 官方提供了闭源和开源两种驱动, 分别是 `nvidia` 和 `nvidia-open`  
+  nvidia-utils 中包含了 vulkan 驱动
+
+  ```bash
+  pacman -S nvidia/nvidia-open nvidia-utils [lib32-nvidia-utils] [opencl-nvidia] [nvidia-prime]
+  ```
+
+#### 双显卡管理
+
+- envycontrol
+
+  `envycontrol -q` 查询当前模式
+
+  `envycontrol -s <mode>` 切换模式, 可选项：`hybrid`、`integrated`、`nvidia`
+
+  `envycontrol --reset` 重置
 
 ## 系统配置
 
@@ -552,7 +639,7 @@ ILoveCandy
 
 可选的 aur 助手有: [yay](#yay)、[paru](#paru), 选择喜欢的 Aur 助手安装即可, 使用 aur 助手代替 pacman
 
-### pacman 常用格式
+### pacman 常用命令
 
 以下为个人理解, 有些地方可能并不准确或非官方叫法
 
@@ -561,9 +648,11 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | 常用命令                       | 描述                                                              |
 | ------------------------------ | ----------------------------------------------------------------- |
 | `pacman -Syu`                  | 更新数据库(y)和软件包(u)                                          |
+| `pacman -S <软件包>`           | 安装软件包                                                        |
 | `pacman -Ss <regex>`           | 搜索软件包(s)                                                     |
 | `pacman -Si <软件包>`          | 查看软件包信息(i)                                                 |
 | `pacman -Syyuu`                | 强制更新数据库(yy)并升级/降级软件包(uu)                           |
+| `pacman --fm nvim -S <软件包>` | 安装软件包, 并在安装之前编辑 PKGBUILD (--fm)                      |
 | `pacman -Rsn <软件包>`         | 删除软件包以及相关依赖(s)和配置文件(n)                            |
 | `pacman -Rsnc <软件包>`        | 删除软件包以及相关依赖(s)和配置文件(n), 并且删除依赖它的软件包(c) |
 | `pacman -Rsndd <软件包>`       | 强制删除软件包以及相关依赖(s)和配置文件(n), 忽略依赖问题(dd)      |
@@ -573,7 +662,9 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `pacman -Qs <regex>`           | 搜索已安装的软件包(s)                                             |
 | `pacman -Qi <软件包>`          | 查看已安装的软件包信息(i)                                         |
 | `pacman -Qo <file>`            | 查询已安装的文件或命令所属软件包(o)                               |
-| `pacman -Qtdq`                 | 列出孤包(td), 不显示版本信息(q)                                   |
+| `pacman -Qtdq`                 | 列出孤包(td), 即不被需要(t)的软件包依赖(d), 不显示版本信息(q)     |
+| `pacman -Qeq`                  | 列出自己安装的软件包(e), 不显示版本信息(q)                        |
+| `pacman -Qteq`                 | 列出自己安装(e)的不被其他软件包依赖(t)的软件包, 不显示版本信息(q) |
 | `pacman -F <file>`             | 查询文件或命令所属软件包                                          |
 | `pacman -Fy`                   | 更新文件数据库(y)                                                 |
 | `pacman -U <file>`             | 从文件安装软件包(package.tar.gz)                                  |
@@ -750,9 +841,9 @@ BottomUp
 
 ## 桌面环境配置
 
-### KDE
+### KDE配置
 
-#### 软件生态
+#### KDE软件生态
 
 | 软件               | 描述                             |
 | ------------------ | -------------------------------- |
