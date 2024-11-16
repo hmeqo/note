@@ -99,9 +99,6 @@ Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需
   mount /dev/<sda2> /mnt
   ```
 
-  > [!NOTE]
-  > 如果你要创建swapfile, 这时候创建就很方便了, 直接创建到 `/mnt/swapfile`
-
 - 挂载EFI分区和其他分区
 
   ```bash
@@ -118,6 +115,10 @@ Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需
   ```bash
   swapon /dev/swap_partition
   ```
+
+> [!NOTE]
+> 如果你要创建swapfile, 挂载完 `/mnt` 就可以创建了, 创建到 `/mnt/swapfile`, [创建swapfile](#创建swapfile)  
+> 如果你提前创建了, `swapoff` 之后移动swapfile到 `/mnt` 下然后 `swapon` 即可
 
 ### 2. 安装
 
@@ -608,12 +609,15 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `nvtop`                 | 终端GPU监视器                    |
 | **基础设施**            |                                  |
 | `watch`                 | watch 命令                       |
+| `cfdisk`                |                                  |
 | `lsblk`                 |                                  |
 | `lscpu`                 |                                  |
 | `lspci`                 |                                  |
 | `lsusb`                 |                                  |
 | `cfdisk`                |                                  |
 | `efibootmgr`            | EFI 启动管理                     |
+| `df`                    |                                  |
+| `du`                    |                                  |
 | `cpupower`              |                                  |
 | `turbostat`             | CPU 温度频率监测                 |
 | `btmgmt`                | BT 管理                          |
@@ -769,3 +773,4 @@ BottomUp
 | `krdp`             | 远程桌面服务器                   |
 | `sweeper`          | 垃圾清理                         |
 | `kwalletmanager`   | KDE密钥管理                      |
+| `kdeconnect`       | 跨平台的手机电脑局域网连接工具   |
