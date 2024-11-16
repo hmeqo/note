@@ -8,7 +8,7 @@ Archlinuxcn: <https://www.archlinuxcn.org/>
 ## 安装
 
 > [!NOTE]
-> 编程中有许多特殊符号, 例如 <xxx> 代表根据实际情况填写的必填项, [xxx] 代表可选项, 请根据上下文自行判断
+> 编程中有许多特殊符号, 例如 \<xxx\> 代表根据实际情况填写的必填项, \[xxx\] 代表可选项, 请根据上下文自行判断
 
 可以配合官网步骤食用: <https://wiki.archlinux.org/title/Installation_guide>
 
@@ -52,8 +52,7 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB  
 Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需要把原来的 EFI 分区扩容到推荐大小即可
 
-个人想法, 物理内存小于等于 8G 时, Swap 分区大小推荐同等于物理内存或一半, 大于 8G 时推荐物理内存到 8G 之间  
-主要看个人需求, 如果你不需要休眠功能, Swap分小点够用就行, 需要休眠功能的话, Swap分大点
+对于swap分区/文件要分多大, 可以参考这里 [swapspace大小建议](#swapspace大小建议)
 
 然后对照下表设置分区的类型
 
@@ -66,7 +65,7 @@ Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需
 `cfdisk` 编辑完之后记得 `Write`, 否则你的更改不会生效
 
 > [!NOTE]
-> 也可以使用swapfile而非swap分区, 这样可以动态分配swapspace的大小, 无需调整分区, 可以等挂载完分区后再创建, [点击此处查看教程](#创建swapfile)  
+> 也可以使用swapfile而非swap分区, 这样可以动态分配swapspace的大小, 无需调整分区, 可以等挂载完分区后再创建, [创建swapfile](#创建swapfile)  
 > 在Arch安装过程中(非arch-chroot下), 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
 
 ##### 格式化分区
@@ -263,6 +262,7 @@ pacman -S grub [efibootmgr] [os-prober]
   ```
 
 - BIOS 安装方式
+
   ```bash
   grub-install /dev/xxx
   ```
@@ -323,6 +323,38 @@ refind-install
 
 ### Swapspace
 
+#### Swapspace大小建议
+
+参考来源 AI
+
+- 对于小内存系统（≤ 2GB）
+
+  交换分区大小建议为内存大小的 两倍。
+
+- 对于较大内存系统（> 2GB）
+
+  - 红帽官方建议：
+
+    - 内存 ≤ 4G，交换分区至少 4G。
+    - 内存为 4~16G，交换分区至少 8G。
+    - 内存为 16~64G，交换分区至少 16G。
+    - 内存为 64~256G，交换分区至少 32G。
+
+  - Ubuntu 的建议（针对是否需要休眠）：
+
+    - 物理内存 < 1G：
+      - 不需要休眠：交换分区 = 内存大小。
+      - 需要休眠：交换分区 = 内存大小的两倍（但不超过两倍）。
+    - 物理内存 ≥ 1G：
+      - 不需要休眠：交换分区 = √(RAM)。
+      - 需要休眠：交换分区 = RAM + √(RAM)，但不超过两倍内存大小。
+
+- 一般原则
+
+  - 不频繁使用大内存应用：可以参考上述建议的较小值，或者根据实际使用情况调整。
+  - 频繁使用大内存应用或服务：可能需要更大的交换分区，但应避免过度依赖交换分区，以免影响系统性能。
+  - 休眠功能：确保交换分区足够大，以容纳所有内存内容，通常意味着交换分区的大小至少应等于物理内存大小。
+
 #### 创建swapfile
 
 如果不想通过分区使用 swap, 可以创建 swapfile 作为 swapspace
@@ -370,7 +402,59 @@ swapon /swapfile
 
 ### 休眠
 
-<!-- TODO -->
+#### 添加休眠钩子
+
+编辑 `/etc/mkinitcpio.conf` 文件, 找到 HOOKS 配置项
+
+有两种情况
+
+- 对于udev
+
+  参考以下代码, 将 `resume` 添加到 udev 之后
+
+  ```conf
+  HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems resume fsck)
+  ```
+
+- 对于systemd
+
+  Systemd 钩子, 自带resume, 不需要手动添加
+
+  ```conf
+  HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block filesystems fsck)
+  ```
+
+> [!NOTE]
+> If stacked storage is used for the swap space, e.g. dm-crypt, RAID or LVM, the final mapped device must be available in the early userspace and before the resume process is initiated. I.e. the resume hook must be placed after hooks like encrypt, lvm2, etc. in such setups.
+
+#### 添加内核参数
+
+使用 `blkid /dev/nvme0n1p1`, 查看 UUID, 写入到内核参数, 格式 `resume=UUID=xxxxxx`
+
+示例:
+
+```bash
+❯ sudo blkid /dev/nvme0n1p1
+/dev/nvme0n1p1: LABEL="archlinux" UUID="4483df75-6a1d-42a1-9a3e-66406b7a9cac" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="1cf11453-a83c-4dd9-9f88-28a24754818f"
+```
+
+对于 swapfile, 需要额外加上 `resume_offset=xxxxxx`, 表示偏移量, 偏移量可以通过此命令快速获取 `filefrag -v <swap_file> | awk '$1=="0:" {print substr($4, 1, length($4)-2)}'`
+
+示例:
+
+```bash
+❯ sudo filefrag -v /swap.img | awk '$1=="0:" {print substr($4, 1, length($4)-2)}'
+3643392
+```
+
+完成后的内核参数示例:
+
+```bash
+... root=UUID=4483df75-6a1d-42a1-9a3e-66406b7a9cac rw splash resume=UUID=4483df75-6a1d-42a1-9a3e-66406b7a9cac resume_offset=3643392
+```
+
+> [!NOTE]
+> 如果你的引导方式是 Grub, 需通过 `/etc/default/grub` 修改内核参数, 完成后记得 `sudo mkinitcpio`
 
 ## pacman
 
@@ -386,7 +470,7 @@ pacman-key --init
 pacman-key --populate archlinux
 ```
 
-### 配置
+### 配置pacman
 
 #### 多线程下载
 
@@ -402,7 +486,7 @@ ParallelDownloads = 5
 
 #### 颜色
 
-在 pacman 配置文件中取消注释 `Color`
+在 pacman 配置文件中取消 `Color` 的注释
 
 ```confini
 [options]
@@ -542,11 +626,13 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `dig`                   | 域名解析工具                     |
 | `nslookup`              | 域名解析工具                     |
 | `netstat`               | 网络状态                         |
+| `nftables`              | 安装 iptables-nft 包即可         |
 | **GUI 工具**            |                                  |
 | `pavu-control`          | pipewire GUI                     |
 | `qpwgraph`              | 音频控制                         |
 | `mission-center`        | 类 Windows 任务管理器            |
 | `cpu-x`                 | CPU 信息监测                     |
+| `qalculate`             | 计算器                           |
 | **视频**                |                                  |
 | `vlc`                   | 视频播放器                       |
 | `mpv`                   | 精简视频播放器                   |
@@ -641,11 +727,11 @@ cd paru
 makepkg -si
 ```
 
-#### 配置
+#### 配置paru
 
 配置文件路径: `/etc/paru.conf`
 
-##### 倒叙排序
+##### 搜索结果倒叙排序
 
 在paru配置中取消注释 `BottomUp`
 
