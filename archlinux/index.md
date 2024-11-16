@@ -172,7 +172,7 @@ arch-chroot /mnt
 # 复制时区文件
 ln -sf /usr/share/zoneinfo/<Region>/<City> /etc/localtime
 # 生成 /etc/adjtime
-hwclock --systohc
+hwc/alock --systohc
 ```
 
 #### 3.4 设置地区
@@ -435,9 +435,7 @@ Include = /etc/pacman.d/mirrorlist
 ## 阿里云 (Global CDN)
 Server = https://mirrors.aliyun.com/archlinuxcn/$arch
 
-## 清华大学 (北京)
-# Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
-## 主仓库 (需要魔法)
+# ## 主仓库 (需要魔法)
 # Server = https://repo.archlinuxcn.org/$arch
 ```
 
@@ -628,7 +626,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 ```bash
 sudo pacman -S --needed base-devel
 git clone https://aur.archlinux.org/yay.git
-cd paru
+cd yay
 makepkg -si
 ```
 
