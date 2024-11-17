@@ -19,6 +19,18 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 ### 1. 准备
 
+#### 获取系统信息
+
+判断BIOS类型, 分区表类型
+
+#### 硬件准备
+
+一个刻录了安装镜像的U盘, 一台电脑
+
+#### 插入U盘
+
+重启, 在BIOS界面选择通过U盘启动
+
 #### WIFI 网络连接
 
 有线网络会自动连接, 不需要手动连接
@@ -48,12 +60,12 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 几种主要的分区方案:
 
 - 一个EFI分区(对于UEFI) + 一个Linux文件系统分区(必须) + 一个swap分区(可选)
-- 一个EFI分区(对于UEFI) + 一个Linux文件系统分区(必须) + 一个swap分区(可选) + 一个home目录分区(可选)
+- 一个EFI分区(对于UEFI) + 一个Linux文件系统分区(必须) + 一个home目录分区(可选) + 一个swap分区(可选)
 
 如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB  
 Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需要把原来的 EFI 分区扩容到推荐大小即可
 
-对于swap分区/文件要分多大, 可以参考这里 [swapspace大小建议](#swapspace大小建议)
+swap分区建议放在最后, 以后如果需要修改比较方便, 对于swap分区/文件要分多大, 可以参考这里 [swapspace大小建议](#swapspace大小建议)
 
 然后对照下表设置分区的类型
 
@@ -235,11 +247,20 @@ timedatectl set-ntp true
 
 #### 3.11 开机引导
 
-常见的引导方式有 `Grub`、`systemd-boot`、`rEFInd` 选择一个引导方式即可
+常见的引导方式有下面几种, 选择一个硬件支持的引导方式即可
 
-##### grub
+| 引导方式                        | BIOS 固件 | UEFI 固件 | MBR 分区表 | GPT 分区表 |                    |
+| ------------------------------- | --------- | --------- | ---------- | ---------- | ------------------ |
+| [`GRUB`](#grub)                 | 支持      | 支持      | 支持       | 支持       | 不知道选啥就选这个 |
+| [`rEFInd`](#refind)             | 不支持    | 支持      | 支持       | 支持       | 双系统推荐         |
+| [`systemd-boot`](#systemd-boot) | 不支持    | 支持      | 手动       | 支持       | 简单省事           |
+| syslinux                        | 支持      | 部分支持  | 支持       | 支持       |                    |
 
-###### 安装 grub
+参考文档: <https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader>
+
+##### GRUB
+
+###### 安装GRUB
 
 `efibootmgr` 是 UEFI 启动方式的依赖, 如果是 BIOS 启动可以不用安装
 `os-prober` 是安装双系统推荐一并安装的依赖, 能够自动检测其他操作系统的 UEFI 启动项, 非双系统可以不安装
@@ -409,6 +430,32 @@ pacman -S mesa mesa-utils [lib32-mesa-utils]
 
 ## 系统配置
 
+### 修改分区表
+
+编辑 `/etc/fstab`, 按照这样的格式编写  
+`<file system> <dir> <type> <options> <dump> <pass>`  
+分别代表:
+
+- `<file system>` 文件系统, 填写 `UUID=xxx`, 或者 `/dev/xxx`
+- `<dir>` 挂载点, 对于 swap 或没有挂载点的分区, 填 `none`
+- `<type>` 分区类型
+- `<options>` 挂载选项, 默认值 `defaults`
+- `<dump>` 备份, 填 `0` 即可
+  此选项广泛用于 ext2/3 文件系统和磁带备份, 如今, 由于更新的文件系统和实用程序, 它已经过时了, 可选值有
+  - `0`: 不备份
+  - `1`: 备份
+- `<pass>` 系统启动后通过`fsck`检查, 可选值有
+  - `0`: 不检查
+  - `1`: 检查
+  - `2`: 在1之后检查，但不一定检查
+
+示例 :
+
+```fstab
+UUID=xxx  /    ext4 rw,relatime 0 1
+UUID=xxxx /xxx ext4 defaults    0 2
+```
+
 ### Swapspace
 
 #### Swapspace大小建议
@@ -485,7 +532,7 @@ swapon /swapfile
 ```bash
 # ...
 # Swap
-/swapfile           	none      	swap      	defaults  	0 0
+/swapfile             none        swap        defaults    0 0
 ```
 
 ### 休眠
@@ -645,6 +692,8 @@ ILoveCandy
 
 pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 
+常用的 Operator 有 `-S` (同步/安装)、`-R` (卸载)、`-Q` (查询本地)
+
 | 常用命令                       | 描述                                                              |
 | ------------------------------ | ----------------------------------------------------------------- |
 | `pacman -Syu`                  | 更新数据库(y)和软件包(u)                                          |
@@ -659,8 +708,9 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `pacman -c`                    | 删除不再需要的软件包 (不推荐, 不会删除软件包的依赖)               |
 | `pacman -Rsnc $(pacman -Qtdq)` | 删除所有孤包 (推荐)                                               |
 | `pacman -Q`                    | 列出已安装的软件包                                                |
-| `pacman -Qs <regex>`           | 搜索已安装的软件包(s)                                             |
-| `pacman -Qi <软件包>`          | 查看已安装的软件包信息(i)                                         |
+| `pacman -Qs <regex>`           | 搜索软件包(s)                                                     |
+| `pacman -Qi <软件包>`          | 查看软件包信息(i)                                                 |
+| `pacman -Ql <软件包>`          | 查看软件包的文件路径(l)                                           |
 | `pacman -Qo <file>`            | 查询已安装的文件或命令所属软件包(o)                               |
 | `pacman -Qtdq`                 | 列出孤包(td), 即不被需要(t)的软件包依赖(d), 不显示版本信息(q)     |
 | `pacman -Qeq`                  | 列出自己安装的软件包(e), 不显示版本信息(q)                        |
@@ -777,7 +827,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `v2raya`                | v2ray web ui                     |
 | `nekoray`               | sing-box GUI                     |
 | `clash-verge-rev`       | clash-meta GUI                   |
-| **搞怪**                |                                  |
+| **玩具**                |                                  |
 | `lolcat`                | 渐变色输出                       |
 | `sl`                    | 火车                             |
 | `cmatrix`               | 黑客字幕                         |
@@ -787,13 +837,13 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `cowsay`                | 奶牛说                           |
 | `asciiquarium`          | 水族馆                           |
 | `nyancat`               | 彩虹猫                           |
-| **玩具**                |                                  |
 | `carbonyl`              | 终端浏览器                       |
 | `GriddyCode`            | 代码编辑器                       |
 | **其他**                |                                  |
 | `teamspeak3`            | 语音服务器                       |
 | `motrix`                | 下载工具                         |
 | `wireshark`             | 网络分析工具                     |
+| `alist`                 | 整合各种网盘                     |
 | **字体**                |                                  |
 | `noto-fonts-cjk`        | 中文                             |
 | `noto-fonts-emoji`      | 表情                             |
