@@ -5,6 +5,9 @@
 Archlinux: <https://www.archlinux.org/>  
 Archlinuxcn: <https://www.archlinuxcn.org/>
 
+> [!NOTE]
+> 本文所有引用部分均来自 archwiki
+
 ## 安装
 
 可以配合官网步骤食用: <https://wiki.archlinux.org/title/Installation_guide>
@@ -257,11 +260,11 @@ timedatectl set-ntp true
 | 引导方式                        | BIOS 固件 | UEFI 固件 | MBR 分区表 | GPT 分区表 |                    |
 | ------------------------------- | --------- | --------- | ---------- | ---------- | ------------------ |
 | [`GRUB`](#grub)                 | 支持      | 支持      | 支持       | 支持       | 不知道选啥就选这个 |
-| [`rEFInd`](#refind)             | 不支持    | 支持      | 支持       | 支持       | 双系统推荐         |
 | [`systemd-boot`](#systemd-boot) | 不支持    | 支持      | 手动       | 支持       | 简单省事           |
+| [`rEFInd`](#refind)             | 不支持    | 支持      | 支持       | 支持       | 双系统推荐         |
 | syslinux                        | 支持      | 部分支持  | 支持       | 支持       |                    |
 
-参考文档: <https://wiki.archlinux.org/title/Arch_boot_process#Boot_loader>
+参考文档: <https://wiki.archlinuxcn.org/wiki/Arch_%E7%9A%84%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B#%E5%BC%95%E5%AF%BC%E5%8A%A0%E8%BD%BD%E7%A8%8B%E5%BA%8F>
 
 ##### GRUB
 
@@ -349,46 +352,74 @@ refind-install
 
 ### 4. 重启
 
-安装完引导之后, `ctrl+d` 退出 chroot 环境, 重启电脑 (也可以在重启之前先把桌面装好)
+安装完引导之后, `ctrl+d` 退出 chroot 环境, 重启电脑 (也可以先把后续操作做完再重启)
 
 ### 5. 后续操作
 
+#### 考虑启用pacman的multilib和AUR
+
+- [multilib软件仓库](#multilib软件仓库)
+- [archlinuxcn软件仓库](#archlinuxcn软件仓库)
+- [安装AUR助手](#安装aur助手)
+
 #### 安装桌面环境
 
-建议创建一个非root用户再来安装桌面
+强烈建议创建一个非root用户再来使用桌面
 
 - KDE
 
-  参考 [KDE软件生态](#kde软件生态), 选择你需要的软件
+  可以参考 [KDE软件生态](#kde软件生态), 选择你需要的软件  
+  sddm 是 kde 官方的会话管理器, 如果不喜欢你也可以换成别的
 
   ```bash
-  pacman -S plasma dolphin konsole yakuake zen-browser spectacle ark filelight
-  ```
+  pacman -S sddm plasma dolphin konsole yakuake zen-browser spectacle ark filelight
 
-  然后设置自启sddm, sddm 是 kde 官方的会话管理器, 如果不喜欢你也可以换成别的
-
-  ```bash
+  # 然后设置sddm开机自启, 记得要重启电脑
   systemctl enable sddm
   ```
 
-  最后重启电脑即可
+#### 安装各种驱动
 
-#### 显卡驱动
+- [音频和视频驱动](#音频和视频驱动)
+- [显卡驱动](#显卡驱动)
 
-`mesa` 支持所有主流显卡, 基于 opengl
+## 系统配置
+
+### 音频和视频驱动
 
 ```bash
-pacman -S mesa mesa-utils [lib32-mesa-utils]
+pacman -S pipewire pipewire-pulse pipewire-alsa pipewire-jack
+# for multilib
+pacman -S lib32-pipewire lib32-pipewire-jack
 ```
+
+### 显卡驱动
+
+注: 独显核显都需要安装驱动
+
+- 通用
+
+  `mesa` 开源 OpenGL 驱动, 支持所有主流显卡
+
+  ```bash
+  pacman -S mesa mesa-utils
+  # for multilib
+  pacman -S lib32-mesa-utils
+  ```
 
 - AMD
 
   安装 Vulkan 驱动
 
   ```bash
-  pacman -S vulkan-radeon [lib32-vulkan-radeon]
+  pacman -S vulkan-radeon
+  # for multilib
+  pacman -S lib32-vulkan-radeon
+
   # 另一种选择, 但是不推荐
-  pacman -S amdvlk [lib32-amdvlk]
+  pacman -S amdvlk
+  # for multilib
+  pacman -S lib32-amdvlk
   ```
 
 - Intel
@@ -396,19 +427,9 @@ pacman -S mesa mesa-utils [lib32-mesa-utils]
   安装 Vulkan 驱动
 
   ```bash
-  pacman -S vulkan-intel [lib32-vulkan-intel]
-  ```
-
-  安装 VAAPI 驱动
-
-  ```bash
-  ## 对于新Intel显卡
-  # Intel Media Driver for VAAPI — Broadwell+ iGPUs
-  pacman -S intel-media-driver
-
-  ## 对于旧Intel显卡
-  # VA-API implementation for Intel G45 and HD Graphics family
-  pacman -S libva-intel-driver [lib32-libva-intel-driver]
+  pacman -S vulkan-intel
+  # for multilib
+  pacman -S lib32-vulkan-intel
   ```
 
 - NVIDIA
@@ -419,11 +440,45 @@ pacman -S mesa mesa-utils [lib32-mesa-utils]
   NVIDIA 官方提供了闭源和开源两种驱动, 分别是 `nvidia` 和 `nvidia-open`  
   nvidia-utils 中包含了 vulkan 驱动
 
+  **注意: 对于非标准内核 (比如linux-zen), 请安装 nvidia-dkms / nvidia-open-dkms**
+
   ```bash
-  pacman -S nvidia/nvidia-open nvidia-utils [lib32-nvidia-utils] [opencl-nvidia] [nvidia-prime]
+  pacman -S nvidia-open nvidia-utils [opencl-nvidia] [nvidia-prime]
+  # for multilib
+  pacman -S lib32-nvidia-utils
   ```
 
-#### 双显卡管理
+#### VA-API 视频加速
+
+详情看这里: <https://wiki.archlinuxcn.org/wiki/%E7%A1%AC%E4%BB%B6%E8%A7%86%E9%A2%91%E5%8A%A0%E9%80%9F#%E5%AE%89%E8%A3%85>
+
+- Intel
+
+  对于新Intel显卡
+
+  ```bash
+  # Intel Media Driver for VAAPI — Broadwell+ iGPUs
+  pacman -S intel-media-driver
+  ```
+
+  对于旧Intel显卡
+
+  ```bash
+  # VA-API implementation for Intel G45 and HD Graphics family
+  pacman -S libva-intel-driver
+  # for multilib
+  pacman -S lib32-libva-intel-driver
+  ```
+
+  检验 VA-API: <https://wiki.archlinuxcn.org/wiki/%E7%A1%AC%E4%BB%B6%E8%A7%86%E9%A2%91%E5%8A%A0%E9%80%9F#%E6%A3%80%E9%AA%8C_VA-API>
+
+### 双显卡管理
+
+- switcheroo-control
+
+  记得启用服务 `sudo systemctl enable --now switcheroo-control`
+
+  然后你应该能在桌面环境编辑.desktop的属性时看到使用独立显卡的选项
 
 - envycontrol
 
@@ -433,23 +488,32 @@ pacman -S mesa mesa-utils [lib32-mesa-utils]
 
   `envycontrol --reset` 重置
 
-## 系统配置
+### fstab
 
-### 修改分区表
+archwiki: <https://wiki.archlinuxcn.org/wiki/Fstab>
 
-编辑 `/etc/fstab`, 按照这样的格式编写  
+> fstab(5)文件可用于定义磁盘分区，各种其他块设备或远程文件系统应如何装入文件系统。  
+> 每个文件系统在一个单独的行中描述。这些定义将在引导时动态地转换为系统挂载单元，并在系统管理器的配置重新加载时转换。在启动需要挂载的服务之前，默认设置会自动 fsck 和挂载文件系统。例如，Systemd 会自动确保远程文件系统挂载（如 NFS 或 Samba ）仅在网络设置完成后启动。因此，在 /etc/fstab 中指定的本地和远程文件系统挂载应该是开箱即用的。有关详细信息，请参阅 systemd.mount(5) 。  
+> mount命令将使用fstab，如果仅给出其中一个目录或设备，则填充其他参数的值。 这样做时，也将使用 fstab 中列出的挂载选项。  
+> 编辑 `/etc/fstab`, 按照这样的格式编写  
+
 `<file system> <dir> <type> <options> <dump> <pass>`  
 分别代表:
 
 - `<file system>` 文件系统, 填写 `UUID=xxx`, 或者 `/dev/xxx`
 - `<dir>` 挂载点, 对于 swap 或没有挂载点的分区, 填 `none`
 - `<type>` 分区类型
-- `<options>` 挂载选项, 默认值 `defaults`
-- `<dump>` 备份, 填 `0` 即可
-  此选项广泛用于 ext2/3 文件系统和磁带备份, 如今, 由于更新的文件系统和实用程序, 它已经过时了, 可选值有
+- `<options>` 挂载选项  
+  可选值(可多选, 用 `,` 分隔):
+  - `defaults`: 默认
+- `<dump>` 备份  
+  此选项广泛用于 ext2/3 文件系统和磁带备份, 如今, 由于更新的文件系统和实用程序, 它已经过时了, 填 `0` 即可  
+  可选值:
   - `0`: 不备份
   - `1`: 备份
-- `<pass>` 系统启动后通过`fsck`检查, 可选值有
+- `<pass>` 系统启动后通过`fsck`检查  
+  通常给根分区设置`1`其余分区设置`2`或`0`  
+  可选值:
   - `0`: 不检查
   - `1`: 检查
   - `2`: 在1之后检查，但不一定检查
@@ -637,9 +701,9 @@ Color
 ...
 ```
 
-#### pacman 的其他软件源
+#### pacman的其他软件仓库
 
-##### 32 位软件源
+##### multilib软件仓库
 
 安装Steam或其他32位软件包需要此软件源, 在 pacman 配置文件中取消注释 multilib 部分然后运行 `sudo pacman -Sy`
 
@@ -648,7 +712,7 @@ Color
 Include = /etc/pacman.d/mirrorlist
 ```
 
-##### archlinuxcn 源
+##### archlinuxcn软件仓库
 
 > Arch Linux 中文社区仓库是由 Arch Linux 中文社区驱动的非官方软件仓库，包含许多官方仓库未提供的额外的软件包，以及已有软件的 git 版本等变种。一部分软件包的打包脚本来源于 AUR，但也有许多包与 AUR 不一样。
 
@@ -678,25 +742,20 @@ pacman -Sy archlinuxcn-keyring
 pacman-key --lsign-key "farseerfc@archlinux.org"
 ```
 
-#### 彩蛋
+#### Arch 用户软件仓库 (AUR)
 
-在 pacman 配置中加入 `ILoveCandy`, 进度条会被替换成吃豆人
-
-```confini
-[options]
-ILoveCandy
-```
-
-### Arch 用户软件仓库 (AUR)
-
-> Arch 用户软件仓库（Arch User Repository，AUR）是为用户而建、由用户主导的 Arch Linux 软件仓库。AUR 中的软件包以软件包生成脚本（PKGBUILD）的形式提供，用户自己通过 makepkg 生成包，再由 pacman 安装。创建 AUR 的初衷是方便用户维护和分享新软件包，并由官方定期从中挑选软件包进入 extra 仓库。本文介绍用户访问和使用 AUR 的方法。
-
+> Arch 用户软件仓库（Arch User Repository，AUR）是为用户而建、由用户主导的 Arch Linux 软件仓库。AUR 中的软件包以软件包生成脚本（PKGBUILD）的形式提供，用户自己通过 makepkg 生成包，再由 pacman 安装。创建 AUR 的初衷是方便用户维护和分享新软件包，并由官方定期从中挑选软件包进入 extra 仓库。本文介绍用户访问和使用 AUR 的方法。  
 > 许多官方仓库软件包都来自 AUR。通过 AUR，大家相互分享新的软件包生成脚本（PKGBUILD 和其他相关文件）。用户还可以为软件包投票。如果一个软件包投票足够多、没有许可证问题、打包质量好，那么它就很有希望被收录进官方 community 仓库（以后就可以直接通过 pacman 或 abs 安装了）。
 
 > [!WARNING]
 > 警告： AUR 中的软件包是由其他用户编写的，这些 PKGBUILD 完全是非官方的，未经彻底审查。使用这些文件的风险由您自行承担。
 
-#### 手动安装AUR软件包
+##### 安装AUR助手
+
+AUR助手帮你省去了上网站搜索AUR包, 克隆仓库手动执行命令的过程, 还能自动更新  
+可选的 aur 助手有: [yay](#yay)、[paru](#paru), 使用 aur 助手代替 pacman
+
+##### 手动安装AUR软件包
 
 如果你没有AUR助手, 又需要安装AUR软件包, 可以通过以下步骤安装
 
@@ -708,10 +767,15 @@ cd <包名>
 makepkg -si
 ```
 
-#### 安装AUR助手
 
-AUR助手帮你省去了上网站搜索AUR包, 克隆仓库手动执行命令的过程, 还能自动判断更新  
-可选的 aur 助手有: [yay](#yay)、[paru](#paru), 使用 aur 助手代替 pacman
+#### 彩蛋
+
+在 pacman 配置中加入 `ILoveCandy`, 进度条会被替换成吃豆人
+
+```confini
+[options]
+ILoveCandy
+```
 
 ### pacman以及AUR助手常用命令
 
@@ -796,6 +860,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `btmgmt`                | Bluetooth 管理                   |
 | `pw-top`                | pipewire top                     |
 | `power-profiles-deamon` | 电源管理                         |
+| `pamixer`               |                                  |
+| `brightnessctl`         |                                  |
 | **GPU**                 |                                  |
 | `intel_gpu_top`         |                                  |
 | `nvidia-smi`            |                                  |
