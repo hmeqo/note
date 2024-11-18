@@ -495,7 +495,7 @@ archwiki: <https://wiki.archlinuxcn.org/wiki/Fstab>
 > fstab(5)文件可用于定义磁盘分区，各种其他块设备或远程文件系统应如何装入文件系统。  
 > 每个文件系统在一个单独的行中描述。这些定义将在引导时动态地转换为系统挂载单元，并在系统管理器的配置重新加载时转换。在启动需要挂载的服务之前，默认设置会自动 fsck 和挂载文件系统。例如，Systemd 会自动确保远程文件系统挂载（如 NFS 或 Samba ）仅在网络设置完成后启动。因此，在 /etc/fstab 中指定的本地和远程文件系统挂载应该是开箱即用的。有关详细信息，请参阅 systemd.mount(5) 。  
 > mount命令将使用fstab，如果仅给出其中一个目录或设备，则填充其他参数的值。 这样做时，也将使用 fstab 中列出的挂载选项。  
-> 编辑 `/etc/fstab`, 按照这样的格式编写  
+> 编辑 `/etc/fstab`, 按照这样的格式编写
 
 `<file system> <dir> <type> <options> <dump> <pass>`  
 分别代表:
@@ -674,9 +674,7 @@ pacman-key --init
 pacman-key --populate archlinux
 ```
 
-### 配置pacman
-
-#### 多线程下载
+### 多线程下载
 
 在 pacman 配置文件找到并取消注释 `ParallelDownloads`
 
@@ -688,7 +686,7 @@ ParallelDownloads = 5
 ...
 ```
 
-#### 颜色
+### 颜色
 
 在 pacman 配置文件中取消 `Color` 的注释
 
@@ -701,9 +699,9 @@ Color
 ...
 ```
 
-#### pacman的其他软件仓库
+### pacman的其他软件仓库
 
-##### multilib软件仓库
+#### multilib软件仓库
 
 安装Steam或其他32位软件包需要此软件源, 在 pacman 配置文件中取消注释 multilib 部分然后运行 `sudo pacman -Sy`
 
@@ -712,7 +710,7 @@ Color
 Include = /etc/pacman.d/mirrorlist
 ```
 
-##### archlinuxcn软件仓库
+#### archlinuxcn软件仓库
 
 > Arch Linux 中文社区仓库是由 Arch Linux 中文社区驱动的非官方软件仓库，包含许多官方仓库未提供的额外的软件包，以及已有软件的 git 版本等变种。一部分软件包的打包脚本来源于 AUR，但也有许多包与 AUR 不一样。
 
@@ -767,8 +765,7 @@ cd <包名>
 makepkg -si
 ```
 
-
-#### 彩蛋
+### 彩蛋
 
 在 pacman 配置中加入 `ILoveCandy`, 进度条会被替换成吃豆人
 
