@@ -7,10 +7,14 @@ Archlinuxcn: <https://www.archlinuxcn.org/>
 
 ## 安装
 
+可以配合官网步骤食用: <https://wiki.archlinux.org/title/Installation_guide>
+
 > [!NOTE]
 > 编程中有许多特殊符号, 例如 \<xxx\> 代表根据实际情况填写的必填项, \[xxx\] 代表可选项, 请根据上下文自行判断
 
-可以配合官网步骤食用: <https://wiki.archlinux.org/title/Installation_guide>
+> [!WARNING]
+> Arch Linux 安装过程没有图形界面, 所有编辑操作都是在终端  
+> 本文默认你能使用任何一种终端编辑器, 不会用请自行学习后再来, 建议学习 `vim`
 
 ### 视频教程
 
@@ -158,11 +162,12 @@ pacman -Sy archlinux-keyring
 #### 安装基本软件包
 
 根据 CPU 选择安装 `intel-ucode` (Intel CPU) 或 `amd-ucode` (Amd CPU)  
-这个安装项是可选的，如果装不了可以不用管  
-不会用 `vi/vim/neovim` 可以装 `nano`
+这个安装项是可选的，如果装不了可以不用管
+
+`vi/vim/neovim` 是一种常用的终端文件编辑器, 不会用可以装 `nano`
 
 ```bash
-pacstrap -K /mnt base base-devel linux-zen linux-zen-headers linux-firmware vi vim neovim networkmanager [intel-ucode/amd-ucode]
+pacstrap -K /mnt base base-devel linux-zen linux-zen-headers linux-firmware [intel-ucode/amd-ucode] [vi/vim/neovim/nano] networkmanager git
 ```
 
 ### 3. 配置系统
@@ -682,11 +687,33 @@ pacman-key --lsign-key "farseerfc@archlinux.org"
 ILoveCandy
 ```
 
-### Aur 助手安装
+### Arch 用户软件仓库 (AUR)
 
-可选的 aur 助手有: [yay](#yay)、[paru](#paru), 选择喜欢的 Aur 助手安装即可, 使用 aur 助手代替 pacman
+> Arch 用户软件仓库（Arch User Repository，AUR）是为用户而建、由用户主导的 Arch Linux 软件仓库。AUR 中的软件包以软件包生成脚本（PKGBUILD）的形式提供，用户自己通过 makepkg 生成包，再由 pacman 安装。创建 AUR 的初衷是方便用户维护和分享新软件包，并由官方定期从中挑选软件包进入 extra 仓库。本文介绍用户访问和使用 AUR 的方法。
 
-### pacman 常用命令
+> 许多官方仓库软件包都来自 AUR。通过 AUR，大家相互分享新的软件包生成脚本（PKGBUILD 和其他相关文件）。用户还可以为软件包投票。如果一个软件包投票足够多、没有许可证问题、打包质量好，那么它就很有希望被收录进官方 community 仓库（以后就可以直接通过 pacman 或 abs 安装了）。
+
+> [!WARNING]
+> 警告： AUR 中的软件包是由其他用户编写的，这些 PKGBUILD 完全是非官方的，未经彻底审查。使用这些文件的风险由您自行承担。
+
+#### 手动安装AUR软件包
+
+如果你没有AUR助手, 又需要安装AUR软件包, 可以通过以下步骤安装
+
+首先确认AUR包名, 然后执行以下命令
+
+```bash
+git clone https://aur.archlinux.org/<包名>.git
+cd <包名>
+makepkg -si
+```
+
+#### 安装AUR助手
+
+AUR助手帮你省去了上网站搜索AUR包, 克隆仓库手动执行命令的过程, 还能自动判断更新  
+可选的 aur 助手有: [yay](#yay)、[paru](#paru), 使用 aur 助手代替 pacman
+
+### pacman以及AUR助手常用命令
 
 以下为个人理解, 有些地方可能并不准确或非官方叫法
 
@@ -694,31 +721,33 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 
 常用的 Operator 有 `-S` (同步/安装)、`-R` (卸载)、`-Q` (查询本地)
 
-| 常用命令                       | 描述                                                              |
-| ------------------------------ | ----------------------------------------------------------------- |
-| `pacman -Syu`                  | 更新数据库(y)和软件包(u)                                          |
-| `pacman -S <软件包>`           | 安装软件包                                                        |
-| `pacman -Ss <regex>`           | 搜索软件包(s)                                                     |
-| `pacman -Si <软件包>`          | 查看软件包信息(i)                                                 |
-| `pacman -Syyuu`                | 强制更新数据库(yy)并升级/降级软件包(uu)                           |
-| `pacman --fm nvim -S <软件包>` | 安装软件包, 并在安装之前编辑 PKGBUILD (--fm)                      |
-| `pacman -Rsn <软件包>`         | 删除软件包以及相关依赖(s)和配置文件(n)                            |
-| `pacman -Rsnc <软件包>`        | 删除软件包以及相关依赖(s)和配置文件(n), 并且删除依赖它的软件包(c) |
-| `pacman -Rsndd <软件包>`       | 强制删除软件包以及相关依赖(s)和配置文件(n), 忽略依赖问题(dd)      |
-| `pacman -c`                    | 删除不再需要的软件包 (不推荐, 不会删除软件包的依赖)               |
-| `pacman -Rsnc $(pacman -Qtdq)` | 删除所有孤包 (推荐)                                               |
-| `pacman -Q`                    | 列出已安装的软件包                                                |
-| `pacman -Qs <regex>`           | 搜索软件包(s)                                                     |
-| `pacman -Qi <软件包>`          | 查看软件包信息(i)                                                 |
-| `pacman -Ql <软件包>`          | 查看软件包的文件路径(l)                                           |
-| `pacman -Qo <file>`            | 查询已安装的文件或命令所属软件包(o)                               |
-| `pacman -Qtdq`                 | 列出孤包(td), 即不被需要(t)的软件包依赖(d), 不显示版本信息(q)     |
-| `pacman -Qeq`                  | 列出自己安装的软件包(e), 不显示版本信息(q)                        |
-| `pacman -Qteq`                 | 列出自己安装(e)的不被其他软件包依赖(t)的软件包, 不显示版本信息(q) |
-| `pacman -F <file>`             | 查询文件或命令所属软件包                                          |
-| `pacman -Fy`                   | 更新文件数据库(y)                                                 |
-| `pacman -U <file>`             | 从文件安装软件包(package.tar.gz)                                  |
-| `paru -Gc <软件包>`            | 查看aur软件包评论                                                 |
+| 常用命令                       | 描述                                                                  |
+| ------------------------------ | --------------------------------------------------------------------- |
+| **通用**                       |                                                                       |
+| `pacman -Syu`                  | 更新数据库(y)和软件包(u)                                              |
+| `pacman -S <软件包>`           | 安装软件包                                                            |
+| `pacman -Ss <regex>`           | 搜索软件包(s)                                                         |
+| `pacman -Si <软件包>`          | 查看软件包信息(i)                                                     |
+| `pacman -Syyuu`                | 强制更新数据库(yy)并升级/降级软件包(uu)                               |
+| `pacman --fm nvim -S <软件包>` | 安装软件包, 并在安装之前编辑 PKGBUILD (--fm)                          |
+| `pacman -Rsn <软件包>`         | 删除软件包以及相关依赖(s)和配置文件(n)                                |
+| `pacman -Rsnc <软件包>`        | 删除软件包以及相关依赖(s)和配置文件(n), 并且删除依赖它的软件包(c)     |
+| `pacman -Rsndd <软件包>`       | 强制删除软件包以及相关依赖(s)和配置文件(n), 忽略依赖问题(dd)          |
+| `pacman -Rsnc $(pacman -Qtdq)` | 删除所有孤包                                                          |
+| `pacman -Q`                    | 列出已安装的软件包                                                    |
+| `pacman -Qs <regex>`           | 搜索软件包(s)                                                         |
+| `pacman -Qi <软件包>`          | 查看软件包信息(i)                                                     |
+| `pacman -Ql <软件包>`          | 查看软件包的文件路径(l), 不包含软件后续产生的文件, 如 `~/.config/xxx` |
+| `pacman -Qo <file>`            | 查询已安装的文件或命令所属软件包(o)                                   |
+| `pacman -Qtdq`                 | 列出孤包(td), 即不被需要(t)的软件包依赖(d), 不显示版本信息(q)         |
+| `pacman -Qeq`                  | 列出自己安装的软件包(e), 不显示版本信息(q)                            |
+| `pacman -Qteq`                 | 列出自己安装(e)的不被其他软件包依赖(t)的软件包, 不显示版本信息(q)     |
+| `pacman -F <file>`             | 查询文件或命令所属软件包                                              |
+| `pacman -Fy`                   | 更新文件数据库(y)                                                     |
+| `pacman -U <file>`             | 从文件安装软件包(package.tar.gz)                                      |
+| **paru**                       |                                                                       |
+| `paru -c`                      | 删除不再需要的软件包 (不推荐, 不会删除软件包的依赖)                   |
+| `paru -Gc <软件包>`            | 查看aur软件包评论                                                     |
 
 ## 常用软件包/工具/命令
 
@@ -749,7 +778,9 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `btop`                  | 终端资源监视器                   |
 | `nvtop`                 | 终端GPU监视器                    |
 | **基础设施**            |                                  |
-| `watch`                 | watch 命令                       |
+| `watch`                 | 定时执行                         |
+| `at`                    | 定时执行                         |
+| `crontab`               | 定时任务                         |
 | `cfdisk`                |                                  |
 | `lsblk`                 |                                  |
 | `lscpu`                 |                                  |
@@ -761,16 +792,21 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `du`                    |                                  |
 | `cpupower`              |                                  |
 | `turbostat`             | CPU 温度频率监测                 |
-| `btmgmt`                | BT 管理                          |
+| `bluetoothctl`          | Bluetooth 管理                   |
+| `btmgmt`                | Bluetooth 管理                   |
 | `pw-top`                | pipewire top                     |
 | `power-profiles-deamon` | 电源管理                         |
+| **GPU**                 |                                  |
+| `intel_gpu_top`         |                                  |
+| `nvidia-smi`            |                                  |
+| `prime-run`             |                                  |
 | **网络**                |                                  |
 | `dnsmasq`               | DNS 服务                         |
 | `openresolv`            | resolv.conf 管理                 |
 | `whois`                 | 域名查询                         |
 | `dig`                   | 域名解析工具                     |
 | `nslookup`              | 域名解析工具                     |
-| `netstat`               | 网络状态                         |
+| `ss/netstat`            | 网络状态                         |
 | `nftables`              | 安装 iptables-nft 包即可         |
 | **GUI 工具**            |                                  |
 | `pavu-control`          | pipewire GUI                     |
@@ -838,7 +874,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `asciiquarium`          | 水族馆                           |
 | `nyancat`               | 彩虹猫                           |
 | `carbonyl`              | 终端浏览器                       |
-| `GriddyCode`            | 代码编辑器                       |
+| `griddycode`            | 代码编辑器                       |
 | **其他**                |                                  |
 | `teamspeak3`            | 语音服务器                       |
 | `motrix`                | 下载工具                         |
@@ -854,23 +890,52 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 
 ### yay
 
-```bash
-sudo pacman -S --needed base-devel
-git clone https://aur.archlinux.org/yay.git
-cd yay
-makepkg -si
-```
+- 安装
+
+  ```bash
+  sudo pacman -S --needed base-devel
+  git clone https://aur.archlinux.org/yay.git
+  cd yay
+  makepkg -si
+  ```
 
 ### paru
 
 GitHub: <https://github.com/Morganamilo/paru>
 
-```bash
-sudo pacman -S --needed base-devel
-git clone https://aur.archlinux.org/paru.git
-cd paru
-makepkg -si
-```
+- 安装
+
+  ```bash
+  sudo pacman -S --needed base-devel
+  git clone https://aur.archlinux.org/paru.git
+  cd paru
+  makepkg -si
+  ```
+
+### mangohud
+
+性能监测工具, 如果游戏是32位的, 需要安装32位的mangohud
+
+- 安装
+
+  ```bash
+  pacman -S mangohud [lib32-mangohud]
+  ```
+
+- 示例
+
+  ```bash
+  mangohud glxgears
+  # Steam游戏参数
+  mangohud %command%
+  ```
+
+  对于steam或其他支持MANGOHUD的游戏, 也可以这么写
+
+  ```bash
+  MANGOHUD=1 %command%
+
+  ```
 
 #### 配置paru
 
