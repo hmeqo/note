@@ -718,11 +718,8 @@ Include = /etc/pacman.d/mirrorlist
 
 ```conf
 [archlinuxcn]
-## 阿里云 (Global CDN)
-Server = https://mirrors.aliyun.com/archlinuxcn/$arch
-
-# ## 主仓库 (需要魔法)
-# Server = https://repo.archlinuxcn.org/$arch
+## 北京外国语大学 (北京) (ipv4, ipv6, http, https)
+Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch
 ```
 
 > [!TIP]
