@@ -34,6 +34,10 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 一个刻录了安装镜像的U盘, 一台电脑
 
+#### 提前分配空闲分区
+
+强烈建议提前分区一块空闲分区, 使用Windows自带的分区工具或PE提前分一块空闲分区
+
 #### 插入U盘
 
 重启, 在BIOS界面选择通过U盘启动
@@ -64,23 +68,27 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 推荐使用 `cfdisk` 进行分区, `cfdist` 主界面可以按 h 查看帮助, 按 n 可以新建分区
 
+> [!WARNING]
+> 请勿对已经存在的分区使用 `cfdisk` 进行二次分区, 会导致分区损坏  
+> ntfs文件系统分区建议提前使用Windows自带的分区程序或PE提前分一块空闲分区
+
 几种主要的分区方案:
 
-- 一个EFI分区(对于UEFI) + 一个Linux文件系统分区(必须) + 一个swap分区(可选)
-- 一个EFI分区(对于UEFI) + 一个Linux文件系统分区(必须) + 一个home目录分区(可选) + 一个swap分区(可选)
+- 一个EFI分区(建议. 对于UEFI) + 一个Linux文件系统分区(必须) + 一个swap分区(可选)
+- 一个EFI分区(建议. 对于UEFI) + 一个Linux文件系统分区(必须) + 一个swap分区(可选) + 一个home目录分区(可选)
 
 如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB  
 Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需要把原来的 EFI 分区扩容到推荐大小即可
 
-swap分区建议放在最后, 以后如果需要修改比较方便, 对于swap分区/文件要分多大, 可以参考这里 [swapspace大小建议](#swapspace大小建议)
+swap分区不推荐放第一个, 放后面的话以后如果需要修改比较方便, 对于swap分区/文件要分多大, 可以参考这里 [swapspace大小建议](#swapspace大小建议)
 
 然后对照下表设置分区的类型
 
-| 分区     | 类型             |
-| -------- | ---------------- |
-| efi      | EFI System       |
-| 一般分区 | Linux Filesystem |
-| swap     | Linux swap       |
+| 分区          | 类型             |
+| ------------- | ---------------- |
+| efi           | EFI System       |
+| Linux文件系统 | Linux Filesystem |
+| swap          | Linux swap       |
 
 `cfdisk` 编辑完之后记得 `Write`, 否则你的更改不会生效
 
@@ -393,6 +401,16 @@ pacman -S pipewire pipewire-pulse pipewire-alsa pipewire-jack
 pacman -S lib32-pipewire lib32-pipewire-jack
 ```
 
+#### OpenAL
+
+跨平台3D音频库
+
+```bash
+pacman -S openal
+# for multilib
+pacman -S lib32-openal
+```
+
 ### 显卡驱动
 
 注: 独显核显都需要安装驱动
@@ -604,6 +622,18 @@ swapon /swapfile
 /swapfile             none        swap        defaults    0 0
 ```
 
+### mkinitcpio的systemd钩子
+
+systemd钩子可异步加载内核模块, 速度相对udev快一些, 可能不支持老旧硬件  
+mkinitcpio 默认的钩子组合是以udev为主的, 如果需要更换为systemd
+
+编辑 `/etc/mkinitcpio.conf`, 找到 HOOKS 配置项, 并替换为以下内容  
+HOOKS上面应该是有注释说明的, 注释中也有systemd配置的示例
+
+```conf
+HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block filesystems fsck)
+```
+
 ### 休眠
 
 #### 添加休眠钩子
@@ -762,6 +792,18 @@ cd <包名>
 makepkg -si
 ```
 
+### Arch Linux Archive
+
+> Arch Linux 存档库（Arch Linux Archive，简称 ala），以前称为 Arch Linux 回滚机（Arch Linux Rollback Machine，简称 ARM），保存了官方仓库快照、iso 镜像和引导程序包的历史版本。
+
+编辑 `/etc/pacman.d/mirrorlist`, 注释或删除原有Server, 并加入以下内容, 或者给 `/etc/pacman.conf` 中的每个仓库单独设置 Server 也可以
+
+```conf
+Server=https://archive.archlinux.org/repos/<year>/<month>/<day>/$repo/os/$arch
+```
+
+文档: <https://wiki.archlinuxcn.org/wiki/Arch_Linux_Archive>
+
 ### 彩蛋
 
 在 pacman 配置中加入 `ILoveCandy`, 进度条会被替换成吃豆人
@@ -810,7 +852,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 ## 常用软件包/工具/命令
 
 | 软件包/工具/命令        | 描述                             |
-| ----------------------- | -------------------------------- |
+| ----------------------- | -------------------------------- | --- |
 | [`yay`](#yay)           | Aur 助手                         |
 | [`paru`](#paru)         | Aur 助手                         |
 | `debtap`                | deb包转pacman包                  |
@@ -825,6 +867,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `wezterm`               | 终端                             |
 | `kitty`                 | 终端                             |
 | **Shell 工具**          |                                  |
+| `reflector`             | pacman镜像服务器地址生成         |
+| `mirro-rs`              | 查找速度最快的pacman镜像服务器   |
 | [`tmux`](./tmux.md)     | 终端复用                         |
 | `bat`                   | better cat                       |
 | `exa`                   | better ls                        |
@@ -832,42 +876,43 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `yazi`                  | 终端下的 explorer                |
 | `superfile`             | 终端下的文件管理器               |
 | `hyperfine`             | 命令行性能测试                   |
-| `mirro-rs`              | 查找速度最快的pacman镜像服务器   |
 | `btop`                  | 终端资源监视器                   |
-| `nvtop`                 | 终端GPU监视器                    |
 | **基础设施**            |                                  |
+| `lspci`                 |                                  |
+| `lsusb`                 |                                  |
 | `watch`                 | 定时执行                         |
 | `at`                    | 定时执行                         |
 | `crontab`               | 定时任务                         |
-| `cfdisk`                |                                  |
-| `lsblk`                 |                                  |
-| `lscpu`                 |                                  |
-| `lspci`                 |                                  |
-| `lsusb`                 |                                  |
-| `cfdisk`                |                                  |
-| `efibootmgr`            | EFI 启动管理                     |
-| `df`                    |                                  |
-| `du`                    |                                  |
-| `cpupower`              |                                  |
-| `turbostat`             | CPU 温度频率监测                 |
 | `bluetoothctl`          | Bluetooth 管理                   |
 | `btmgmt`                | Bluetooth 管理                   |
 | `pw-top`                | pipewire top                     |
 | `power-profiles-deamon` | 电源管理                         |
 | `pamixer`               |                                  |
 | `brightnessctl`         |                                  |
-| **GPU**                 |                                  |
-| `intel_gpu_top`         |                                  |
-| `nvidia-smi`            |                                  |
-| `prime-run`             |                                  |
+| **分区管理**            |                                  |
+| `efibootmgr`            | EFI 启动管理                     |
+| `lsblk`                 |                                  |
+| `cfdisk`                |                                  |
+| `df`                    |                                  |
+| `du`                    |                                  |
 | **网络**                |                                  |
 | `dnsmasq`               | DNS 服务                         |
 | `openresolv`            | resolv.conf 管理                 |
 | `whois`                 | 域名查询                         |
 | `dig`                   | 域名解析工具                     |
+| `nethogs`               | 域名解析工具                     |
 | `nslookup`              | 域名解析工具                     |
 | `ss/netstat`            | 网络状态                         |
 | `nftables`              | 安装 iptables-nft 包即可         |
+| **CPU**                 |                                  |
+| `lscpu`                 |                                  |
+| `turbostat`             | CPU 温度频率监测                 |
+| `cpupower`              |                                  |
+| **GPU**                 |                                  |
+| `nvtop`                 | 终端GPU监视器                    |
+| `intel_gpu_top`         |                                  |
+| `nvidia-smi`            |                                  |
+| `prime-run`             |                                  |
 | **GUI 工具**            |                                  |
 | `pavu-control`          | pipewire GUI                     |
 | `qpwgraph`              | 音频控制                         |
@@ -906,6 +951,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `etcher`                | 刻录工具                         |
 | **游戏**                |                                  |
 | `mangohud`              | 游戏性能监控                     |
+| `goverlay`              | mangohud 的图形化控制台          |     |
 | `gamemode`              | 使用游戏模式运行游戏             |
 | `steam`                 | Steam 客户端                     |
 | `heroic`                | 第三方 Epic 客户端               |
@@ -979,7 +1025,9 @@ GitHub: <https://github.com/Morganamilo/paru>
 - 安装
 
   ```bash
-  pacman -S mangohud [lib32-mangohud]
+  pacman -S mangohud
+  # for multilib
+  pacman -S lib32-mangohud
   ```
 
 - 示例
