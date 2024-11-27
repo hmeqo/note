@@ -8,7 +8,7 @@ Archlinuxcn: <https://www.archlinuxcn.org/>
 > [!NOTE]
 > 本文所有引用部分均来自 archwiki
 
-## 安装
+## 安装教程
 
 可以配合官网步骤食用: <https://wiki.archlinux.org/title/Installation_guide>
 
@@ -388,12 +388,12 @@ refind-install
 
 #### 安装各种驱动
 
-- [音频和视频驱动](#音频和视频驱动)
+- [音频驱动](#音频驱动)
 - [显卡驱动](#显卡驱动)
 
 ## 系统配置
 
-### 音频和视频驱动
+### 音频驱动
 
 ```bash
 pacman -S pipewire pipewire-pulse pipewire-alsa pipewire-jack
@@ -489,6 +489,22 @@ pacman -S lib32-openal
   ```
 
   检验 VA-API: <https://wiki.archlinuxcn.org/wiki/%E7%A1%AC%E4%BB%B6%E8%A7%86%E9%A2%91%E5%8A%A0%E9%80%9F#%E6%A3%80%E9%AA%8C_VA-API>
+
+#### EGL and GLX
+
+- EGL
+
+  ```bash
+  pacman -S egl-wayland
+  ```
+
+- GLX
+
+  ```bash
+  pacman -S libva
+  # for multilib
+  pacman -S lib32-libva
+  ```
 
 ### 双显卡管理
 
@@ -849,6 +865,26 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `paru -c`                      | 删除不再需要的软件包 (不推荐, 不会删除软件包的依赖)                   |
 | `paru -Gc <软件包>`            | 查看aur软件包评论                                                     |
 
+### 软件包降级
+
+- 所有软件包降级
+
+  [Arch Linux Archive](#Arch Linux Archive)
+
+- 降级单个软件包
+
+  ```bash
+  sudo downgrade <package_name>
+  ```
+
+- AUR降级
+
+  AUR包通常是git仓库, 所以只需要使用 nvim 或其他方式 reset/checkout 到你想要的版本
+
+  ```bash
+  paru --fm nvim -S <package_name>
+  ```
+
 ## 常用软件包/工具/命令
 
 | 软件包/工具/命令          | 描述                             |
@@ -858,7 +894,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `debtap`                  | deb包转pacman包                  |
 | **Shell**                 |                                  |
 | `zsh`                     | shell                            |
-| `zim`                     | zsh 扩展管理                     |
 | `fish`                    | shell                            |
 | `fisher`                  | shell 扩展管理                   |
 | **终端**                  |                                  |
@@ -886,6 +921,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `bluetoothctl`            | Bluetooth 管理                   |
 | `btmgmt`                  | Bluetooth 管理                   |
 | `pw-top`                  | pipewire top                     |
+| `tlp+tlp-rdw+tlpui`       | 电源管理                         |
 | `power-profiles-deamon`   | 电源管理                         |
 | `pamixer`                 |                                  |
 | `brightnessctl`           |                                  |
@@ -896,14 +932,18 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `df`                      |                                  |
 | `du`                      |                                  |
 | **网络**                  |                                  |
-| `dnsmasq`                 | DNS 服务                         |
-| `openresolv`              | resolv.conf 管理                 |
-| `whois`                   | 域名查询                         |
-| `dig`                     | 域名解析工具                     |
-| `nethogs`                 | 域名解析工具                     |
-| `nslookup`                | 域名解析工具                     |
 | `ss/netstat`              | 网络状态                         |
 | `nftables`                | 安装 iptables-nft 包即可         |
+| `whois`                   | 域名查询                         |
+| `dig`                     | 域名解析工具                     |
+| `nslookup`                | 域名解析工具                     |
+| `nali`                    | ip归属查询                       |
+| `dnsmasq`                 | DNS 服务                         |
+| `mtr`                     | traceroute 和 ping 功能的结合    |
+| `nexttrace`               | 网络路径分析                     |
+| `openresolv`              | resolv.conf 管理                 |
+| `nethogs`                 | 网络流量监听                     |
+| `wireshark`               | 网络分析工具                     |
 | **CPU**                   |                                  |
 | `lscpu`                   |                                  |
 | `turbostat`               | CPU 温度频率监测                 |
@@ -944,7 +984,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `onlyoffice`              | 仿微软办公套件                   |
 | `calligra`                | KDE 推出的办公套件               |
 | **浏览器**                |                                  |
-| `firefox`                 | Linux 玩家人手一个, 对吧         |
+| `firefox`                 | Linux 用户人手一个               |
 | `zen-browser`             | 基于Firefox的浏览器              |
 | `tor-browser`             | 很安全的基于Firefox的浏览器      |
 | **磁盘管理**              |                                  |
@@ -986,8 +1026,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **其他**                  |                                  |
 | `teamspeak3`              | 语音服务器                       |
 | `motrix`                  | 下载工具                         |
-| `wireshark`               | 网络分析工具                     |
 | `alist`                   | 整合各种网盘                     |
+| `davfs`                   |                                  |
 | **字体**                  |                                  |
 | `noto-fonts-cjk`          | 中文                             |
 | `noto-fonts-emoji`        | 表情                             |
