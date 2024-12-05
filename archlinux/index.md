@@ -508,11 +508,7 @@ pacman -S lib32-openal
 
 ### 双显卡管理
 
-- switcheroo-control
-
-  记得启用服务 `sudo systemctl enable --now switcheroo-control`
-
-  然后你应该能在桌面环境编辑.desktop的属性时看到使用独立显卡的选项
+- optimus-manager (仅X11)
 
 - envycontrol
 
@@ -521,6 +517,12 @@ pacman -S lib32-openal
   `envycontrol -s <mode>` 切换模式, 可选项：`hybrid`、`integrated`、`nvidia`
 
   `envycontrol --reset` 重置
+
+- switcheroo-control
+
+  记得启用服务 `sudo systemctl enable --now switcheroo-control`
+
+  然后你应该能在桌面环境编辑.desktop的属性时看到使用独立显卡的选项
 
 ### fstab
 
@@ -1028,6 +1030,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `motrix`                  | 下载工具                         |
 | `alist`                   | 整合各种网盘                     |
 | `davfs`                   |                                  |
+| `kanshi`                  | Wayland 动态显示屏切换           |
 | **字体**                  |                                  |
 | `noto-fonts-cjk`          | 中文                             |
 | `noto-fonts-emoji`        | 表情                             |
@@ -1141,3 +1144,32 @@ BottomUp
 | `sweeper`          | 垃圾清理                         |
 | `kwalletmanager`   | KDE密钥管理                      |
 | `kdeconnect`       | 跨平台的手机电脑局域网连接工具   |
+
+## KVM 显卡直通
+
+以 intel + nvidia 举例
+
+首先需要知道显卡的PCI ID, 可以通过 lspci 查看, 值在末尾方括号中
+
+```bash
+$ lspci -nn | grep "NVIDIA"
+# 显卡
+01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GA107M [GeForce RTX 3050 Ti Mobile] [10de:25a0] (rev a1)
+# 声卡
+01:00.1 Audio device [0403]: NVIDIA Corporation GA107 High Definition Audio Controller [10de:2291] (rev a1)
+```
+
+添加内核参数, vfio-pci.ids 填写显卡PCI ID
+
+```bash
+... intel_iommu=on vfio-pci.ids=10de:25a0,10de:2291
+```
+
+也可以不通过内核参数, 在modprobe中配置, `/etc/modprobe.d/vfio.conf`
+
+```modconf
+options vfio-pci ids=10de:25a0,10de:2291
+softdep nvidia pre: vfio-pci
+```
+
+通过 virt-manager 配置pci直通显卡即可, 具体自行搜索教程 (施工中)
