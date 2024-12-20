@@ -138,7 +138,7 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
   mount --mkdir /dev/<sda3> /mnt/home
   ```
 
-- swap分区 (如果你分配了swap的分区, 使用swapfile可以跳过这一步)
+- swap分区 (或者swapfile, 如果没有可以先跳过这一步)
 
   ```bash
   swapon /dev/swap_partition
@@ -171,6 +171,10 @@ pacman -Sy archlinux-keyring
 ```
 
 #### 安装基本软件包
+
+`linux-zen` 是一种性能较好的内核, 可以替换为其他内核, 例如 `linux`、`linux-lts`
+
+`linux-headers` 是内核的头文件, dkms 会用到, 也可以需要时再安装
 
 根据 CPU 选择安装 `intel-ucode` (Intel CPU) 或 `amd-ucode` (Amd CPU)  
 这个安装项是可选的，如果装不了可以不用管
@@ -455,13 +459,13 @@ pacman -S lib32-openal
   首先安装主要驱动, 有NVIDIA官方驱动, 和社区开源驱动, 选择其一安装即可
 
   官方驱动  
-  NVIDIA 官方提供了闭源和开源两种驱动, 分别是 `nvidia` 和 `nvidia-open`  
+  NVIDIA 官方提供了闭源和开源两种驱动, 分别是 `nvidia` 和 `nvidia-open`(仅2060及以上)  
   nvidia-utils 中包含了 vulkan 驱动
 
-  **注意: 对于非标准内核 (比如linux-zen), 请安装 nvidia-dkms / nvidia-open-dkms**
+  **注意: 对于非标准内核 (比如linux-zen), 请安装 nvidia-dkms / nvidia-open-dkms, 而不是 nvidia / nvidia-open**
 
   ```bash
-  pacman -S nvidia-open nvidia-utils [opencl-nvidia] [nvidia-prime]
+  pacman -S nvidia-open/nvidia/nvidia-open-dkms/nvidia-dkms nvidia-utils [opencl-nvidia] [nvidia-prime]
   # for multilib
   pacman -S lib32-nvidia-utils
   ```
@@ -1063,6 +1067,23 @@ GitHub: <https://github.com/Morganamilo/paru>
   makepkg -si
   ```
 
+#### 配置paru
+
+配置文件路径: `/etc/paru.conf`
+
+##### 搜索结果倒叙排序
+
+在paru配置中取消注释 `BottomUp`
+
+```confini
+[options]
+...
+#AurOnly
+BottomUp
+#RemoveMake
+...
+```
+
 ### fcrackzip
 
 示例:
@@ -1101,22 +1122,31 @@ fcrackzip -b -c 'aA1!' -l 6 example.zip
 
   ```
 
-#### 配置paru
+#### mangohud with opengl
 
-配置文件路径: `/etc/paru.conf`
+对于 OpenGL, 可能需要 `--dlsym` 参数
 
-##### 搜索结果倒叙排序
-
-在paru配置中取消注释 `BottomUp`
-
-```confini
-[options]
-...
-#AurOnly
-BottomUp
-#RemoveMake
-...
+```bash
+mangohud --dlsym glxgears
 ```
+
+#### mangohud 快捷键
+
+- R_SHIFT + F12
+
+  切换显示/隐藏HUD
+
+- R_SHIFT + F11
+
+  切换HUD的位置
+
+- R_SHIFT + F10
+
+  切换HUD的预设
+
+- L_SHIFT + F2
+
+  开始/结束Log
 
 ## 桌面环境配置
 
