@@ -355,12 +355,18 @@ systemd-boot 使用教程请看此处: <https://wiki.archlinuxcn.org/wiki/System
 ##### rEFInd
 
 ```bash
+pacman -S refind
 refind-install
 ```
 
 > [!WARNING]
 > 当 refind-install 运行在chroot环境下 (例如：安装Arch Linux时的live环境) /boot/refind_linux.conf 内将会添加live系统的内核选项，而不是安装它的系统。
 > 编辑 /boot/refind_linux.conf 并确保其中的 内核参数 对于你的系统是正确的，否则下次启动可能会出现内核错误。
+
+###### rEFInd 主题
+
+- refind-theme-regular
+  github: <https://github.com/kmyi/refind-theme-regular>
 
 ### 4. 重启
 
