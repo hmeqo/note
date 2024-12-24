@@ -100,7 +100,7 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
 
 创建完分区之后, 需要格式化分区
 
-- 对于 EFI 分区
+- 对于 EFI 分区 (如果选择和 Windows 共用同一个 EFI 分区, 跳过这一步)
 
   ```bash
   mkfs.fat -F 32 /dev/efi_system_partition
@@ -113,7 +113,7 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
   mkfs.ext4 /dev/root_partition
   ```
 
-- swap 分区
+- swap 分区 (或者swapfile, 如果没有可以先跳过这一步, 详细看下方 Note)
 
   ```bash
   mkswap /dev/swap_partition
@@ -138,7 +138,7 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
   mount --mkdir /dev/<sda3> /mnt/home
   ```
 
-- swap分区 (或者swapfile, 如果没有可以先跳过这一步)
+- swap分区 (或者swapfile, 如果没有可以先跳过这一步, 详细看下方 Note)
 
   ```bash
   swapon /dev/swap_partition
@@ -152,8 +152,7 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
 
 #### 镜像源
 
-如果需要可以先配置镜像
-调整 `/etc/pacman.d/mirrorlist` 中镜像的顺序即可
+如果需要可以先配置镜像源, 调整 `/etc/pacman.d/mirrorlist` 中镜像的顺序即可 (此更改只在当前安装过程中生效)
 
 推荐一个国内速度较快的镜像源
 
@@ -392,7 +391,7 @@ refind-install
   ```bash
   pacman -S sddm plasma dolphin konsole yakuake zen-browser spectacle ark filelight
 
-  # 然后设置sddm开机自启, 记得要重启电脑
+  # 然后设置sddm开机自启, 重启电脑后自动显示登录界面
   systemctl enable sddm
   ```
 
@@ -464,17 +463,27 @@ pacman -S lib32-openal
 
   首先安装主要驱动, 有NVIDIA官方驱动, 和社区开源驱动, 选择其一安装即可
 
-  官方驱动  
-  NVIDIA 官方提供了闭源和开源两种驱动, 分别是 `nvidia` 和 `nvidia-open`(仅2060及以上)  
-  nvidia-utils 中包含了 vulkan 驱动
+  - 官方驱动  
+    NVIDIA 官方提供了闭源和开源两种驱动, 分别是 `nvidia` 和 `nvidia-open`(仅2060及以上)  
+    nvidia-utils 中包含了 vulkan 驱动
 
-  **注意: 对于非标准内核 (比如linux-zen), 请安装 nvidia-dkms / nvidia-open-dkms, 而不是 nvidia / nvidia-open**
+    **注意: 对于非标准内核 (比如linux-zen), 请安装 nvidia-dkms / nvidia-open-dkms, 而不是 nvidia / nvidia-open**
 
-  ```bash
-  pacman -S nvidia-open/nvidia/nvidia-open-dkms/nvidia-dkms nvidia-utils [opencl-nvidia] [nvidia-prime]
-  # for multilib
-  pacman -S lib32-nvidia-utils
-  ```
+    ```bash
+    pacman -S nvidia-open/nvidia/nvidia-open-dkms/nvidia-dkms nvidia-utils [opencl-nvidia] [nvidia-prime]
+    # for multilib
+    pacman -S lib32-nvidia-utils
+    ```
+
+  - 社区开源驱动
+
+    - `vulkan-nouveau` 开源 NVIDIA Vulkan 驱动, nouveau 已在内核模块中
+
+      ```bash
+      pacman -S vulkan-nouveau
+      # for multilib
+      pacman -S lib32-vulkan-nouveau
+      ```
 
 #### VA-API 视频加速
 
@@ -482,17 +491,15 @@ pacman -S lib32-openal
 
 - Intel
 
-  对于新Intel显卡
+  对于新Intel显卡 - Intel Media Driver for VAAPI — Broadwell+ iGPUs
 
   ```bash
-  # Intel Media Driver for VAAPI — Broadwell+ iGPUs
   pacman -S intel-media-driver
   ```
 
-  对于旧Intel显卡
+  对于旧Intel显卡 - VA-API implementation for Intel G45 and HD Graphics family
 
   ```bash
-  # VA-API implementation for Intel G45 and HD Graphics family
   pacman -S libva-intel-driver
   # for multilib
   pacman -S lib32-libva-intel-driver
@@ -522,17 +529,38 @@ pacman -S lib32-openal
 
 - envycontrol
 
-  `envycontrol -q` 查询当前模式
+  支持 Wayland
 
-  `envycontrol -s <mode>` 切换模式, 可选项：`hybrid`、`integrated`、`nvidia`
+  - cli
 
-  `envycontrol --reset` 重置
+    `envycontrol -q` 查询当前模式
+
+    `envycontrol -s <mode>` 切换模式, 可选项：`hybrid`、`integrated`、`nvidia`
+
+    `envycontrol --reset` 重置
+
+  - 桌面环境适配
+
+    支持 KDE Widget  
+    `Optimus GPU Switcher`: <https://store.kde.org/p/2138365>
 
 - switcheroo-control
 
   记得启用服务 `sudo systemctl enable --now switcheroo-control`
 
-  然后你应该能在桌面环境编辑.desktop的属性时看到使用独立显卡的选项
+  - cli
+
+    `switcherooctl launch <command>` 用独显运行命令
+
+  - 桌面环境适配
+
+    然后你应该能在桌面环境编辑.desktop的属性时看到使用独立显卡的选项  
+    或者在.desktop的\[Desktop Entry\]中添加以下内容
+
+    ```
+    PrefersNonDefaultGPU=true
+    X-KDE-RunOnDiscreteGpu=true
+    ```
 
 ### fstab
 
@@ -786,13 +814,19 @@ Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch
 然后安装archlinuxcn的密钥环
 
 ```bash
-pacman -Sy archlinuxcn-keyring
+sudo pacman -Sy archlinuxcn-keyring
 ```
 
-2023年10月之后, 新系统下安装cn密钥环之前需要额外步骤, 需要在本地信任 farseerfc 的 GPG key
+2023年10月之后, 新系统下安装cn密钥环如果遇到以下报错
 
 ```bash
-pacman-key --lsign-key "farseerfc@archlinux.org"
+error: archlinuxcn-keyring: Signature from "Jiachen YANG (Arch Linux Packager Signing Key) <farseerfc@archlinux.org>" is marginal trust
+```
+
+请在本地信任 farseerfc 的 GPG key, 并再次尝试安装
+
+```bash
+sudo pacman-key --lsign-key "farseerfc@archlinux.org"
 ```
 
 #### Arch 用户软件仓库 (AUR)
@@ -937,6 +971,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `power-profiles-deamon`   | 电源管理                         |
 | `pamixer`                 |                                  |
 | `brightnessctl`           |                                  |
+| `authbind`                | 非root绑定特权端口               |
 | **分区管理**              |                                  |
 | `efibootmgr`              | EFI 启动管理                     |
 | `lsblk`                   |                                  |
@@ -1180,6 +1215,76 @@ mangohud --dlsym glxgears
 | `sweeper`          | 垃圾清理                         |
 | `kwalletmanager`   | KDE密钥管理                      |
 | `kdeconnect`       | 跨平台的手机电脑局域网连接工具   |
+
+## WINE/PROTON 运行 Windows 应用/游戏
+
+### WINE 生态中的各种工具介绍
+
+- Wine
+
+  - 是什么: Wine 是一个开源兼容层, 允许在类 Unix 操作系统 (如 Linux、macOS) 上运行设计为在 Microsoft Windows 上运行的应用程序 (特别是那些使用 Win32 API 的应用程序)  
+    其原理是重写了 Windows 的 dll
+
+- DXVK
+
+  DXVK 一个用于转换 DirectX9/10/11 API 为 Vulkan API 的兼容层, 能大幅度提升游戏性能, 甚至超越 Windows, DXVK 不止能用于 Linux, 也能在 Windows 上使用
+
+- VKD3D
+
+  VKD3D 一个用于转换 DirectX12 API 为 Vulkan API 的兼容层, 不过 VKD3D 不像 DXVK 那样已经发展了很久, VKD3D 的游戏性能在某些情况下可能只有 Windows 的 2/3
+
+- Proton
+
+  - 是什么: Proton 是 Valve 为其数字发行平台 Steam 开发的一个开源工具, 基于 Wine, 但专门为运行 Windows 游戏进行了优化  
+    Proton 整合了 DXVK, VKD3D 等一系列工具, Valve 对 Proton 的更改都会回馈到上游 (Wine, DXVK, VKD3D 等), Proton 极大促进了 Linux 游戏/软件生态的发展
+  - 与 Wine 的关系: Proton 构建于 Wine 之上, 使用 Wine 的代码库作为其核心, 并添加了 Valve 自己的补丁、优化和额外功能, 以提高游戏的兼容性和性能
+
+- Proton-GE
+
+  由 GloriousEggroll 创建的一个 Proton 定制版, 相比于 Proton, 整合了更多 Proton 没有或暂时没有的功能, 有更好的游戏兼容性
+
+- Wine-GE
+
+  由 GloriousEggroll 创建的一个 Wine 定制版, Wine-GE 是为非 Steam 游戏分发的版本, 因为 Proton 是专为 Steam 开发, 有很多非 Steam 游戏不需要的功能
+
+- UMU-Launcher
+
+  由于 Proton 是专门为 Steam 游戏开发的, 在 Wine9.0 之前, 一般建议用 Wine-GE 运行非 Steam 游戏/应用, Proton-GE 运行 Steam 游戏  
+  但在 9.0 之后, GE 作者不再分发 Wine-GE 版本, 转而开发了 UMU-Launcher, 用 Proton-GE 运行非 Steam 游戏/应用
+
+- GPTK (Game Porting Toolkit)
+
+  Apple 为 macOS 开发的基于 Wine 的游戏兼容层
+
+> [!NOTE]
+> Proton 能够以高性能运行 Windows 游戏, 主要功劳在于 DXVK 和 VKD3D  
+> 各种利用 Wine 运行 Windows 游戏的启动器都默认帮你配好了 DXVK, VKD3D 等工具, 其游戏性能和 Proton 无太大区别
+
+### WINE/PROTON GUI 启动器
+
+- Steam
+
+  伟大无需多言
+
+- lutris
+
+  流行且通用的游戏/应用启动/管理工具
+
+- heroic-games-launcher
+
+  非官方 Epic 游戏启动器
+
+- bottles
+
+  UI 不错
+
+- faugus-launcher
+
+  利用 UMU-Launcher 的游戏/应用启动器
+
+- CrossOver
+
+  付费版 Wine
 
 ## KVM 显卡直通
 
