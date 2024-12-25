@@ -1216,9 +1216,131 @@ mangohud --dlsym glxgears
 | `kwalletmanager`   | KDE密钥管理                      |
 | `kdeconnect`       | 跨平台的手机电脑局域网连接工具   |
 
-## WINE/PROTON 运行 Windows 应用/游戏
+## KVM 显卡直通
 
-### WINE 生态中的各种工具介绍
+以 intel + nvidia 举例
+
+首先需要知道显卡的PCI ID, 可以通过 lspci 查看, 值在末尾方括号中
+
+```bash
+$ lspci -nn | grep "NVIDIA"
+# 显卡
+01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GA107M [GeForce RTX 3050 Ti Mobile] [10de:25a0] (rev a1)
+# 声卡
+01:00.1 Audio device [0403]: NVIDIA Corporation GA107 High Definition Audio Controller [10de:2291] (rev a1)
+```
+
+添加内核参数, vfio-pci.ids 填写显卡PCI ID
+
+```bash
+... intel_iommu=on vfio-pci.ids=10de:25a0,10de:2291
+```
+
+也可以不通过内核参数, 在modprobe中配置, `/etc/modprobe.d/vfio.conf`
+
+```modconf
+options vfio-pci ids=10de:25a0,10de:2291
+softdep nvidia pre: vfio-pci
+```
+
+通过 virt-manager 配置pci直通显卡即可, 具体自行搜索教程 (施工中)
+
+## Wiki
+
+Archwiki: <https://wiki.archlinux.org/title/Main_page>
+
+### Linux 基础目录
+
+以下只是简短描述, 详情见: <https://www.freedesktop.org/software/systemd/man/latest/file-hierarchy.html>
+
+- `/boot`
+
+  存放启动镜像各种启动配置的文件夹
+
+- `/dev` - devtmpfs
+
+  设备目录, 例如和主板连接的硬盘, u盘, 鼠标, 键盘等设备都在这里显示
+
+- `/etc`
+
+  配置文件目录
+
+- `/home`
+
+  用户目录, 例如用户 `hmeqo` 的用户目录是 `/home/hmeqo`, 这个位置并非绝对的, 可以修改
+
+- `/mnt`
+
+  用于挂载其他分区, 例如将 windows 盘挂载到 `/mnt/windows`
+
+- `/opt`
+
+  用于存放软件包的目录, 通常是一些因某些原因不能把软件拆分开的商业软件
+
+- `/proc` - proc
+
+  进程目录, 在这里可以看到当前正在运行的进程, 以及各种信息
+
+- `/root`
+
+  root 用户的家目录
+
+- `/run` - tmpfs
+
+  用于存放运行时数据, 套接字, 和其他类似文件, 通常仅对特权程序可写
+
+- `/srv`
+
+  srv - Service Data, 用于存放服务的目录
+
+- `/sys` - sysfs
+
+  一个虚拟内核文件系统, 主要提供与内核接口相关的 API
+
+  例如临时关闭 Intel CPU 睿频: `echo 1 | sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo`
+
+- `/tmp` - tmpfs
+
+  临时文件目录
+
+- `/usr`
+
+  用于存放应用程序的目录
+
+- `/var`
+
+  用于存放数据的目录 (随时会变化的数据)
+
+- `/bin` -> `/usr/bin`
+
+- `/lib` -> `/usr/lib`
+
+- `/lib64` -> `/usr/lib`
+
+- `/sbin` -> `/usr/bin`
+
+- `EFI`
+
+  EFI 分区目录, 如果你把 EFI 分区挂载到了 `/boot`, 那么你可以在 `/boot/EFI` 中找到启动项  
+  如果你的 EFI 挂载点是 `/`, 那么对应的 EFI 目录则是 `/EFI`
+
+### 文件系统
+
+- ext4
+
+- xfs
+
+- zfs
+
+- btrfs
+
+- tmpfs
+
+  挂载在内存的文件系统
+
+### WINE/PROTON 运行 Windows 应用/游戏
+
+#### WINE 生态中的各种工具介绍
 
 - Wine
 
@@ -1260,7 +1382,7 @@ mangohud --dlsym glxgears
 > Proton 能够以高性能运行 Windows 游戏, 主要功劳在于 DXVK 和 VKD3D  
 > 各种利用 Wine 运行 Windows 游戏的启动器都默认帮你配好了 DXVK, VKD3D 等工具, 其游戏性能和 Proton 无太大区别
 
-### WINE/PROTON GUI 启动器
+#### WINE/PROTON GUI 启动器
 
 - Steam
 
@@ -1285,32 +1407,3 @@ mangohud --dlsym glxgears
 - CrossOver
 
   付费版 Wine
-
-## KVM 显卡直通
-
-以 intel + nvidia 举例
-
-首先需要知道显卡的PCI ID, 可以通过 lspci 查看, 值在末尾方括号中
-
-```bash
-$ lspci -nn | grep "NVIDIA"
-# 显卡
-01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GA107M [GeForce RTX 3050 Ti Mobile] [10de:25a0] (rev a1)
-# 声卡
-01:00.1 Audio device [0403]: NVIDIA Corporation GA107 High Definition Audio Controller [10de:2291] (rev a1)
-```
-
-添加内核参数, vfio-pci.ids 填写显卡PCI ID
-
-```bash
-... intel_iommu=on vfio-pci.ids=10de:25a0,10de:2291
-```
-
-也可以不通过内核参数, 在modprobe中配置, `/etc/modprobe.d/vfio.conf`
-
-```modconf
-options vfio-pci ids=10de:25a0,10de:2291
-softdep nvidia pre: vfio-pci
-```
-
-通过 virt-manager 配置pci直通显卡即可, 具体自行搜索教程 (施工中)
