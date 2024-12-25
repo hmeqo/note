@@ -15,8 +15,9 @@
 > 编程中有许多特殊符号, 例如 \<xxx\> 代表根据实际情况填写的必填项, \[xxx\] 代表可选项, 请根据上下文自行判断
 
 > [!WARNING]
+> 如果你是第一次安装 Arch, 请全程自行手动操作, 不要使用 archinstall 逃课  
 > 如果你不熟悉 Linux, 建议先到其他有图形化安装发行版 (Manjaro, Mint 等), 熟悉后再尝试 Arch  
-> 如果你想用 Arch 作为第一个 Linux 发行版, 建议在身边有人传教的情况下尝试, 且不要使用 archinstall 安装脚本安装
+> 如果你想用 Arch 作为第一个 Linux 发行版, 建议在身边有人传教的情况下尝试
 >
 > Arch Linux 安装过程没有图形界面, 所有编辑操作都是在终端  
 > 本文默认你能使用任何一种终端编辑器, 不会用请自行学习后再来, 建议学习 `vim`
@@ -404,6 +405,20 @@ refind-install
 
 ## 系统配置
 
+### 修改内核参数
+
+- `GRUB`
+
+  通过 `/etc/default/grub` 修改内核参数, 完成后记得 `sudo grub-mkconfig -o /boot/grub/grub.cfg`
+
+- `systemd-boot`
+
+  通过 `/boot/loader/loader.conf` 修改内核参数
+
+- `refind`
+
+  通过 `/boot/refind_linux.conf` 修改内核参数
+
 ### 音频驱动
 
 ```bash
@@ -694,7 +709,7 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block
 
 ### 休眠
 
-#### 添加休眠钩子
+#### 1. 添加休眠钩子
 
 编辑 `/etc/mkinitcpio.conf` 文件, 找到 HOOKS 配置项
 
@@ -717,9 +732,9 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block
   ```
 
 > [!NOTE]
-> If stacked storage is used for the swap space, e.g. dm-crypt, RAID or LVM, the final mapped device must be available in the early userspace and before the resume process is initiated. I.e. the resume hook must be placed after hooks like encrypt, lvm2, etc. in such setups.
+> 注意： 如果使用堆叠存储作为交换空间，例如 dm-crypt、RAID 或 LVM，则最终映射的设备必须在早期用户空间中可用，并且在恢复过程启动之前。也就是说，在这样的设置中，resume 钩子必须放在诸如 encrypt、lvm2 等钩子之后。
 
-#### 添加内核参数
+#### 2. 添加休眠内核参数
 
 使用 `blkid /dev/nvme0n1p1`, 查看 UUID
 
@@ -746,8 +761,9 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block
 ... root=UUID=4483df75-6a1d-42a1-9a3e-66406b7a9cac rw splash resume=UUID=4483df75-6a1d-42a1-9a3e-66406b7a9cac resume_offset=3643392
 ```
 
-> [!NOTE]
-> 如果你的引导方式是 Grub, 需通过 `/etc/default/grub` 修改内核参数, 完成后记得 `sudo mkinitcpio`
+#### 3. 启动休眠服务
+
+- 对于 NVIDIA GPU, 需要启动 nvidia-resume, nvidia-persistenced 服务
 
 ## pacman
 
