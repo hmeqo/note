@@ -1,12 +1,11 @@
 # Arch Linux
 
-## 网站
-
-Archlinux: <https://www.archlinux.org/>  
-Archlinuxcn: <https://www.archlinuxcn.org/>
-
 > [!NOTE]
+> Github MD页面右上角可以打开目录树
+>
 > 本文所有引用部分均来自 archwiki
+> Archlinux: <https://www.archlinux.org/>  
+> Archlinuxcn: <https://www.archlinuxcn.org/>
 
 ## 安装教程
 
@@ -16,6 +15,9 @@ Archlinuxcn: <https://www.archlinuxcn.org/>
 > 编程中有许多特殊符号, 例如 \<xxx\> 代表根据实际情况填写的必填项, \[xxx\] 代表可选项, 请根据上下文自行判断
 
 > [!WARNING]
+> 如果你不熟悉 Linux, 建议先到其他有图形化安装发行版 (Manjaro, Mint 等), 熟悉后再尝试 Arch  
+> 如果你想用 Arch 作为第一个 Linux 发行版, 建议在身边有人传教的情况下尝试, 且不要使用 archinstall 安装脚本安装
+>
 > Arch Linux 安装过程没有图形界面, 所有编辑操作都是在终端  
 > 本文默认你能使用任何一种终端编辑器, 不会用请自行学习后再来, 建议学习 `vim`
 
@@ -80,7 +82,7 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB  
 Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需要把原来的 EFI 分区扩容到推荐大小即可
 
-swap分区不推荐放第一个, 放后面的话以后如果需要修改比较方便, 对于swap分区/文件要分多大, 可以参考这里 [swapspace大小建议](#swapspace大小建议)
+swap分区不推荐放第一个, 放后面的话以后如果需要修改比较方便, 对于swap分区/文件要分多大, 可以参考这里 [swap大小建议](#swap大小建议)
 
 然后对照下表设置分区的类型
 
@@ -93,7 +95,7 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
 `cfdisk` 编辑完之后记得 `Write`, 否则你的更改不会生效
 
 > [!NOTE]
-> 也可以使用swapfile而非swap分区, 这样可以动态分配swapspace的大小, 无需调整分区, 可以等挂载完分区后再创建, [创建swapfile](#创建swapfile)  
+> 也可以使用swapfile而非swap分区, 这样可以动态分配swap的大小, 无需调整分区, 可以等挂载完分区后再创建, [创建swapfile](#创建swapfile)  
 > 在Arch安装过程中(非arch-chroot下), 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
 
 ##### 格式化分区
@@ -599,9 +601,9 @@ UUID=xxx  /    ext4 rw,relatime 0 1
 UUID=xxxx /xxx ext4 defaults    0 2
 ```
 
-### Swapspace
+### Swap
 
-#### Swapspace大小建议
+#### Swap大小建议
 
 参考来源 AI
 
@@ -635,7 +637,7 @@ UUID=xxxx /xxx ext4 defaults    0 2
 
 #### 创建swapfile
 
-如果不想通过分区使用 swap, 可以创建 swapfile 作为 swapspace
+如果不想通过分区使用 swap, 可以创建 swapfile 作为 swap
 
 以下命令中的 /swapfile 可以是你想要的任何路径, 常用的路径有 `/swapfile`、`/swap.img`
 
@@ -719,7 +721,7 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block
 
 #### 添加内核参数
 
-使用 `blkid /dev/nvme0n1p1`, 查看 UUID, 写入到内核参数, 格式 `resume=UUID=xxxxxx`
+使用 `blkid /dev/nvme0n1p1`, 查看 UUID
 
 示例:
 
@@ -728,9 +730,10 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block
 /dev/nvme0n1p1: LABEL="archlinux" UUID="4483df75-6a1d-42a1-9a3e-66406b7a9cac" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="1cf11453-a83c-4dd9-9f88-28a24754818f"
 ```
 
+然后将 `resume=UUID=xxxxxx` 写入到内核参数  
 对于 swapfile, 需要额外加上 `resume_offset=xxxxxx`, 表示偏移量, 偏移量可以通过此命令快速获取 `filefrag -v <swap_file> | awk '$1=="0:" {print substr($4, 1, length($4)-2)}'`
 
-示例:
+获取 swapfile 偏移量示例:
 
 ```bash
 ❯ sudo filefrag -v /swap.img | awk '$1=="0:" {print substr($4, 1, length($4)-2)}'
@@ -891,7 +894,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `pacman -Ss <regex>`           | 搜索软件包(s)                                                         |
 | `pacman -Si <软件包>`          | 查看软件包信息(i)                                                     |
 | `pacman -Syyuu`                | 强制更新数据库(yy)并升级/降级软件包(uu)                               |
-| `pacman --fm nvim -S <软件包>` | 安装软件包, 并在安装之前编辑 PKGBUILD (--fm)                          |
+| `pacman -S --rebuild <软件包>` | 重新构建和安装软件包(--rebuild)                                       |
+| `pacman --fm nvim -S <软件包>` | 安装软件包, 并在安装之前编辑仓库, 例如修改 PKGBUILD (--fm)            |
 | `pacman -Rsn <软件包>`         | 删除软件包以及相关依赖(s)和配置文件(n)                                |
 | `pacman -Rsnc <软件包>`        | 删除软件包以及相关依赖(s)和配置文件(n), 并且删除依赖它的软件包(c)     |
 | `pacman -Rsndd <软件包>`       | 强制删除软件包以及相关依赖(s)和配置文件(n), 忽略依赖问题(dd)          |
@@ -904,6 +908,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `pacman -Qdtq`                 | 列出孤包(dt), 即不被需要(t)的软件包依赖(d), 不显示版本信息(q)         |
 | `pacman -Qeq`                  | 列出自己安装的软件包(e), 不显示版本信息(q)                            |
 | `pacman -Qetq`                 | 列出自己安装(e)的不被其他软件包依赖(t)的软件包, 不显示版本信息(q)     |
+| `pacman -Qk`                   | 校验软件包文件缺失(k)                                                 |
+| `pacman -Qkk`                  | 校验软件包文件完整性(kk)                                              |
 | `pacman -F <file>`             | 查询文件或命令所属软件包                                              |
 | `pacman -Fy`                   | 更新文件数据库(y)                                                     |
 | `pacman -U <file>`             | 从文件安装软件包(package.tar.gz)                                      |
