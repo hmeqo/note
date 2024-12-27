@@ -7,6 +7,100 @@
 > Archlinux: <https://www.archlinux.org/>  
 > Archlinuxcn: <https://www.archlinuxcn.org/>
 
+## 目录
+
+- [Arch Linux](#arch-linux)
+  - [目录](#目录)
+  - [安装教程](#安装教程)
+    - [视频教程](#视频教程)
+    - [1. 准备](#1-准备)
+      - [获取系统信息](#获取系统信息)
+      - [硬件准备](#硬件准备)
+      - [提前分配空闲分区](#提前分配空闲分区)
+      - [插入U盘](#插入u盘)
+      - [WIFI 网络连接](#wifi-网络连接)
+      - [分区](#分区)
+        - [创建分区](#创建分区)
+        - [格式化分区](#格式化分区)
+        - [挂载分区](#挂载分区)
+    - [2. 安装](#2-安装)
+      - [镜像源](#镜像源)
+      - [更新密钥环](#更新密钥环)
+      - [安装基本软件包](#安装基本软件包)
+    - [3. 配置系统](#3-配置系统)
+      - [3.1 导出分区表](#31-导出分区表)
+      - [3.2 Chroot](#32-chroot)
+      - [3.3 设置时区](#33-设置时区)
+      - [3.4 设置地区](#34-设置地区)
+      - [3.5 设置主机名](#35-设置主机名)
+      - [3.6 初始化配置](#36-初始化配置)
+      - [3.7 更改 root 密码](#37-更改-root-密码)
+      - [3.8 网络管理器](#38-网络管理器)
+      - [3.9 创建用户](#39-创建用户)
+      - [3.10 更新系统时间](#310-更新系统时间)
+      - [3.11 开机引导](#311-开机引导)
+        - [GRUB](#grub)
+          - [安装GRUB](#安装grub)
+          - [os-prober 找不到其他系统](#os-prober-找不到其他系统)
+          - [Grub 主题](#grub-主题)
+        - [systemd-boot](#systemd-boot)
+        - [rEFInd](#refind)
+          - [rEFInd 主题](#refind-主题)
+    - [4. 重启](#4-重启)
+    - [5. 后续操作](#5-后续操作)
+      - [考虑启用pacman的multilib和AUR](#考虑启用pacman的multilib和aur)
+      - [安装桌面环境](#安装桌面环境)
+      - [安装各种驱动](#安装各种驱动)
+  - [系统配置](#系统配置)
+    - [修改内核参数](#修改内核参数)
+    - [音频驱动](#音频驱动)
+      - [OpenAL](#openal)
+    - [显卡驱动](#显卡驱动)
+      - [VA-API 视频加速](#va-api-视频加速)
+      - [EGL and GLX](#egl-and-glx)
+    - [双显卡管理](#双显卡管理)
+      - [双显卡切换](#双显卡切换)
+      - [指定使用独立显卡](#指定使用独立显卡)
+    - [fstab](#fstab)
+    - [Swap](#swap)
+      - [Swap大小建议](#swap大小建议)
+      - [创建swapfile](#创建swapfile)
+    - [mkinitcpio的systemd钩子](#mkinitcpio的systemd钩子)
+    - [休眠](#休眠)
+      - [1. 添加休眠钩子](#1-添加休眠钩子)
+      - [2. 添加休眠内核参数](#2-添加休眠内核参数)
+      - [3. 启动休眠服务](#3-启动休眠服务)
+  - [pacman](#pacman)
+    - [初始化密钥环](#初始化密钥环)
+    - [多线程下载](#多线程下载)
+    - [颜色](#颜色)
+    - [pacman的其他软件仓库](#pacman的其他软件仓库)
+      - [multilib软件仓库](#multilib软件仓库)
+      - [archlinuxcn软件仓库](#archlinuxcn软件仓库)
+      - [Arch 用户软件仓库 (AUR)](#arch-用户软件仓库-aur)
+        - [安装AUR助手](#安装aur助手)
+        - [手动安装AUR软件包](#手动安装aur软件包)
+    - [Arch Linux Archive](#arch-linux-archive)
+    - [彩蛋](#彩蛋)
+    - [pacman以及AUR助手常用命令](#pacman以及aur助手常用命令)
+    - [软件包降级](#软件包降级)
+  - [常用软件包/工具/命令](#常用软件包工具命令)
+    - [yay](#yay)
+    - [paru](#paru)
+      - [配置paru](#配置paru)
+        - [搜索结果倒叙排序](#搜索结果倒叙排序)
+    - [fcrackzip](#fcrackzip)
+    - [mangohud](#mangohud)
+      - [mangohud with opengl](#mangohud-with-opengl)
+      - [mangohud 快捷键](#mangohud-快捷键)
+  - [KVM 显卡直通](#kvm-显卡直通)
+  - [Wiki](#wiki)
+    - [Linux 基础目录](#linux-基础目录)
+    - [文件系统](#文件系统)
+    - [WINE/PROTON 运行 Windows 应用/游戏](#wineproton-运行-windows-应用游戏)
+      - [WINE 生态中的各种工具介绍](#wine-生态中的各种工具介绍)
+      - [WINE/PROTON GUI 启动器](#wineproton-gui-启动器)
+
 ## 安装教程
 
 可以配合官网步骤食用: <https://wiki.archlinux.org/title/Installation_guide>
@@ -487,7 +581,7 @@ pacman -S lib32-openal
     **注意: 对于非标准内核 (比如linux-zen), 请安装 nvidia-dkms / nvidia-open-dkms, 而不是 nvidia / nvidia-open**
 
     ```bash
-    pacman -S nvidia-open/nvidia/nvidia-open-dkms/nvidia-dkms nvidia-utils [opencl-nvidia] [nvidia-prime]
+    pacman -S nvidia-open/nvidia/nvidia-open-dkms/nvidia-dkms nvidia-utils [opencl-nvidia]
     # for multilib
     pacman -S lib32-nvidia-utils
     ```
@@ -542,26 +636,33 @@ pacman -S lib32-openal
 
 ### 双显卡管理
 
-- optimus-manager (仅X11)
+#### 双显卡切换
 
-- envycontrol
+X11 默认只使用集显, 通过手配置或使用显卡管理器自动配置使用混合模式/只用独立显卡
 
-  支持 Wayland
+- optimus-manager (只支持X11)
+
+  支持 amd, nvidia dGPU
+
+- envycontrol (NVIDIA dGPU 推荐)
 
   - cli
 
     `envycontrol -q` 查询当前模式
 
-    `envycontrol -s <mode>` 切换模式, 可选项：`hybrid`、`integrated`、`nvidia`
+    `sudo envycontrol -s <mode>` 切换模式, 可选项：`hybrid`、`integrated`、`nvidia`
 
-    `envycontrol --reset` 重置
+    `sudo envycontrol --reset` 重置
 
   - 桌面环境适配
 
-    支持 KDE Widget  
-    `Optimus GPU Switcher`: <https://store.kde.org/p/2138365>
+    - KDE Widget
 
-- switcheroo-control
+      `Optimus GPU Switcher`: <https://store.kde.org/p/2138365>
+
+#### 指定使用独立显卡
+
+- switcheroo-control (推荐)
 
   记得启用服务 `sudo systemctl enable --now switcheroo-control`
 
@@ -571,13 +672,19 @@ pacman -S lib32-openal
 
   - 桌面环境适配
 
-    然后你应该能在桌面环境编辑.desktop的属性时看到使用独立显卡的选项  
-    或者在.desktop的\[Desktop Entry\]中添加以下内容
+    然后你应该能在桌面环境编辑 .desktop 的属性时看到使用独立显卡的选项  
+    或者在 .desktop 的 \[Desktop Entry\] 中添加以下内容
 
-    ```
+    ```desktop
     PrefersNonDefaultGPU=true
     X-KDE-RunOnDiscreteGpu=true
     ```
+
+- nvidia-prime
+
+  - cli
+
+    `prime-run <command>` 使用nvidia显卡运行游戏
 
 ### fstab
 
@@ -955,156 +1062,191 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 
 ## 常用软件包/工具/命令
 
-| 软件包/工具/命令          | 描述                             |
-| ------------------------- | -------------------------------- |
-| [`yay`](#yay)             | Aur 助手                         |
-| [`paru`](#paru)           | Aur 助手                         |
-| `debtap`                  | deb包转pacman包                  |
-| **Shell**                 |                                  |
-| `zsh`                     | shell                            |
-| `fish`                    | shell                            |
-| `fisher`                  | shell 扩展管理                   |
-| **终端**                  |                                  |
-| `konsole`                 | 终端                             |
-| `yakuake`                 | 下拉终端                         |
-| `wezterm`                 | 终端                             |
-| `kitty`                   | 终端                             |
-| **Shell 工具**            |                                  |
-| `reflector`               | pacman镜像服务器地址生成         |
-| `mirro-rs`                | 查找速度最快的pacman镜像服务器   |
-| [`tmux`](./tmux.md)       | 终端复用                         |
-| `bat`                     | better cat                       |
-| `exa`                     | better ls                        |
-| `fzf`                     | fuzzy finder                     |
-| `yazi`                    | 终端下的 explorer                |
-| `superfile`               | 终端下的文件管理器               |
-| `hyperfine`               | 命令行性能测试                   |
-| `btop`                    | 终端资源监视器                   |
-| **基础设施**              |                                  |
-| `lspci`                   |                                  |
-| `lsusb`                   |                                  |
-| `watch`                   | 定时执行                         |
-| `at`                      | 定时执行                         |
-| `crontab`                 | 定时任务                         |
-| `bluetoothctl`            | Bluetooth 管理                   |
-| `btmgmt`                  | Bluetooth 管理                   |
-| `pw-top`                  | pipewire top                     |
-| `tlp+tlp-rdw+tlpui`       | 电源管理                         |
-| `power-profiles-deamon`   | 电源管理                         |
-| `pamixer`                 |                                  |
-| `brightnessctl`           |                                  |
-| `authbind`                | 非root绑定特权端口               |
-| **分区管理**              |                                  |
-| `efibootmgr`              | EFI 启动管理                     |
-| `lsblk`                   |                                  |
-| `cfdisk`                  |                                  |
-| `df`                      |                                  |
-| `du`                      |                                  |
-| **网络**                  |                                  |
-| `ss/netstat`              | 网络状态                         |
-| `nftables`                | 安装 iptables-nft 包即可         |
-| `whois`                   | 域名查询                         |
-| `dig`                     | 域名解析工具                     |
-| `nslookup`                | 域名解析工具                     |
-| `nali`                    | ip归属查询                       |
-| `dnsmasq`                 | DNS 服务                         |
-| `mtr`                     | traceroute 和 ping 功能的结合    |
-| `nexttrace`               | 网络路径分析                     |
-| `openresolv`              | resolv.conf 管理                 |
-| `nethogs`                 | 网络流量监听                     |
-| `wireshark`               | 网络分析工具                     |
-| **CPU**                   |                                  |
-| `lscpu`                   |                                  |
-| `turbostat`               | CPU 温度频率监测                 |
-| `cpupower`                |                                  |
-| **GPU**                   |                                  |
-| `nvtop`                   | 终端GPU监视器                    |
-| `intel_gpu_top`           |                                  |
-| `nvidia-smi`              |                                  |
-| `prime-run`               |                                  |
-| **hack**                  |                                  |
-| [`fcrackzip`](#fcrackzip) | 压缩包破解                       |
-| **GUI 工具**              |                                  |
-| `pavu-control`            | pipewire GUI                     |
-| `qpwgraph`                | 音频控制                         |
-| `mission-center`          | 类 Windows 任务管理器            |
-| `cpu-x`                   | CPU 信息监测                     |
-| `qalculate`               | 计算器                           |
-| **视频**                  |                                  |
-| `vlc`                     | 视频播放器                       |
-| `mpv`                     | 精简视频播放器                   |
-| `kdenlive`                | 视频剪辑                         |
-| `obs-studio`              | 视频录制/推流                    |
-| **音频**                  |                                  |
-| `elisa`                   | 音乐播放器, 自带电台             |
-| `easyeffects`             | 音频效果                         |
-| **图像**                  |                                  |
-| `gwenview`                | kde 图像查看器                   |
-| `gimp`                    | 修图                             |
-| `inkscape`                | 矢量图编辑                       |
-| `pureref`                 | 多图片查看, 钉图, 编辑           |
-| **开发工具**              |                                  |
-| `neovide`                 | nvim的GUI                        |
-| `blender`                 | 建模                             |
-| **通信**                  |                                  |
-| `thunderbird`             | 邮件                             |
-| **办公**                  |                                  |
-| `okular`                  | PDF/MD 阅读                      |
-| `onlyoffice`              | 仿微软办公套件                   |
-| `calligra`                | KDE 推出的办公套件               |
-| **浏览器**                |                                  |
-| `firefox`                 | Linux 用户人手一个               |
-| `zen-browser`             | 基于Firefox的浏览器              |
-| `tor-browser`             | 很安全的基于Firefox的浏览器      |
-| **磁盘管理**              |                                  |
-| `partiionmanager`         | 分区工具                         |
-| `gparted`                 | 分区工具                         |
-| `etcher`                  | 刻录工具                         |
-| **游戏**                  |                                  |
-| [`mangohud`](#mangohud)   | 游戏性能监控                     |
-| `goverlay`                | mangohud 的图形化控制台          |
-| `gamemode`                | 使用游戏模式运行游戏             |
-| `steam`                   | Steam 客户端                     |
-| `heroic`                  | 第三方 Epic 客户端               |
-| `lutris`                  | 游戏管理器                       |
-| `faugus-launcher`         | wine/proton 启动器               |
-| **远程**                  |                                  |
-| `kdeconnect`              | 手机电脑局域网连接               |
-| `scrcpy`                  | Android 屏幕远程控制             |
-| `remmina`                 | 远程连接工具，支持VNC/RDP等      |
-| `rustdesk`                | 屏幕分享                         |
-| `frpc/frps`               | 内网穿透                         |
-| `npc/nps`                 | 内网穿透/P2P                     |
-| **代理/VPN**              |                                  |
-| `proxychains`             | 终端强制代理工具, 可代理ping流量 |
-| `v2raya`                  | v2ray web ui                     |
-| `nekoray`                 | sing-box GUI                     |
-| `clash-verge-rev`         | clash-meta GUI                   |
-| **玩具**                  |                                  |
-| `lolcat`                  | 渐变色输出                       |
-| `sl`                      | 火车                             |
-| `cmatrix`                 | 黑客字幕                         |
-| `figlet`                  | 艺术字                           |
-| `pyfiglet`                | figlet Python 实现               |
-| `toilet`                  | 艺术字                           |
-| `cowsay`                  | 奶牛说                           |
-| `asciiquarium`            | 水族馆                           |
-| `nyancat`                 | 彩虹猫                           |
-| `carbonyl`                | 终端浏览器                       |
-| `griddycode`              | 代码编辑器                       |
-| **其他**                  |                                  |
-| `teamspeak3`              | 语音服务器                       |
-| `motrix`                  | 下载工具                         |
-| `alist`                   | 整合各种网盘                     |
-| `davfs`                   |                                  |
-| `kanshi`                  | Wayland 动态显示屏切换           |
-| **字体**                  |                                  |
-| `noto-fonts-cjk`          | 中文                             |
-| `noto-fonts-emoji`        | 表情                             |
-| `noto-fonts-extra`        |                                  |
-| `ttf-fira-code`           | Fira Code                        |
-| `ttf-firacode-nerd`       | Fira Code Nerd Font              |
-| `ttf-maple`               |                                  |
+| 软件包/工具/命令          | 描述                                  |
+| ------------------------- | ------------------------------------- |
+| [`yay`](#yay)             | Aur 助手                              |
+| [`paru`](#paru)           | Aur 助手                              |
+| `debtap`                  | deb包转pacman包                       |
+| **Shell**                 |                                       |
+| `zsh`                     | shell                                 |
+| `fish`                    | shell                                 |
+| `fisher`                  | shell 扩展管理                        |
+| **终端**                  |                                       |
+| `konsole`                 | 终端                                  |
+| `yakuake`                 | 下拉终端                              |
+| `wezterm`                 | 终端                                  |
+| `kitty`                   | 终端                                  |
+| **Shell 工具**            |                                       |
+| `reflector`               | pacman镜像服务器地址生成              |
+| `mirro-rs`                | 查找速度最快的pacman镜像服务器        |
+| [`tmux`](./tmux.md)       | 终端复用                              |
+| `bat`                     | better cat                            |
+| `exa`                     | better ls                             |
+| `fzf`                     | fuzzy finder                          |
+| `yazi`                    | 终端下的 explorer                     |
+| `superfile`               | 终端下的文件管理器                    |
+| `hyperfine`               | 命令行性能测试                        |
+| `btop`                    | 终端资源监视器                        |
+| **基础设施**              |                                       |
+| `lspci`                   |                                       |
+| `lsusb`                   |                                       |
+| `watch`                   | 定时执行                              |
+| `at`                      | ��时执行                              |
+| `crontab`                 | 定时任务                              |
+| `bluetoothctl`            | Bluetooth 管理                        |
+| `btmgmt`                  | Bluetooth 管理                        |
+| `pw-top`                  | pipewire top                          |
+| `tlp+tlp-rdw+tlpui`       | 电源管理                              |
+| `power-profiles-deamon`   | 电源管理                              |
+| `pamixer`                 |                                       |
+| `brightnessctl`           |                                       |
+| `authbind`                | 非root绑定特权端口                    |
+| **分区管理**              |                                       |
+| `efibootmgr`              | EFI 启动管理                          |
+| `lsblk`                   |                                       |
+| `cfdisk`                  |                                       |
+| `df`                      |                                       |
+| `du`                      |                                       |
+| **网络**                  |                                       |
+| `ss/netstat`              | 网络状态                              |
+| `nftables`                | 安装 iptables-nft 包即可              |
+| `whois`                   | 域名查询                              |
+| `dig`                     | 域名解析工具                          |
+| `nslookup`                | 域名解析工具                          |
+| `nali`                    | ip归属查询                            |
+| `dnsmasq`                 | DNS 服务                              |
+| `mtr`                     | traceroute 和 ping 功能的结合         |
+| `nexttrace`               | 网络路径分析                          |
+| `openresolv`              | resolv.conf 管理                      |
+| `nethogs`                 | 网络流量监听                          |
+| `wireshark`               | 网络分析工具                          |
+| **CPU**                   |                                       |
+| `lscpu`                   |                                       |
+| `turbostat`               | CPU 温度频率监测                      |
+| `cpupower`                |                                       |
+| **GPU**                   |                                       |
+| `nvtop`                   | 终端GPU监视器                         |
+| `intel_gpu_top`           |                                       |
+| `nvidia-smi`              |                                       |
+| **hack**                  |                                       |
+| [`fcrackzip`](#fcrackzip) | 压缩包破解                            |
+| **GUI 工具**              |                                       |
+| `pavu-control`            | pipewire GUI                          |
+| `qpwgraph`                | 音频控制                              |
+| `mission-center`          | 类 Windows 任务管理器                 |
+| `cpu-x`                   | CPU 信息监测                          |
+| `qalculate`               | 计算器                                |
+| **视频**                  |                                       |
+| `vlc`                     | 视频播放器                            |
+| `mpv`                     | 精简视频播放器                        |
+| `karuna`                  | KDE 基于 mpv 的视频播放器             |
+| `kdenlive`                | 视频剪辑                              |
+| `obs-studio`              | 视频录制/推流                         |
+| **音频**                  |                                       |
+| `elisa`                   | 音乐播放器, 支持电台                  |
+| `easyeffects`             | 音频效果                              |
+| **图像**                  |                                       |
+| `gwenview`                | kde 图像查看器                        |
+| `gimp`                    | 修图                                  |
+| `inkscape`                | 矢量图编辑                            |
+| `pureref`                 | 多图片查看, 钉图, 编辑                |
+| **开发工具**              |                                       |
+| `neovide`                 | nvim的GUI                             |
+| `blender`                 | 建模                                  |
+| **通信**                  |                                       |
+| `thunderbird`             | 邮件                                  |
+| **办公**                  |                                       |
+| `okular`                  | PDF/MD 阅读                           |
+| `onlyoffice`              | 仿微软办公套件                        |
+| `calligra`                | KDE 推出的办公套件                    |
+| **浏览器**                |                                       |
+| `firefox`                 |                                       |
+| `zen-browser`             | 基于Firefox的浏览器                   |
+| `tor-browser`             | 很安全的基于Firefox的浏览器           |
+| **磁盘管理**              |                                       |
+| `gparted`                 | 分区工具                              |
+| `partiionmanager`         | 分区工具                              |
+| `etcher`                  | 刻录工具                              |
+| `isoimagewriter`          | KDE U盘刻录工具                       |
+| **下载/网盘**             |                                       |
+| `motrix`                  | 下载工具                              |
+| `alist`                   | 整合各种网盘                          |
+| `davfs`                   | 可将 alist 网盘挂载到本地             |
+| **电台/DJ**               |                                       |
+| `azuracast`               | 电台                                  |
+| `mixxx`                   | DJ, 电台推流                          |
+| **游戏**                  |                                       |
+| [`mangohud`](#mangohud)   | 游戏性能监控                          |
+| `goverlay`                | mangohud 的图形化控制台               |
+| `gamemode`                | 使用游戏模式运行游戏                  |
+| `steam`                   | Steam 客户端                          |
+| `heroic`                  | 第三方 Epic 客户端                    |
+| `lutris`                  | 游戏管理器                            |
+| `faugus-launcher`         | wine/proton 启动器                    |
+| `zinkrun`                 | OpenGL 转 Vulkan (可直接通过环境变量) |
+| `vkbasalt`                | 为 Vulkan 游戏提供额外的后处理        |
+| **远程**                  |                                       |
+| `kdeconnect`              | 手机电脑局域网连接                    |
+| `scrcpy`                  | Android 屏幕远程控制                  |
+| `remmina`                 | 远程连接工具，支持VNC/RDP等           |
+| `rustdesk`                | 屏幕分享                              |
+| `frpc/frps`               | 内网穿透                              |
+| `npc/nps`                 | 内网穿透/P2P                          |
+| **代理/VPN**              |                                       |
+| `dae`                     | Linux下的透明代理方式                 |
+| `daed`                    | dae 的 web UI                         |
+| `glider`                  | 绑定可走代理的 http / socks 端口      |
+| `proxychains`             | 终端强制代理工具, 可代理ping流量      |
+| `v2raya`                  | v2ray web UI                          |
+| `nekoray`                 | sing-box GUI                          |
+| `clash-verge-rev`         | clash-meta GUI                        |
+| **玩具**                  |                                       |
+| `lolcat`                  | 渐变色输出                            |
+| `sl`                      | 火车                                  |
+| `cmatrix`                 | 黑客字幕                              |
+| `figlet`                  | 艺术字                                |
+| `pyfiglet`                | figlet Python 实现                    |
+| `toilet`                  | 艺术字                                |
+| `cowsay`                  | 奶牛说                                |
+| `asciiquarium`            | 水族馆                                |
+| `nyancat`                 | 彩虹猫                                |
+| `carbonyl`                | 终端浏览器                            |
+| `griddycode`              | 代码编辑器                            |
+| **其他**                  |                                       |
+| `teamspeak3`              | 语音服务器                            |
+| `kanshi`                  | Wayland 动态显示屏切换                |
+| **字体**                  |                                       |
+| `noto-fonts-cjk`          | 中文                                  |
+| `noto-fonts-emoji`        | 表情                                  |
+| `noto-fonts-extra`        |                                       |
+| `ttf-fira-code`           | Fira Code                             |
+| `ttf-firacode-nerd`       | Fira Code Nerd Font                   |
+| `ttf-maple`               |                                       |
+
+KDE软件生态
+
+| 软件               | 描述                             |
+| ------------------ | -------------------------------- |
+| `dolphin`          | 文件管理                         |
+| `konsole`          | 终端                             |
+| `kate`             | 文件编辑器                       |
+| `yakuake`          | 下拉终端                         |
+| `ark`              | 归档/压缩文件管理                |
+| `filelight`        | 图形化文件占用, 类似spacesnipper |
+| `kdf`              | 磁盘使用量                       |
+| `partitionmanager` | 分区工具                         |
+| `spectacle`        | 屏幕截图/录制                    |
+| `gwenview`         | 图片查看                         |
+| `karuna`           | 视频                             |
+| `kdenlive`         | 视频剪辑工具                     |
+| `elisa`            | 音乐播放器                       |
+| `okular`           | PDF/MD 阅读                      |
+| `calligra`         | 办公套件                         |
+| `krdp`             | 远程桌面服务器                   |
+| `sweeper`          | 垃圾清理                         |
+| `kwalletmanager`   | KDE密钥管理                      |
+| `kdeconnect`       | 跨平台的手机电脑局域网连接工具   |
+| `isoimagewriter`   | U盘刻录                          |
 
 ### yay
 
@@ -1210,33 +1352,6 @@ mangohud --dlsym glxgears
 - L_SHIFT + F2
 
   开始/结束Log
-
-## 桌面环境配置
-
-### KDE配置
-
-#### KDE软件生态
-
-| 软件               | 描述                             |
-| ------------------ | -------------------------------- |
-| `dolphin`          | 文件管理                         |
-| `konsole`          | 终端                             |
-| `kate`             | 文件编辑器                       |
-| `yakuake`          | 下拉终端                         |
-| `ark`              | 归档/压缩文件管理                |
-| `filelight`        | 图形化文件占用, 类似spacesnipper |
-| `kdf`              | 磁盘使用量                       |
-| `partitionmanager` | 分区工具                         |
-| `spectacle`        | 屏幕截图/录制                    |
-| `gwenview`         | 图片查看                         |
-| `kdenlive`         | 视频剪辑工具                     |
-| `elisa`            | 音乐播放器                       |
-| `okular`           | PDF/MD 阅读                      |
-| `calligra`         | 办公套件                         |
-| `krdp`             | 远程桌面服务器                   |
-| `sweeper`          | 垃圾清理                         |
-| `kwalletmanager`   | KDE密钥管理                      |
-| `kdeconnect`       | 跨平台的手机电脑局域网连接工具   |
 
 ## KVM 显卡直通
 
