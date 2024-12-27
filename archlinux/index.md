@@ -76,15 +76,17 @@
     - [颜色](#颜色)
     - [pacman的其他软件仓库](#pacman的其他软件仓库)
       - [multilib软件仓库](#multilib软件仓库)
-      - [archlinuxcn软件仓库](#archlinuxcn软件仓库)
       - [Arch 用户软件仓库 (AUR)](#arch-用户软件仓库-aur)
         - [安装AUR助手](#安装aur助手)
         - [手动安装AUR软件包](#手动安装aur软件包)
+      - [archlinuxcn软件仓库](#archlinuxcn软件仓库)
+      - [Chaotic-AUR](#chaotic-aur)
     - [Arch Linux Archive](#arch-linux-archive)
     - [彩蛋](#彩蛋)
     - [pacman以及AUR助手常用命令](#pacman以及aur助手常用命令)
     - [软件包降级](#软件包降级)
   - [常用软件包/工具/命令](#常用软件包工具命令)
+    - [KDE软件生态](#kde软件生态)
     - [yay](#yay)
     - [paru](#paru)
       - [配置paru](#配置paru)
@@ -639,13 +641,31 @@ pacman -S lib32-openal
 
 #### 双显卡切换
 
-X11 默认只使用集显, 通过手配置或使用显卡管理器自动配置使用混合模式/只用独立显卡
+X11 默认只使用集显, 需要通过手动配置或使用 optimus-manager 自动配置使用独立显卡 (混合模式 or 只用独立显卡)
 
-- optimus-manager (只支持X11)
+Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有只使用 iGPU 或 dGPU 的需求, 参考以下列出的软件
+
+- optimus-manager
+
+  官方说只支持 X11, 但 Wayland 似乎也能用
 
   支持 amd, nvidia dGPU
 
+  - 安装
+
+    可选择安装图形界面 `optimus-manager-qt`
+
+    ```bash
+    paru -S optimus-manager [optimus-manager-qt]
+    ```
+
 - envycontrol (NVIDIA dGPU 推荐)
+
+  - 安装
+
+    ```bash
+    paru -S envycontrol
+    ```
 
   - cli
 
@@ -916,44 +936,11 @@ Color
 
 #### multilib软件仓库
 
-安装Steam或其他32位软件包需要此软件源, 在 pacman 配置文件中取消注释 multilib 部分然后运行 `sudo pacman -Sy`
+安装Steam或其他32位软件包需要此软件源, 在 pacman 配置文件中取消注释 multilib 部分
 
 ```conf
 [multilib]
 Include = /etc/pacman.d/mirrorlist
-```
-
-#### archlinuxcn软件仓库
-
-> Arch Linux 中文社区仓库是由 Arch Linux 中文社区驱动的非官方软件仓库，包含许多官方仓库未提供的额外的软件包，以及已有软件的 git 版本等变种。一部分软件包的打包脚本来源于 AUR，但也有许多包与 AUR 不一样。
-
-添加步骤: 将下面内容加入 pacman 配置文件末尾 `/etc/pacman.conf`
-
-```conf
-[archlinuxcn]
-## 北京外国语大学 (北京) (ipv4, ipv6, http, https)
-Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch
-```
-
-> [!TIP]
-> 更多archlinuxcn镜像服务器查看此处 <https://github.com/archlinuxcn/mirrorlist-repo>
-
-然后安装archlinuxcn的密钥环
-
-```bash
-sudo pacman -Sy archlinuxcn-keyring
-```
-
-2023年10月之后, 新系统下安装cn密钥环如果遇到以下报错
-
-```bash
-error: archlinuxcn-keyring: Signature from "Jiachen YANG (Arch Linux Packager Signing Key) <farseerfc@archlinux.org>" is marginal trust
-```
-
-请在本地信任 farseerfc 的 GPG key, 并再次尝试安装
-
-```bash
-sudo pacman-key --lsign-key "farseerfc@archlinux.org"
 ```
 
 #### Arch 用户软件仓库 (AUR)
@@ -980,6 +967,31 @@ git clone https://aur.archlinux.org/<包名>.git
 cd <包名>
 makepkg -si
 ```
+
+#### archlinuxcn软件仓库
+
+> Arch Linux 中文社区仓库是由 Arch Linux 中文社区驱动的非官方软件仓库，包含许多官方仓库未提供的额外的软件包，以及已有软件的 git 版本等变种。一部分软件包的打包脚本来源于 AUR，但也有许多包与 AUR 不一样。
+
+添加步骤: 将下面内容加入 pacman 配置文件末尾 `/etc/pacman.conf`
+
+```conf
+[archlinuxcn]
+## 北京外国语大学 (北京) (ipv4, ipv6, http, https)
+Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch
+```
+
+> [!TIP]
+> 更多archlinuxcn镜像服务器查看此处 <https://github.com/archlinuxcn/mirrorlist-repo>
+
+然后安装 archlinuxcn 的密钥环
+
+```bash
+sudo pacman -Sy archlinuxcn-keyring
+```
+
+#### Chaotic-AUR
+
+文档: <https://aur.chaotic.cx/docs>
 
 ### Arch Linux Archive
 
@@ -1226,7 +1238,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `ttf-firacode-nerd`       | Fira Code Nerd Font                   |
 | `ttf-maple`               |                                       |
 
-KDE软件生态
+### KDE软件生态
 
 | 软件               | 描述                             |
 | ------------------ | -------------------------------- |
@@ -1257,8 +1269,8 @@ KDE软件生态
 
   ```bash
   sudo pacman -S --needed base-devel
-  git clone https://aur.archlinux.org/yay.git
-  cd yay
+  git clone https://aur.archlinux.org/yay-bin.git
+  cd yay-bin
   makepkg -si
   ```
 
@@ -1269,9 +1281,9 @@ GitHub: <https://github.com/Morganamilo/paru>
 - 安装
 
   ```bash
-  sudo pacman -S --needed base-devel
-  git clone https://aur.archlinux.org/paru.git
-  cd paru
+  sudo pacman -S --needed base-devel git
+  git clone https://aur.archlinux.org/paru-bin.git
+  cd paru-bin
   makepkg -si
   ```
 
@@ -1468,13 +1480,29 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 - ext4
 
+  稳定, 性能不错
+
+- btrfs
+
+  支持很多特性
+
 - xfs
 
 - zfs
 
-- btrfs
+- f2fs
+
+- fat32
+
+  常用于 EFI 分区
+
+- exfat
+
+  常用于 U盘, 兼容性好
 
 - tmpfs
+
+  常见于 /tmp /run /dev
 
   挂载在内存的文件系统
 
