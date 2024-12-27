@@ -273,7 +273,7 @@ pacman -Sy archlinux-keyring
 `linux-headers` 是内核的头文件, dkms 会用到, 也可以需要时再安装
 
 根据 CPU 选择安装 `intel-ucode` (Intel CPU) 或 `amd-ucode` (Amd CPU)  
-这个安装项是可选的，如果装不了可以不用管
+这个安装项是可选的, 如果装不了可以不用管
 
 `vi/vim/neovim` 是一种常用的终端文件编辑器, 不会用可以装 `nano`
 
@@ -306,7 +306,7 @@ hwc/alock --systohc
 
 #### 3.4 设置地区
 
-编辑 `/etc/locale.gen`, 取消注释需要的地区， 然后运行
+编辑 `/etc/locale.gen`, 取消注释需要的地区, 然后运行
 
 ```bash
 locale-gen
@@ -324,9 +324,9 @@ LANG=en_US.UTF-8
 
 #### 3.6 初始化配置
 
-通常不需要自己创建新的 `initramfs`，因为在执行 `pacstrap` 时安装了 linux 内核，安装 linux 的过程会自动运行 `mkinitcpio`
+通常不需要自己创建新的 `initramfs`, 因为在执行 `pacstrap` 时安装了 linux 内核, 安装 linux 的过程会自动运行 `mkinitcpio`
 
-如果是 LVM、 系统加密或 RAID 等分区配置，请修改 `mkinitcpio.conf` 并用以下命令重新创建一个 `Initramfs`:
+如果是 LVM、 系统加密或 RAID 等分区配置, 请修改 `mkinitcpio.conf` 并用以下命令重新创建一个 `Initramfs`:
 
 ```bash
 mkinitcpio -P
@@ -344,7 +344,7 @@ passwd
 
 #### 3.9 创建用户
 
-推荐方式, 创建用户，然后一个创建文件到 `/etc/sudoers.d/`，并添加这段配置 `<username> ALL=(ALL:ALL) ALL` 以允许新用户使用 `sudo`
+推荐方式, 创建用户, 然后一个创建文件到 `/etc/sudoers.d/`, 并添加这段配置 `<username> ALL=(ALL:ALL) ALL` 以允许新用户使用 `sudo`
 
 ```bash
 # 创建用户
@@ -452,6 +452,7 @@ systemd-boot 使用教程请看此处: <https://wiki.archlinuxcn.org/wiki/System
 
 ```bash
 pacman -S refind
+
 refind-install
 ```
 
@@ -466,7 +467,7 @@ refind-install
 
 ### 4. 重启
 
-安装完引导之后, `ctrl+d` 退出 chroot 环境, 重启电脑 (也可以先把后续操作做完再重启)
+安装完引导之后 (可以先把后续操作做完再做这一步), 输入 `exit` 或按 `ctrl+d` 退出 chroot 环境, 然后输入 `reboot` 重启电脑
 
 ### 5. 后续操作
 
@@ -483,7 +484,7 @@ refind-install
 - KDE
 
   可以参考 [KDE软件生态](#kde软件生态), 选择你需要的软件  
-  sddm 是 kde 官方的会话管理器, 如果不喜欢你也可以换成别的
+  sddm 是 kde 官方的会话管理器, 如果不喜欢也可以换成别的
 
   ```bash
   pacman -S sddm plasma dolphin konsole yakuake zen-browser spectacle ark filelight
@@ -1042,17 +1043,19 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 
 ### 软件包降级
 
-- 所有软件包降级
+- core / extra / multilib / community 仓库降级
 
-  [Arch Linux Archive](#Arch Linux Archive)
+  - 所有软件包降级
 
-- 降级单个软件包
+    [Arch Linux Archive](#Arch Linux Archive)
 
-  ```bash
-  sudo downgrade <package_name>
-  ```
+  - 降级单个软件包
 
-- AUR降级
+    ```bash
+    sudo downgrade <package_name>
+    ```
+
+- AUR 降级
 
   AUR包通常是git仓库, 所以只需要使用 nvim 或其他方式 reset/checkout 到你想要的版本
 
@@ -1188,7 +1191,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **远程**                  |                                       |
 | `kdeconnect`              | 手机电脑局域网连接                    |
 | `scrcpy`                  | Android 屏幕远程控制                  |
-| `remmina`                 | 远程连接工具，支持VNC/RDP等           |
+| `remmina`                 | 远程连接工具, 支持VNC/RDP等           |
 | `rustdesk`                | 屏幕分享                              |
 | `frpc/frps`               | 内网穿透                              |
 | `npc/nps`                 | 内网穿透/P2P                          |
