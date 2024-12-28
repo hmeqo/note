@@ -91,6 +91,7 @@
     - [paru](#paru)
       - [配置paru](#配置paru)
         - [搜索结果倒叙排序](#搜索结果倒叙排序)
+    - [reflector](#reflector)
     - [fcrackzip](#fcrackzip)
     - [mangohud](#mangohud)
       - [mangohud with opengl](#mangohud-with-opengl)
@@ -434,8 +435,12 @@ menuentry 'Microsoft Windows 10' {
 
 ###### Grub 主题
 
-- `grub-theme-vimix`Github: <https://github.com/Se7endAY/grub2-theme-vimix>
+- `grub-theme-vimix`
+
+  Github: <https://github.com/Se7endAY/grub2-theme-vimix>
+
 - Dark Matter GRUB Theme
+
   GitLab: <https://gitlab.com/VandalByte/darkmatter-grub-theme>
 
 ##### systemd-boot
@@ -577,14 +582,15 @@ pacman -S lib32-openal
 
   首先安装主要驱动, 有NVIDIA官方驱动, 和社区开源驱动, 选择其一安装即可
 
-  - 官方驱动  
+  - 官方驱动
+
     NVIDIA 官方提供了闭源和开源两种驱动, 分别是 `nvidia` 和 `nvidia-open`(仅2060及以上)  
     nvidia-utils 中包含了 vulkan 驱动
 
     **注意: 对于非标准内核 (比如linux-zen), 请安装 nvidia-dkms / nvidia-open-dkms, 而不是 nvidia / nvidia-open**
 
     ```bash
-    pacman -S nvidia-open/nvidia/nvidia-open-dkms/nvidia-dkms nvidia-utils [opencl-nvidia]
+    pacman -S nvidia nvidia-utils [opencl-nvidia]
     # for multilib
     pacman -S lib32-nvidia-utils
     ```
@@ -1092,7 +1098,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `wezterm`                 | 终端                                  |
 | `kitty`                   | 终端                                  |
 | **Shell 工具**            |                                       |
-| `reflector`               | pacman镜像服务器地址生成              |
+| [`reflector`](#reflector) | pacman镜像服务器地址生成              |
 | `mirro-rs`                | 查找速度最快的pacman镜像服务器        |
 | [`tmux`](./tmux.md)       | 终端复用                              |
 | `bat`                     | better cat                            |
@@ -1106,7 +1112,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `lspci`                   |                                       |
 | `lsusb`                   |                                       |
 | `watch`                   | 定时执行                              |
-| `at`                      | ��时执行                              |
+| `at`                      | 定时执行                              |
 | `crontab`                 | 定时任务                              |
 | `bluetoothctl`            | Bluetooth 管理                        |
 | `btmgmt`                  | Bluetooth 管理                        |
@@ -1178,18 +1184,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `firefox`                 |                                       |
 | `zen-browser`             | 基于Firefox的浏览器                   |
 | `tor-browser`             | 很安全的基于Firefox的浏览器           |
-| **磁盘管理**              |                                       |
-| `gparted`                 | 分区工具                              |
-| `partiionmanager`         | 分区工具                              |
-| `etcher`                  | 刻录工具                              |
-| `isoimagewriter`          | KDE U盘刻录工具                       |
-| **下载/网盘**             |                                       |
-| `motrix`                  | 下载工具                              |
-| `alist`                   | 整合各种网盘                          |
-| `davfs`                   | 可将 alist 网盘挂载到本地             |
-| **电台/DJ**               |                                       |
-| `azuracast`               | 电台                                  |
-| `mixxx`                   | DJ, 电台推流                          |
 | **游戏**                  |                                       |
 | [`mangohud`](#mangohud)   | 游戏性能监控                          |
 | `goverlay`                | mangohud 的图形化控制台               |
@@ -1200,6 +1194,15 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `faugus-launcher`         | wine/proton 启动器                    |
 | `zinkrun`                 | OpenGL 转 Vulkan (可直接通过环境变量) |
 | `vkbasalt`                | 为 Vulkan 游戏提供额外的后处理        |
+| **磁盘管理**              |                                       |
+| `gparted`                 | 分区工具                              |
+| `partiionmanager`         | 分区工具                              |
+| `etcher`                  | 刻录工具                              |
+| `isoimagewriter`          | KDE U盘刻录工具                       |
+| **下载/网盘**             |                                       |
+| `motrix`                  | 下载工具                              |
+| `alist`                   | 整合各种网盘                          |
+| `davfs`                   | 可将 alist 网盘挂载到本地             |
 | **远程**                  |                                       |
 | `kdeconnect`              | 手机电脑局域网连接                    |
 | `scrcpy`                  | Android 屏幕远程控制                  |
@@ -1215,6 +1218,12 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `v2raya`                  | v2ray web UI                          |
 | `nekoray`                 | sing-box GUI                          |
 | `clash-verge-rev`         | clash-meta GUI                        |
+| **电台/DJ**               |                                       |
+| `azuracast`               | 电台                                  |
+| `mixxx`                   | DJ, 电台推流                          |
+| **仪表盘**                |                                       |
+| `cockpit`                 |                                       |
+| `grafana`                 |                                       |
 | **玩具**                  |                                       |
 | `lolcat`                  | 渐变色输出                            |
 | `sl`                      | 火车                                  |
@@ -1230,10 +1239,12 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **其他**                  |                                       |
 | `teamspeak3`              | 语音服务器                            |
 | `kanshi`                  | Wayland 动态显示屏切换                |
+| `xdg-ninja`               | 检查家目录下的💩是否能遵循 XDG 规范    |
 | **字体**                  |                                       |
 | `noto-fonts-cjk`          | 中文                                  |
 | `noto-fonts-emoji`        | 表情                                  |
 | `noto-fonts-extra`        |                                       |
+| `ttf-nerd-fonts-symbols`  |                                       |
 | `ttf-fira-code`           | Fira Code                             |
 | `ttf-firacode-nerd`       | Fira Code Nerd Font                   |
 | `ttf-maple`               |                                       |
@@ -1303,6 +1314,16 @@ BottomUp
 #RemoveMake
 ...
 ```
+
+### reflector
+
+- cli
+
+  按照速度自动生成 CN 镜像服务器列表
+
+  ```bash
+  sudo reflector -c CN --save /etc/pacman.d/mirrorlist
+  ```
 
 ### fcrackzip
 
