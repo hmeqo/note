@@ -51,13 +51,19 @@
       - [考虑启用pacman的multilib和AUR](#考虑启用pacman的multilib和aur)
       - [安装桌面环境](#安装桌面环境)
       - [安装各种驱动](#安装各种驱动)
-  - [系统配置](#系统配置)
-    - [修改内核参数](#修改内核参数)
+  - [驱动](#驱动)
     - [音频驱动](#音频驱动)
       - [OpenAL](#openal)
     - [显卡驱动](#显卡驱动)
+      - [Vulkan](#vulkan)
       - [VA-API 视频加速](#va-api-视频加速)
-      - [EGL and GLX](#egl-and-glx)
+      - [OpenCL](#opencl)
+    - [计算加速](#计算加速)
+      - [Intel oneAPI](#intel-oneapi)
+    - [图形驱动](#图形驱动)
+      - [EGL](#egl)
+  - [系统配置](#系统配置)
+    - [修改内核参数](#修改内核参数)
     - [双显卡管理](#双显卡管理)
       - [双显卡切换](#双显卡切换)
       - [指定使用独立显卡](#指定使用独立显卡)
@@ -83,6 +89,7 @@
         - [手动安装AUR软件包](#手动安装aur软件包)
       - [archlinuxcn软件仓库](#archlinuxcn软件仓库)
       - [Chaotic-AUR](#chaotic-aur)
+      - [CachyOS](#cachyos)
     - [Arch Linux Archive](#arch-linux-archive)
     - [彩蛋](#彩蛋)
     - [pacman以及AUR助手常用命令](#pacman以及aur助手常用命令)
@@ -508,21 +515,7 @@ refind-install
 - [音频驱动](#音频驱动)
 - [显卡驱动](#显卡驱动)
 
-## 系统配置
-
-### 修改内核参数
-
-- `GRUB`
-
-  通过 `/etc/default/grub` 修改内核参数, 完成后记得 `sudo grub-mkconfig -o /boot/grub/grub.cfg`
-
-- `systemd-boot`
-
-  通过 `/boot/loader/loader.conf` 修改内核参数
-
-- `refind`
-
-  通过 `/boot/refind_linux.conf` 修改内核参数
+## 驱动
 
 ### 音频驱动
 
@@ -544,17 +537,36 @@ pacman -S lib32-openal
 
 ### 显卡驱动
 
-注: 独显核显都需要安装驱动
-
 - 通用
 
-  `mesa` 开源 OpenGL 驱动, 支持所有主流显卡
+  `mesa` - 开源 OpenGL 驱动, 支持所有主流显卡
 
   ```bash
   pacman -S mesa mesa-utils
   # for multilib
   pacman -S lib32-mesa-utils
   ```
+
+- NVIDIA
+
+  - 官方驱动
+
+    NVIDIA 官方提供了闭源和开源两种内核驱动, 分别是 `nvidia` 和 `nvidia-open` (仅2060及以上)  
+    nvidia-utils 中包含了 vulkan 驱动
+
+    **注意: 对于非标准内核 (比如linux-zen), 请安装 nvidia-dkms / nvidia-open-dkms, 而不是 nvidia / nvidia-open**
+
+    ```bash
+    pacman -S nvidia nvidia-utils
+    # for multilib
+    pacman -S lib32-nvidia-utils
+    ```
+
+  - 社区驱动
+
+    `nouveau` 已包含在内核模块中, 如需要社区驱动请不要安装官方驱动
+
+#### Vulkan
 
 - AMD
 
@@ -583,30 +595,23 @@ pacman -S lib32-openal
 
 - NVIDIA
 
-  首先安装主要驱动, 有NVIDIA官方驱动, 和社区开源驱动, 选择其一安装即可
-
   - 官方驱动
 
-    NVIDIA 官方提供了闭源和开源两种驱动, 分别是 `nvidia` 和 `nvidia-open`(仅2060及以上)  
-    nvidia-utils 中包含了 vulkan 驱动
-
-    **注意: 对于非标准内核 (比如linux-zen), 请安装 nvidia-dkms / nvidia-open-dkms, 而不是 nvidia / nvidia-open**
+    Vulkan 驱动含在 `nvidia-utils` 中
 
     ```bash
-    pacman -S nvidia nvidia-utils [opencl-nvidia]
-    # for multilib
-    pacman -S lib32-nvidia-utils
+    pacman -S nvidia-utils
     ```
 
-  - 社区开源驱动
+  - 社区驱动
 
-    - `vulkan-nouveau` 开源 NVIDIA Vulkan 驱动, nouveau 已在内核模块中
+    `vulkan-nouveau` 开源 NVIDIA Vulkan 驱动
 
-      ```bash
-      pacman -S vulkan-nouveau
-      # for multilib
-      pacman -S lib32-vulkan-nouveau
-      ```
+    ```bash
+    pacman -S vulkan-nouveau
+    # for multilib
+    pacman -S lib32-vulkan-nouveau
+    ```
 
 #### VA-API 视频加速
 
@@ -630,27 +635,57 @@ pacman -S lib32-openal
 
   检验 VA-API: <https://wiki.archlinuxcn.org/wiki/%E7%A1%AC%E4%BB%B6%E8%A7%86%E9%A2%91%E5%8A%A0%E9%80%9F#%E6%A3%80%E9%AA%8C_VA-API>
 
-#### EGL and GLX
+#### OpenCL
 
-- EGL
-
-  ```bash
-  pacman -S egl-wayland
-  ```
-
-- GLX
+- Intel
 
   ```bash
-  pacman -S libva
-  # for multilib
-  pacman -S lib32-libva
+  pacman -S intel-compute-runtime
   ```
+
+- NVIDIA
+
+  ```bash
+  pacman -S opencl-nvidia
+  ```
+
+### 计算加速
+
+#### Intel oneAPI
+
+```bash
+pacman -S intel-oneapi-compiler-shared-runtime
+```
+
+### 图形驱动
+
+#### EGL
+
+```bash
+pacman -S egl-wayland
+```
+
+## 系统配置
+
+### 修改内核参数
+
+- `GRUB`
+
+  通过 `/etc/default/grub` 修改内核参数, 完成后记得 `sudo grub-mkconfig -o /boot/grub/grub.cfg`
+
+- `systemd-boot`
+
+  通过 `/boot/loader/entries/arch.conf` 修改内核参数
+
+- `refind`
+
+  通过 `/boot/refind_linux.conf` 修改内核参数
 
 ### 双显卡管理
 
 #### 双显卡切换
 
-X11 默认只使用集显, 需要通过手动配置或使用 optimus-manager 自动配置使用独立显卡 (混合模式 or 只用独立显卡)
+X11 默认只使用集显, 需要手动配置或使用 optimus-manager 自动配置使用独立显卡 (混合模式 or 只用独立显卡)
 
 Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有只使用 iGPU 或 dGPU 的需求, 参考以下列出的软件
 
@@ -678,11 +713,11 @@ Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有�
 
   - cli
 
-    `envycontrol -q` 查询当前模式
+    `envycontrol -q` - 查询当前模式
 
-    `sudo envycontrol -s <mode>` 切换模式, 可选项：`hybrid`、`integrated`、`nvidia`
+    `sudo envycontrol -s <mode>` - 切换模式, 可选项：`hybrid`、`integrated`、`nvidia`
 
-    `sudo envycontrol --reset` 重置
+    `sudo envycontrol --reset` - 重置
 
   - 桌面环境适配
 
@@ -692,18 +727,18 @@ Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有�
 
 #### 指定使用独立显卡
 
-- switcheroo-control (推荐)
+- switcheroo-control
 
   记得启用服务 `sudo systemctl enable --now switcheroo-control`
 
   - cli
 
-    `switcherooctl launch <command>` 用独显运行命令
+    `switcherooctl launch <command>` - 用独显运行
 
   - 桌面环境适配
 
     然后你应该能在桌面环境编辑 .desktop 的属性时看到使用独立显卡的选项  
-    或者在 .desktop 的 \[Desktop Entry\] 中添加以下内容
+    或者在 .desktop 的 [Desktop Entry] 中添加以下内容
 
     ```desktop
     PrefersNonDefaultGPU=true
@@ -714,7 +749,7 @@ Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有�
 
   - cli
 
-    `prime-run <command>` 使用nvidia显卡运行游戏
+    `prime-run <command>` - 使用nvidia显卡运行
 
 ### 电源管理
 
@@ -799,35 +834,7 @@ UUID=xxxx /xxx ext4 defaults    0 2
 
 #### Swap大小建议
 
-参考来源 AI
-
-- 对于小内存系统（≤ 2GB）
-
-  交换分区大小建议为内存大小的 两倍。
-
-- 对于较大内存系统（> 2GB）
-
-  - 红帽官方建议：
-
-    - 内存 ≤ 4G，交换分区至少 4G。
-    - 内存为 4~16G，交换分区至少 8G。
-    - 内存为 16~64G，交换分区至少 16G。
-    - 内存为 64~256G，交换分区至少 32G。
-
-  - Ubuntu 的建议（针对是否需要休眠）：
-
-    - 物理内存 < 1G：
-      - 不需要休眠：交换分区 = 内存大小。
-      - 需要休眠：交换分区 = 内存大小的两倍（但不超过两倍）。
-    - 物理内存 ≥ 1G：
-      - 不需要休眠：交换分区 = √(RAM)。
-      - 需要休眠：交换分区 = RAM + √(RAM)，但不超过两倍内存大小。
-
-- 一般原则
-
-  - 不频繁使用大内存应用：可以参考上述建议的较小值，或者根据实际使用情况调整。
-  - 频繁使用大内存应用或服务：可能需要更大的交换分区，但应避免过度依赖交换分区，以免影响系统性能。
-  - 休眠功能：确保交换分区足够大，以容纳所有内存内容，通常意味着交换分区的大小至少应等于物理内存大小。
+Gentoo 文档: <https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks#What_about_swap_space.3F>
 
 #### 创建swapfile
 
@@ -1043,6 +1050,10 @@ sudo pacman -Sy archlinuxcn-keyring
 #### Chaotic-AUR
 
 文档: <https://aur.chaotic.cx/docs>
+
+#### CachyOS
+
+文档: <https://wiki.cachyos.org/features/optimized_repos/>
 
 ### Arch Linux Archive
 
