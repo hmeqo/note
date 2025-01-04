@@ -60,8 +60,6 @@
       - [OpenCL](#opencl)
     - [计算加速](#计算加速)
       - [Intel oneAPI](#intel-oneapi)
-    - [图形驱动](#图形驱动)
-      - [EGL](#egl)
   - [系统配置](#系统配置)
     - [修改内核参数](#修改内核参数)
     - [双显卡管理](#双显卡管理)
@@ -665,14 +663,6 @@ pacman -S lib32-openal
 pacman -S intel-oneapi-compiler-shared-runtime
 ```
 
-### 图形驱动
-
-#### EGL
-
-```bash
-pacman -S egl-wayland
-```
-
 ## 系统配置
 
 ### 修改内核参数
@@ -1183,7 +1173,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `bluetoothctl`            | Bluetooth 管理                        |
 | `btmgmt`                  | Bluetooth 管理                        |
 | `pw-top`                  | pipewire top                          |
-| `tlp+tlp-rdw+tlpui`       | 电源管理                              |
+| `tlp / tlp-rdw / tlpui`   | 电源管理                              |
 | `power-profiles-daemon`   | 电源管理                              |
 | `pamixer`                 |                                       |
 | `brightnessctl`           |                                       |
@@ -1194,8 +1184,14 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `cfdisk`                  |                                       |
 | `df`                      |                                       |
 | `du`                      |                                       |
+| **归档/压缩管理**         |                                       |
+| `tar`                     |                                       |
+| `zip / unzip`             |                                       |
+| `unarchiver`              |                                       |
+| `ark`                     | 图形化归档/压缩管理                   |
 | **网络**                  |                                       |
-| `ss/netstat`              | 网络状态                              |
+| `curl`                    | http 请求                             |
+| `ss / netstat`            | 网络状态                              |
 | `nftables`                | 安装 iptables-nft 包即可              |
 | `whois`                   | 域名查询                              |
 | `dig`                     | 域名解析工具                          |
@@ -1274,11 +1270,11 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `scrcpy`                  | Android 屏幕远程控制                  |
 | `remmina`                 | 远程连接工具, 支持VNC/RDP等           |
 | `rustdesk`                | 屏幕分享                              |
-| `frpc/frps`               | 内网穿透                              |
-| `npc/nps`                 | 内网穿透/P2P                          |
+| `frpc / frps`             | 内网穿透                              |
+| `npc / nps`               | 内网穿透/P2P                          |
 | **代理/VPN**              |                                       |
 | `dae`                     | Linux下的透明代理方式                 |
-| `daed`                    | dae 的 web UI                         |
+| `daed`                    | dae + web UI                          |
 | `glider`                  | 绑定可走代理的 http / socks 端口      |
 | `proxychains`             | 终端强制代理工具, 可代理ping流量      |
 | `v2raya`                  | v2ray web UI                          |
