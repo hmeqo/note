@@ -66,7 +66,7 @@
     - [双显卡管理](#双显卡管理)
       - [双显卡切换](#双显卡切换)
       - [指定使用独立显卡](#指定使用独立显卡)
-    - [电源管理](#电源管理)
+    - [功耗控制和电源管理](#功耗控制和电源管理)
     - [关闭睿频](#关闭睿频)
     - [fstab](#fstab)
     - [Swap](#swap)
@@ -78,6 +78,7 @@
       - [2. 添加休眠内核参数](#2-添加休眠内核参数)
       - [3. 启动休眠服务](#3-启动休眠服务)
     - [kernel-modules-hook](#kernel-modules-hook)
+    - [zram](#zram)
   - [pacman](#pacman)
     - [初始化密钥环](#初始化密钥环)
     - [多线程下载](#多线程下载)
@@ -91,7 +92,7 @@
       - [Chaotic-AUR](#chaotic-aur)
       - [CachyOS](#cachyos)
     - [Arch Linux Archive](#arch-linux-archive)
-    - [彩蛋](#彩蛋)
+    - [pacman 彩蛋](#pacman-彩蛋)
     - [pacman以及AUR助手常用命令](#pacman以及aur助手常用命令)
     - [软件包降级](#软件包降级)
   - [常用软件包/工具/命令](#常用软件包工具命令)
@@ -110,7 +111,7 @@
   - [技巧](#技巧)
     - [如何解除 sudo 锁定](#如何解除-sudo-锁定)
   - [Wiki](#wiki)
-    - [Linux 基础目录](#linux-基础目录)
+    - [GNU/Linux 基础目录结构](#gnulinux-基础目录结构)
     - [文件系统](#文件系统)
     - [WINE/PROTON 运行 Windows 应用/游戏](#wineproton-运行-windows-应用游戏)
       - [WINE 生态中的各种工具介绍](#wine-生态中的各种工具介绍)
@@ -121,12 +122,12 @@
 可以配合官网步骤食用: <https://wiki.archlinux.org/title/Installation_guide>
 
 > [!NOTE]
-> 编程中有许多特殊符号, 例如 \<xxx\> 代表根据实际情况填写的必填项, \[xxx\] 代表可选项, 请根据上下文自行判断
+> 某些特殊符号, 例如 \<xxx\> 代表根据实际情况填写的必填项, \[xxx\] 代表可选项, 请根据上下文自行判断
 
 > [!WARNING]
 > 如果你是第一次安装 Arch, 请全程自行手动操作, 不要使用 archinstall 逃课  
-> 如果你不熟悉 Linux, 建议先到其他有图形化安装发行版 (Manjaro, Mint 等), 熟悉后再尝试 Arch  
-> 如果你想用 Arch 作为第一个 Linux 发行版, 建议在身边有人传教的情况下尝试
+> 如果你不熟悉 GNU/Linux, 建议先到其他有图形化安装的发行版 (Manjaro, Linux Mint, Ubuntu 等), 熟悉后再尝试 Arch  
+> 如果你想用 Arch 作为第一个 GNU/Linux 发行版, 建议在身边有人传教的情况下尝试
 >
 > Arch Linux 安装过程没有图形界面, 所有编辑操作都是在终端  
 > 本文默认你能使用任何一种终端编辑器, 不会用请自行学习后再来, 建议学习 `vim`
@@ -757,7 +758,7 @@ Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有�
 
     `prime-run <command>` - 使用nvidia显卡运行
 
-### 电源管理
+### 功耗控制和电源管理
 
 - power-profiles-daemon
 
@@ -966,6 +967,60 @@ sudo pacman -S kernel-modules-hook
 sudo systemctl enable --now linux-modules-cleanup
 ```
 
+### zram
+
+zram 可简单理解为在内存中的 swap, 其将占着茅坑不拉屎的内存通过算法压缩为更小的内存块, 从而节省更多的内存空间  
+利用 zram-generator 和 systemd-zram-generator 可以轻松创建 zram
+
+- 安装
+
+  ```bash
+  paru -S zram-generator
+  ```
+
+- 配置
+
+  编辑 `/etc/systemd/zram-generator.conf`, 添加如下内容:  
+  具体细节看: `/usr/share/doc/zram-generator/zram-generator.conf.example`
+
+  ```bash
+  [zram0]
+  compression-algorithm = zstd lz4 (type=huge)
+  zram-size = ram / 2
+  swap-priority = 100
+  fs-type = swap
+  ```
+
+  编辑 `/etc/sysctl.d/99-zram.conf`, 添加如下内容:
+
+  ```bash
+  vm.swappiness = 150
+  ```
+
+  配置完成后重启系统即可生效
+
+- 不重启系统, 手动启动 zram
+
+  编辑完所有配置后
+
+  ```bash
+  # systemd 会自动创建一个 /dev/zram0 设备
+  sudo systemctl daemon-reload
+
+  # 初始化 zram0 设备
+  sudo /usr/lib/systemd/system-generators/zram-generator --setup-device zram0
+
+  # 挂载 zram0
+  sudo swapon -p 100 /dev/zram0
+
+  # 加载 sysctl 配置
+  sudo sysctl --system
+  ```
+
+- 运行状态
+
+  运行 `zramctl` 即可看到 zram 设备的使用情况, 运行 `swapon -s` 可看到 swap 和 zram 分别的使用情况
+
 ## pacman
 
 配置文件路径: `/etc/pacman.conf`  
@@ -1082,7 +1137,7 @@ Server=https://archive.archlinux.org/repos/<year>/<month>/<day>/$repo/os/$arch
 
 文档: <https://wiki.archlinuxcn.org/wiki/Arch_Linux_Archive>
 
-### 彩蛋
+### pacman 彩蛋
 
 在 pacman 配置中加入 `ILoveCandy`, 进度条会被替换成吃豆人
 
@@ -1537,7 +1592,7 @@ softdep nvidia pre: vfio-pci
 
 Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
-### Linux 基础目录
+### GNU/Linux 基础目录结构
 
 以下只是简短描述, 详情见: <https://www.freedesktop.org/software/systemd/man/latest/file-hierarchy.html>
 
@@ -1565,7 +1620,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
   用于存放软件包的目录, 通常是一些因某些原因不能把软件拆分开的商业软件
 
-- `/proc` - proc
+- `/proc` (proc)
 
   进程目录, 在这里可以看到当前正在运行的进程, 以及各种信息
 
@@ -1573,7 +1628,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
   root 用户的家目录
 
-- `/run` - tmpfs
+- `/run` (tmpfs)
 
   用于存放运行时数据, 套接字, 和其他类似文件, 通常仅对特权程序可写
 
@@ -1581,13 +1636,13 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
   srv - Service Data, 用于存放服务的目录
 
-- `/sys` - sysfs
+- `/sys` (sysfs)
 
   一个虚拟内核文件系统, 主要提供与内核接口相关的 API
 
   例如临时关闭 Intel CPU 睿频: `echo 1 | sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo`
 
-- `/tmp` - tmpfs
+- `/tmp` (tmpfs)
 
   临时文件目录
 
@@ -1669,7 +1724,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
   由 GloriousEggroll 创建的一个 Proton 定制版, 相比于 Proton, 整合了更多 Proton 没有或暂时没有的功能, 有更好的游戏兼容性
 
-- Wine-GE
+- Wine-GE (自 Wine-9.0 起不再维护)
 
   由 GloriousEggroll 创建的一个 Wine 定制版, Wine-GE 是为非 Steam 游戏分发的版本, 因为 Proton 是专为 Steam 开发, 有很多非 Steam 游戏不需要的功能
 
