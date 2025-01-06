@@ -14,9 +14,10 @@
   - [安装教程](#安装教程)
     - [视频教程](#视频教程)
     - [1. 准备](#1-准备)
-      - [获取系统信息](#获取系统信息)
       - [硬件准备](#硬件准备)
       - [提前分配空闲分区](#提前分配空闲分区)
+      - [获取系统信息](#获取系统信息)
+        - [如何判断启动方式](#如何判断启动方式)
       - [插入U盘](#插入u盘)
       - [WIFI 网络连接](#wifi-网络连接)
       - [分区](#分区)
@@ -76,6 +77,7 @@
       - [1. 添加休眠钩子](#1-添加休眠钩子)
       - [2. 添加休眠内核参数](#2-添加休眠内核参数)
       - [3. 启动休眠服务](#3-启动休眠服务)
+    - [kernel-modules-hook](#kernel-modules-hook)
   - [pacman](#pacman)
     - [初始化密钥环](#初始化密钥环)
     - [多线程下载](#多线程下载)
@@ -105,6 +107,8 @@
       - [mangohud with opengl](#mangohud-with-opengl)
       - [mangohud 快捷键](#mangohud-快捷键)
   - [KVM 显卡直通](#kvm-显卡直通)
+  - [技巧](#技巧)
+    - [如何解除 sudo 锁定](#如何解除-sudo-锁定)
   - [Wiki](#wiki)
     - [Linux 基础目录](#linux-基础目录)
     - [文件系统](#文件系统)
@@ -134,10 +138,6 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 ### 1. 准备
 
-#### 获取系统信息
-
-判断BIOS类型, 分区表类型
-
 #### 硬件准备
 
 一个刻录了安装镜像的U盘, 一台电脑
@@ -146,9 +146,17 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 强烈建议提前分区一块空闲分区, 使用Windows自带的分区工具或PE提前分一块空闲分区
 
+#### 获取系统信息
+
+判断启动方式, 分区表类型
+
+##### 如何判断启动方式
+
+在 archiso 环境中, 可以用 `ls /sys/firmware/efi/efivars` 判断是否是 UEFI, 如果有输出, 则是 UEFI, 否则是 BIOS / Legacy
+
 #### 插入U盘
 
-重启, 在BIOS界面选择通过U盘启动
+重启, 在 BIOS/UEFI 界面选择通过U盘启动
 
 #### WIFI 网络连接
 
@@ -843,7 +851,7 @@ Gentoo 文档: <https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks#W
 - 方式1 (Arch Linux 专用)
 
   ```bash
-  mkswap -U clear --size 4G --file /swapfile
+  mkswap -U clear --size 8G --file /swapfile
   ```
 
 - 方式2 (快速, 所有发行版都支持)
@@ -948,6 +956,15 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block
 #### 3. 启动休眠服务
 
 - 对于 NVIDIA GPU, 需要启动 nvidia-resume, nvidia-persistenced 服务
+
+### kernel-modules-hook
+
+保留正在使用的内核模块, 防止内核升级时移除, 升级内核后可以不用立即重启
+
+```bash
+sudo pacman -S kernel-modules-hook
+sudo systemctl enable --now linux-modules-cleanup
+```
 
 ## pacman
 
@@ -1082,38 +1099,38 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 
 常用的 Operator 有 `-S` (同步/安装)、`-R` (卸载)、`-Q` (查询本地)
 
-| 常用命令                       | 描述                                                                  |
-| ------------------------------ | --------------------------------------------------------------------- |
-| **通用**                       |                                                                       |
-| `pacman -Syu`                  | 更新数据库(y)和软件包(u)                                              |
-| `pacman -S <软件包>`           | 安装软件包                                                            |
-| `pacman -Ss <regex>`           | 搜索软件包(s)                                                         |
-| `pacman -Si <软件包>`          | 查看软件包信息(i)                                                     |
-| `pacman -Syyuu`                | 强制更新数据库(yy)并升级/降级软件包(uu)                               |
-| `pacman -S --rebuild <软件包>` | 重新构建��安装软件包(--rebuild)                                       |
-| `pacman --fm nvim -S <软件包>` | 安装软件包, 并在安装之前编辑仓库, 例如修改 PKGBUILD (--fm)            |
-| `pacman -Rsn <软件包>`         | 删除软件包以及相关依赖(s)和配置文件(n)                                |
-| `pacman -Rsnc <软件包>`        | 删除软件包以及相关依赖(s)和配置文件(n), 并且删除依赖它的软件包(c)     |
-| `pacman -Rsndd <软件包>`       | 强制删除软件包以及相关依赖(s)和配置文件(n), 忽略依赖问题(dd)          |
-| `pacman -Rsnc $(pacman -Qtdq)` | 删除所有孤包                                                          |
-| `pacman -Q`                    | 列出已安装的软件包                                                    |
-| `pacman -Qs <regex>`           | 搜索软件包(s)                                                         |
-| `pacman -Qi <软件包>`          | 查看软件包信息(i)                                                     |
-| `pacman -Ql <软件包>`          | 查看软件包的文件路径(l), 不包含软件后续产生的文件, 如 `~/.config/xxx` |
-| `pacman -Qo <file>`            | 查询已安装的文件或命令所属软件包(o)                                   |
-| `pacman -Qdtq`                 | 列出孤包(dt), 即不被需要(t)的软件包依赖(d), 不显示版本信息(q)         |
-| `pacman -Qeq`                  | 列出自己安装的软件包(e), 不显示版本信息(q)                            |
-| `pacman -Qen`                  | 列出自行安装(e)的存在于软件源中(n)的包, 可用于查看非AUR包             |
-| `pacman -Qem`                  | 列出自行安装(e)的不在软件源中(m)的包, 可用于查看AUR包                 |
-| `pacman -Qetq`                 | 列出自己安装(e)的不被其他软件包依赖(t)的软件包, 不显示版本信息(q)     |
-| `pacman -Qk`                   | 校验软件包文件缺失(k)                                                 |
-| `pacman -Qkk`                  | 校验软件包文件完整性(kk)                                              |
-| `pacman -F <file>`             | 查询文件或命令所属软件包                                              |
-| `pacman -Fy`                   | 更新文件数据库(y)                                                     |
-| `pacman -U <file>`             | 从文件安装软件包(package.tar.gz)                                      |
-| **paru**                       |                                                                       |
-| `paru -c`                      | 删除不再需要的软件包 (不推荐, 不会删除软件包的依赖)                   |
-| `paru -Gc <软件包>`            | 查看aur软件包评论                                                     |
+| 常用命令                        | 描述                                                                  |
+| ------------------------------- | --------------------------------------------------------------------- |
+| **通用**                        |                                                                       |
+| `pacman -Syu`                   | 更新数据库(y)和软件包(u)                                              |
+| `pacman -S <软件包>`            | 安装软件包                                                            |
+| `pacman -Ss <regex>`            | 搜索软件包(s)                                                         |
+| `pacman -Si <软件包>`           | 查看软件包信息(i)                                                     |
+| `pacman -Syyuu`                 | 强制更新数据库(yy)并升级/降级软件包(uu)                               |
+| `pacman -S --rebuild <软件包>`  | 重新构建并安装软件包(--rebuild)                                       |
+| `pacman --fm nvim -S <软件包>`  | 安装软件包, 并在安装之前编辑仓库, 例如修改 PKGBUILD (--fm)            |
+| `pacman -Rsn <软件包>`          | 删除软件包以及相关依赖(s)和配置文件(n)                                |
+| `pacman -Rsnc <软件包>`         | 删除软件包以及相关依赖(s)和配置文件(n), 并且删除依赖它的软件包(c)     |
+| `pacman -Rsndd <软件包>`        | 强制删除软件包以及相关依赖(s)和配置文件(n), 忽略依赖问题(dd)          |
+| `pacman -Rsnc $(pacman -Qdttq)` | 删除所有孤包                                                          |
+| `pacman -Q`                     | 列出已安装的软件包                                                    |
+| `pacman -Qs <regex>`            | 搜索软件包(s)                                                         |
+| `pacman -Qi <软件包>`           | 查看软件包信息(i)                                                     |
+| `pacman -Ql <软件包>`           | 查看软件包的文件路径(l), 不包含软件后续产生的文件, 如 `~/.config/xxx` |
+| `pacman -Qo <file>`             | 查询已安装的文件或命令所属软件包(o)                                   |
+| `pacman -Qdttq`                 | 列出孤包(dt), 即不被需要(tt)的软件包依赖(d), 不显示版本信息(q)        |
+| `pacman -Qeq`                   | 列出自己安装的软件包(e), 不显示版本信息(q)                            |
+| `pacman -Qen`                   | 列出自行安装(e)的存在于软件源中(n)的包, 可用于查看非AUR包             |
+| `pacman -Qem`                   | 列出自行安装(e)的不在软件源中(m)的包, 可用于查看AUR包                 |
+| `pacman -Qetq`                  | 列出自己安装(e)的不被其他软件包依赖(t)的软件包, 不显示版本信息(q)     |
+| `pacman -Qk`                    | 校验软件包文件缺失(k)                                                 |
+| `pacman -Qkk`                   | 校验软件包文件完整性(kk)                                              |
+| `pacman -F <file>`              | 查询文件或命令所属软件包                                              |
+| `pacman -Fy`                    | 更新文件数据库(y)                                                     |
+| `pacman -U <file>`              | 从文件安装软件包(package.tar.gz)                                      |
+| **paru**                        |                                                                       |
+| `paru -c`                       | 删除不再需要的软件包                                                  |
+| `paru -Gc <软件包>`             | 查看aur软件包评论                                                     |
 
 ### 软件包降级
 
@@ -1495,6 +1512,26 @@ softdep nvidia pre: vfio-pci
 ```
 
 通过 virt-manager 配置pci直通显卡即可, 具体自行搜索教程 (施工中)
+
+## 技巧
+
+### 如何解除 sudo 锁定
+
+- 方法1:
+
+  ~~重启~~
+
+- 方法2:
+
+  对于非root用户, 可 su 切到 root, 然后执行
+
+  ```bash
+  faillock --user <username> --reset
+  ```
+
+- 方法3 (未验证方法):
+
+  禁用 `faillock`, 编辑 `/etc/pam.d/system-auth`, 注释 `pam_faillock.so` 所在行
 
 ## Wiki
 
