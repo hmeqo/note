@@ -107,6 +107,7 @@
     - [mangohud](#mangohud)
       - [mangohud with opengl](#mangohud-with-opengl)
       - [mangohud 快捷键](#mangohud-快捷键)
+    - [toilet](#toilet)
   - [KVM 显卡直通](#kvm-显卡直通)
   - [技巧](#技巧)
     - [如何解除 sudo 锁定](#如何解除-sudo-锁定)
@@ -407,6 +408,8 @@ pacman -S grub [efibootmgr] [os-prober]
 
 如果安装了 os-prober, 需要注意 os-prober 在新版 grub 默认禁用, 修改 `/etc/default/grub` 取消注释 `GRUB_DISABLE_OS_PROBER=false` 即可启用 os-prober
 
+安装GRUB
+
 - UEFI 安装方式
 
   确保你安装了 `efibootmgr`
@@ -416,17 +419,13 @@ pacman -S grub [efibootmgr] [os-prober]
   grub-install [--target=x86_64-efi] --efi-directory=<esp> --bootloader-id=GRUB
   ```
 
-  ```bash
-  grub-install --efi-directory=/boot --bootloader-id=GRUB
-  ```
-
 - BIOS 安装方式
 
   ```bash
   grub-install /dev/xxx
   ```
 
-生成 grub 配置, 记住此命令, 后续如果修改了 `/etc/default/grub` 需要重新生成 grub 配置
+最后生成 grub 配置, 记住此命令, 后续如果修改了 `/etc/default/grub` 或更换内核需要重新生成 grub 配置
 
 ```bash
 grub-mkconfig -o /boot/grub/grub.cfg
@@ -1290,7 +1289,10 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `qpwgraph`                | 音频控制                              |
 | `mission-center`          | 类 Windows 任务管理器                 |
 | `cpu-x`                   | CPU 信息监测                          |
-| `qalculate`               | 计算器                                |
+| **数学工具**              |                                       |
+| `qalculate`               | 计算器, 非常全面, 支持货币转换等功能  |
+| `numbat`                  | 命令行计算器, 支持货币转换等功能      |
+| `cantor`                  | 数学软件                              |
 | **视频**                  |                                       |
 | `vlc`                     | 视频播放器                            |
 | `mpv`                     | 精简视频播放器                        |
@@ -1364,7 +1366,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `cmatrix`                 | 黑客字幕                              |
 | `figlet`                  | 艺术字                                |
 | `pyfiglet`                | figlet Python 实现                    |
-| `toilet`                  | 艺术字                                |
+| [`toilet`](#toilet)       | 艺术字                                |
 | `cowsay`                  | 奶牛说                                |
 | `asciiquarium`            | 水族馆                                |
 | `nyancat`                 | 彩虹猫                                |
@@ -1407,6 +1409,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `kwalletmanager`   | KDE密钥管理                      |
 | `kdeconnect`       | 跨平台的手机电脑局域网连接工具   |
 | `isoimagewriter`   | U盘刻录                          |
+| `cantor`           | 数学软件                         |
 
 ### 老工具替代
 
@@ -1538,6 +1541,14 @@ mangohud --dlsym glxgears
 - L_SHIFT + F2
 
   开始/结束Log
+
+### toilet
+
+- 示例
+
+  ```bash
+  toilet -f mono12 -F metal -t ArchLinux
+  ```
 
 ## KVM 显卡直通
 
