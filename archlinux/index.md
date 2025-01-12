@@ -88,6 +88,7 @@
       - [Arch 用户软件仓库 (AUR)](#arch-用户软件仓库-aur)
         - [安装AUR助手](#安装aur助手)
         - [手动安装AUR软件包](#手动安装aur软件包)
+      - [ALHP](#alhp)
       - [archlinuxcn软件仓库](#archlinuxcn软件仓库)
       - [Chaotic-AUR](#chaotic-aur)
       - [CachyOS](#cachyos)
@@ -570,7 +571,7 @@ pacman -S lib32-openal
 
   - 社区驱动
 
-    `nouveau` 已包含在内核模块中, 如需要社区驱动请不要安装官方驱动
+    `nouveau` 已包含在内核模块中, 请不要安装官方驱动
 
 #### Vulkan
 
@@ -661,6 +662,8 @@ pacman -S lib32-openal
 
   ```bash
   pacman -S opencl-nvidia
+  # for multilib
+  pacman -S lib32-opencl-nvidia
   ```
 
 ### 计算加速
@@ -1095,6 +1098,12 @@ cd <包名>
 makepkg -si
 ```
 
+#### ALHP
+
+> Buildbot for Archlinux based repos with different x86-64 feature levels, -O3 and LTO.
+
+文档: <https://github.com/an0nfunc/ALHP>
+
 #### archlinuxcn软件仓库
 
 > Arch Linux 中文社区仓库是由 Arch Linux 中文社区驱动的非官方软件仓库，包含许多官方仓库未提供的额外的软件包，以及已有软件的 git 版本等变种。一部分软件包的打包脚本来源于 AUR，但也有许多包与 AUR 不一样。
@@ -1118,9 +1127,13 @@ sudo pacman -Sy archlinuxcn-keyring
 
 #### Chaotic-AUR
 
+包含许多预编译 AUR 软件包的仓库
+
 文档: <https://aur.chaotic.cx/docs>
 
 #### CachyOS
+
+CachyOS 官方仓库, CachyOS 专注于性能, 提供许多 v3, v4 包和优化后的 cachyos 内核
 
 文档: <https://wiki.cachyos.org/features/optimized_repos/>
 
@@ -1153,38 +1166,38 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 
 常用的 Operator 有 `-S` (同步/安装)、`-R` (卸载)、`-Q` (查询本地)
 
-| 常用命令                        | 描述                                                                  |
-| ------------------------------- | --------------------------------------------------------------------- |
-| **通用**                        |                                                                       |
-| `pacman -Syu`                   | 更新数据库(y)和软件包(u)                                              |
-| `pacman -S <软件包>`            | 安装软件包                                                            |
-| `pacman -Ss <regex>`            | 搜索软件包(s)                                                         |
-| `pacman -Si <软件包>`           | 查看软件包信息(i)                                                     |
-| `pacman -Syyuu`                 | 强制更新数据库(yy)并升级/降级软件包(uu)                               |
-| `pacman -S --rebuild <软件包>`  | 重新构建并安装软件包(--rebuild)                                       |
-| `pacman --fm nvim -S <软件包>`  | 安装软件包, 并在安装之前编辑仓库, 例如修改 PKGBUILD (--fm)            |
-| `pacman -Rsn <软件包>`          | 删除软件包以及相关依赖(s)和配置文件(n)                                |
-| `pacman -Rsnc <软件包>`         | 删除软件包以及相关依赖(s)和配置文件(n), 并且删除依赖它的软件包(c)     |
-| `pacman -Rsndd <软件包>`        | 强制删除软件包以及相关依赖(s)和配置文件(n), 忽略依赖问题(dd)          |
-| `pacman -Rsnc $(pacman -Qdttq)` | 删除所有孤包                                                          |
-| `pacman -Q`                     | 列出已安装的软件包                                                    |
-| `pacman -Qs <regex>`            | 搜索软件包(s)                                                         |
-| `pacman -Qi <软件包>`           | 查看软件包信息(i)                                                     |
-| `pacman -Ql <软件包>`           | 查看软件包的文件路径(l), 不包含软件后续产生的文件, 如 `~/.config/xxx` |
-| `pacman -Qo <file>`             | 查询已安装的文件或命令所属软件包(o)                                   |
-| `pacman -Qdttq`                 | 列出孤包(dt), 即不被需要(tt)的软件包依赖(d), 不显示版本信息(q)        |
-| `pacman -Qeq`                   | 列出自己安装的软件包(e), 不显示版本信息(q)                            |
-| `pacman -Qen`                   | 列出自行安装(e)的存在于软件源中(n)的包, 可用于查看非AUR包             |
-| `pacman -Qem`                   | 列出自行安装(e)的不在软件源中(m)的包, 可用于查看AUR包                 |
-| `pacman -Qetq`                  | 列出自己安装(e)的不被其他软件包依赖(t)的软件包, 不显示版本信息(q)     |
-| `pacman -Qk`                    | 校验软件包文件缺失(k)                                                 |
-| `pacman -Qkk`                   | 校验软件包文件完整性(kk)                                              |
-| `pacman -F <file>`              | 查询文件或命令所属软件包                                              |
-| `pacman -Fy`                    | 更新文件数据库(y)                                                     |
-| `pacman -U <file>`              | 从文件安装软件包(package.tar.gz)                                      |
-| **paru**                        |                                                                       |
-| `paru -c`                       | 删除不再需要的软件包                                                  |
-| `paru -Gc <软件包>`             | 查看aur软件包评论                                                     |
+| 常用命令                        | 描述                                                              |
+| ------------------------------- | ----------------------------------------------------------------- |
+| **通用**                        |                                                                   |
+| `pacman -Syu`                   | 更新数据库(y)和软件包(u)                                          |
+| `pacman -S <软件包>`            | 安装软件包                                                        |
+| `pacman -Ss <regex>`            | 搜索软件包(s)                                                     |
+| `pacman -Si <软件包>`           | 查看软件包信息(i)                                                 |
+| `pacman -Syyuu`                 | 强制更新数据库(yy)并升级/降级软件包(uu)                           |
+| `pacman -S --rebuild <软件包>`  | 重新构建并安装软件包(--rebuild)                                   |
+| `pacman --fm nvim -S <软件包>`  | 安装软件包, 并在安装之前编辑仓库, 例如修改 PKGBUILD (--fm)        |
+| `pacman -Rsn <软件包>`          | 删除软件包以及相关依赖(s)和配置文件(n)                            |
+| `pacman -Rsnc <软件包>`         | 删除软件包以及相关依赖(s)和配置文件(n), 并且删除依赖它的软件包(c) |
+| `pacman -Rsndd <软件包>`        | 强制删除软件包以及相关依赖(s)和配置文件(n), 忽略依赖问题(dd)      |
+| `pacman -Rsnc $(pacman -Qdttq)` | 删除所有孤包                                                      |
+| `pacman -Q`                     | 列出已安装的软件包                                                |
+| `pacman -Qs <regex>`            | 搜索软件包(s)                                                     |
+| `pacman -Qi <软件包>`           | 查看软件包信息(i)                                                 |
+| `pacman -Ql <软件包>`           | 查看软件包安装的文件路径(l)                                       |
+| `pacman -Qo <file>`             | 查询已安装的文件或命令所属软件包(o)                               |
+| `pacman -Qdttq`                 | 列出孤包(dt), 即不被需要(tt)的软件包依赖(d), 不显示版本信息(q)    |
+| `pacman -Qeq`                   | 列出自己安装的软件包(e), 不显示版本信息(q)                        |
+| `pacman -Qen`                   | 列出自行安装(e)的存在于软件源中(n)的包, 可用于查看非AUR包         |
+| `pacman -Qem`                   | 列出自行安装(e)的不在软件源中(m)的包, 可用于查看AUR包             |
+| `pacman -Qetq`                  | 列出自己安装(e)的不被其他软件包依赖(t)的软件包, 不显示版本信息(q) |
+| `pacman -Qk`                    | 校验软件包文件缺失(k)                                             |
+| `pacman -Qkk`                   | 校验软件包文件完整性(kk)                                          |
+| `pacman -F <file>`              | 查询文件或命令所属软件包                                          |
+| `pacman -Fy`                    | 更新文件数据库(y)                                                 |
+| `pacman -U <file>`              | 从文件安装软件包(package.tar.gz)                                  |
+| **paru**                        |                                                                   |
+| `paru -c`                       | 删除不再需要的软件包                                              |
+| `paru -Gc <软件包>`             | 查看aur软件包评论                                                 |
 
 ### 软件包降级
 
@@ -1222,8 +1235,11 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **终端**                  |                                       |
 | `konsole`                 | 终端                                  |
 | `yakuake`                 | 下拉终端                              |
-| `wezterm`                 | 终端                                  |
 | `kitty`                   | 终端                                  |
+| `wezterm`                 | 终端                                  |
+| `foot`                    | 终端                                  |
+| `ghostty`                 | 终端                                  |
+| `cool-retro-term`         | 复古终端                              |
 | **Shell 工具**            |                                       |
 | [`reflector`](#reflector) | pacman镜像服务器地址生成              |
 | `mirro-rs`                | 查找速度最快的pacman镜像服务器        |
@@ -1282,6 +1298,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `nvtop`                   | 终端GPU监视器                         |
 | `intel_gpu_top`           |                                       |
 | `nvidia-smi`              |                                       |
+| `wev`                     | Wayland 操作事件提示                  |
 | **hack**                  |                                       |
 | [`fcrackzip`](#fcrackzip) | 压缩包破解                            |
 | **GUI 工具**              |                                       |
@@ -1302,11 +1319,13 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **音频**                  |                                       |
 | `elisa`                   | 音乐播放器, 支持电台                  |
 | `easyeffects`             | 音频效果                              |
+| `cava`                    | 控制台音频可视化                      |
 | **图像**                  |                                       |
 | `gwenview`                | kde 图像查看器                        |
 | `gimp`                    | 修图                                  |
 | `inkscape`                | 矢量图编辑                            |
 | `pureref`                 | 多图片查看, 钉图, 编辑                |
+| `vhs`                     | 生成终端命令动图                      |
 | **开发工具**              |                                       |
 | `neovide`                 | nvim的GUI                             |
 | `blender`                 | 建模                                  |
@@ -1376,6 +1395,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `teamspeak3`              | 语音服务器                            |
 | `kanshi`                  | Wayland 动态显示屏切换                |
 | `xdg-ninja`               | 检查家目录下的💩是否能遵循 XDG 规范   |
+| `zbar`                    | 二维码条形码扫描                      |
 | **字体**                  |                                       |
 | `noto-fonts-cjk`          | 中文                                  |
 | `noto-fonts-emoji`        | 表情                                  |
@@ -1423,7 +1443,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `cd`         | `zoxide`       |       |
 | `ls`         | `eza`          |       |
 | `cat`        | `bat`          |       |
-| `du`         | `duf`          | `gdu` |
+| `du`         | `dust`         | `gdu` |
+| `df`         | `duf`          |       |
 | `iptables`   | `iptables-nft` |       |
 | `zlib`       | `zlib-ng`      |       |
 
