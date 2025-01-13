@@ -1228,7 +1228,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | ------------------------- | ------------------------------------- |
 | [`yay`](#yay)             | Aur 助手                              |
 | [`paru`](#paru)           | Aur 助手                              |
-| `debtap`                  | deb包转pacman包                       |
+| `debtap`                  | deb 包转 pacman 包                    |
 | **Shell**                 |                                       |
 | `zsh`                     | shell                                 |
 | `fish`                    | shell                                 |
@@ -1242,13 +1242,13 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `ghostty`                 | 终端                                  |
 | `cool-retro-term`         | 复古终端                              |
 | **Shell 工具**            |                                       |
-| [`reflector`](#reflector) | pacman镜像服务器地址生成              |
-| `mirro-rs`                | 查找速度最快的pacman镜像服务器        |
+| [`reflector`](#reflector) | pacman 镜像服务器地址生成             |
+| `mirro-rs`                | 查找速度最快的 pacman 镜像服务器      |
 | [`tmux`](./tmux.md)       | 终端复用                              |
 | `bat`                     | better cat                            |
 | `exa`                     | better ls                             |
 | `fzf`                     | fuzzy finder                          |
-| `yazi`                    | 终端下的 explorer                     |
+| `yazi`                    | 终端下的文件管理器                    |
 | `superfile`               | 终端下的文件管理器                    |
 | `hyperfine`               | 命令行性能测试                        |
 | `btop`                    | 终端资源监视器                        |
@@ -1316,6 +1316,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `mpv`                     | 精简视频播放器                        |
 | `karuna`                  | KDE 基于 mpv 的视频播放器             |
 | `kdenlive`                | 视频剪辑                              |
+| `media-download`          | 视频下载                              |
 | **音频**                  |                                       |
 | `elisa`                   | 音乐播放器, 支持电台                  |
 | `easyeffects`             | 音频效果                              |
