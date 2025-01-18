@@ -79,6 +79,9 @@
       - [3. 启动休眠服务](#3-启动休眠服务)
     - [kernel-modules-hook](#kernel-modules-hook)
     - [zram](#zram)
+    - [zswap](#zswap)
+    - [Ananicy](#ananicy)
+    - [性能优化](#性能优化)
   - [pacman](#pacman)
     - [初始化密钥环](#初始化密钥环)
     - [多线程下载](#多线程下载)
@@ -971,13 +974,13 @@ sudo systemctl enable --now linux-modules-cleanup
 
 ### zram
 
-zram 可简单理解为在内存中的 swap, 其将占着茅坑不拉屎的内存通过算法压缩为更小的内存块, 从而节省更多的内存空间  
+zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存空间  
 利用 zram-generator 和 systemd-zram-generator 可以轻松创建 zram
 
 - 安装
 
   ```bash
-  paru -S zram-generator
+  sudo pacman -S zram-generator
   ```
 
 - 配置
@@ -1023,6 +1026,20 @@ zram 可简单理解为在内存中的 swap, 其将占着茅坑不拉屎的内�
 - 运行状态
 
   运行 `zramctl` 即可看到 zram 设备的使用情况, 运行 `swapon -s` 可看到 swap 和 zram 分别的使用情况
+
+### zswap
+
+在写入 swap 之前, 会先在内存里压缩数据, 再写入 swap
+
+### Ananicy
+
+自动调整进程 NICE 值
+
+> [!WARNING] > `gamemode` 同样会调整进程 NICE 值, 不建议一起使用
+
+### 性能优化
+
+文档: <https://wiki.archlinuxcn.org/wiki/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96>
 
 ## pacman
 
@@ -1077,7 +1094,7 @@ Include = /etc/pacman.d/mirrorlist
 #### Arch 用户软件仓库 (AUR)
 
 > Arch 用户软件仓库（Arch User Repository，AUR）是为用户而建、由用户主导的 Arch Linux 软件仓库。AUR 中的软件包以软件包生成脚本（PKGBUILD）的形式提供，用户自己通过 makepkg 生成包，再由 pacman 安装。创建 AUR 的初衷是方便用户维护和分享新软件包，并由官方定期从中挑选软件包进入 extra 仓库。本文介绍用户访问和使用 AUR 的方法。  
-> 许多官方仓库软件包都来自 AUR。通过 AUR，大家相互分享新的软件包生成脚本（PKGBUILD 和其他相关文件）。用户还可以为软件包投票。如果一个软件包投票足够多、没有许可证问题、打包质量好，那么它就很有希望被收录进官方 community 仓库（以后就可以直接通过 pacman 或 abs 安装了）。
+> 许多官方仓库软件包都来自 AUR。通过 AUR，大家相互分享新的软件包生成脚本（PKGBUILD 和其他相关文件）。用户还可以为软件包投票。如果一个软件包投票足够多、没有许可证问题、打包质量好，那���它就很有希望被收录进官方 community 仓库（以后就可以直接通过 pacman 或 abs 安装了）。
 
 > [!WARNING]
 > 警告： AUR 中的软件包是由其他用户编写的，这些 PKGBUILD 完全是非官方的，未经彻底审查。使用这些文件的风险由您自行承担。
@@ -1128,7 +1145,7 @@ sudo pacman -Sy archlinuxcn-keyring
 
 #### Chaotic-AUR
 
-包含许多预编��� AUR 软件包的仓库
+包含许多预编软件包 AUR 软件包的仓库
 
 文档: <https://aur.chaotic.cx/docs>
 
@@ -1401,7 +1418,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **其他**                  |                                       |
 | `teamspeak3`              | 语音服务器                            |
 | `kanshi`                  | Wayland 动态显示屏切换                |
-| `xdg-ninja`               | 检查家目录下的💩是否能遵循 XDG 规范   |
+| `xdg-ninja`               | 检查家目录下的点文件的 XDG 支持情况   |
 | `zbar`                    | 二维码条形码扫描                      |
 | **字体**                  |                                       |
 | `noto-fonts-cjk`          | 中文                                  |
@@ -1440,7 +1457,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 
 ### 老工具替代
 
-替代品通常有更好的性能和更多的功能
+替代品通常有更好的性能和更多的特性
 
 | 工具       | 替代           | 相似  |
 | ---------- | -------------- | ----- |
@@ -1518,7 +1535,7 @@ fcrackzip -b -c 'aA1!' -l 6 example.zip
 
 ### mangohud
 
-性能监测工具, 如果游戏是32位的, 需要安装32位的mangohud
+性能监测工具, 如果游戏是32位的, 需要安装32位的 mangohud
 
 - 安装
 
@@ -1536,7 +1553,7 @@ fcrackzip -b -c 'aA1!' -l 6 example.zip
   mangohud %command%
   ```
 
-  对于steam或其他支持MANGOHUD的游戏, 也可以这么写
+  对于 steam 和 vulkan 游戏, 也可以这么写
 
   ```bash
   MANGOHUD=1 %command%
