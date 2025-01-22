@@ -1033,9 +1033,24 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
 
 ### Ananicy
 
-自动调整进程 NICE 值
+> Ananicy是一个用于自动调节可执行程序nice值的守护进程。nice值表示了在为特定可执行程序分配CPU资源时的优先级。
 
-> [!WARNING] > `gamemode` 同样会调整进程 NICE 值, 不建议一起使用
+- 安装
+
+  想激进一点可以装 cachyos-ananicy-rules
+
+  ```bash
+  sudo pacman -S ananicy-cpp ananicy-rules-git
+  ```
+
+- 启动服务
+
+  ```bash
+  sudo systemctl enable --now ananicy-cpp
+  ```
+
+> [!WARNING]
+> ananicy-cpp 和 gamemode 都会修改游戏进程的 nice, 如果要一起用, 最好只让 ananicy-cpp 或 gamemode 其中一个管理游戏进程的 nice
 
 ### 性能优化
 
@@ -1364,7 +1379,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **游戏**                  |                                       |
 | [`mangohud`](#mangohud)   | 游戏性能监控                          |
 | `goverlay`                | mangohud 的图形化控制台               |
-| `gamemode`                | 使用游戏模式运行游戏                  |
+| [`gamemode`](#gamemode)   | 使用游戏模式运行游戏                  |
 | `steam`                   | Steam 客户端                          |
 | `heroic`                  | 第三方 Epic 客户端                    |
 | `lutris`                  | 游戏管理器                            |
@@ -1400,9 +1415,10 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **电台/DJ**               |                                       |
 | `azuracast`               | 电台                                  |
 | `mixxx`                   | DJ, 电台推流                          |
-| **仪表盘**                |                                       |
-| `cockpit`                 |                                       |
-| `grafana`                 |                                       |
+| **系统维护/管理**         |                                       |
+| `cockpit`                 | web UI 系统监控                       |
+| `grafana`                 | web UI 系统监控                       |
+| `drkonqi`                 | kde 日志查看工具                      |
 | **玩具**                  |                                       |
 | `lolcat`                  | 渐变色输出                            |
 | `sl`                      | 火车                                  |
@@ -1454,22 +1470,24 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `kdeconnect`       | 跨平台的手机电脑局域网连接工具   |
 | `isoimagewriter`   | U盘刻录                          |
 | `cantor`           | 数学软件                         |
+| `drkonqi`          | kde 日志查看工具                 |
 
 ### 老工具替代
 
 替代品通常有更好的性能和更多的特性
 
-| 工具       | 替代           | 相似  |
-| ---------- | -------------- | ----- |
-| `grep`     | `rg`           |       |
-| `find`     | `fd`           |       |
-| `cd`       | `zoxide`       |       |
-| `ls`       | `eza`          |       |
-| `cat`      | `bat`          |       |
-| `du`       | `dust`         | `gdu` |
-| `df`       | `duf`          |       |
-| `iptables` | `iptables-nft` |       |
-| `zlib`     | `zlib-ng`      |       |
+| 工具       | 替代           | 相似    |
+| ---------- | -------------- | ------- |
+| `grep`     | `rg`           |         |
+| `find`     | `fd`           |         |
+| `cd`       | `zoxide`       |         |
+| `ls`       | `eza`          |         |
+| `cat`      | `bat`          |         |
+| `du`       | `dust`         | `gdu`   |
+| `df`       | `duf`          |         |
+| `ping`     |                | `gping` |
+| `iptables` | `iptables-nft` |         |
+| `zlib`     | `zlib-ng`      |         |
 
 ### yay
 
@@ -1585,6 +1603,21 @@ mangohud --dlsym glxgears
 - L_SHIFT + F2
 
   开始/结束Log
+
+### gamemode
+
+- 配置示例
+
+  /etc/gamemode.ini: <https://github.com/FeralInteractive/gamemode/blob/master/example/gamemode.ini>
+
+  ```bash
+  [general]
+  renice=10
+
+  [gpu]
+  apply_gpu_optimisations=accept-responsibility
+  nv_powermizer_mode=1
+  ```
 
 ### toilet
 
