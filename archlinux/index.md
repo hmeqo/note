@@ -1283,7 +1283,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `yazi`                    | 终端下的文件管理器                    |
 | `superfile`               | 终端下的文件管理器                    |
 | `hyperfine`               | 命令行性能测试                        |
-| `btop`                    | 终端资源监视器                        |
 | **基础设施**              |                                       |
 | `lspci`                   |                                       |
 | `lsusb`                   |                                       |
@@ -1292,7 +1291,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `crontab`                 | 定时任务                              |
 | `bluetoothctl`            | Bluetooth 管理                        |
 | `btmgmt`                  | Bluetooth 管理                        |
-| `pw-top`                  | pipewire top                          |
 | `tlp / tlp-rdw / tlpui`   | 电源管理                              |
 | `power-profiles-daemon`   | 电源管理                              |
 | `pamixer`                 |                                       |
@@ -1327,11 +1325,20 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `lscpu`                   |                                       |
 | `turbostat`               | CPU 温度频率监测                      |
 | `cpupower`                |                                       |
-| **GPU**                   |                                       |
-| `nvtop`                   | 终端GPU监视器                         |
+| **系统维护/管理**         |                                       |
+| `top`                     |                                       |
+| `iftop`                   |                                       |
+| `iotop`                   |                                       |
+| `atop`                    |                                       |
+| `btop`                    | 终端资源监视器                        |
+| `pw-top`                  | pipewire top                          |
 | `intel_gpu_top`           |                                       |
 | `nvidia-smi`              |                                       |
-| `wev`                     | Wayland 操作事件提示                  |
+| `nvtop`                   | 终端GPU监视器                         |
+| `wavemon`                 | wifi 管理                             |
+| `cockpit`                 | web UI 系统监控                       |
+| `grafana`                 | web UI 系统监控                       |
+| `drkonqi`                 | kde 日志查看工具                      |
 | **hack**                  |                                       |
 | [`fcrackzip`](#fcrackzip) | 压缩包破解                            |
 | **GUI 工具**              |                                       |
@@ -1339,6 +1346,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `qpwgraph`                | 音频控制                              |
 | `mission-center`          | 类 Windows 任务管理器                 |
 | `cpu-x`                   | CPU 信息监测                          |
+| `wev`                     | Wayland 操作事件提示                  |
 | **数学工具**              |                                       |
 | `qalculate`               | 计算器, 非常全面, 支持货币转换等功能  |
 | `numbat`                  | 命令行计算器, 支持货币转换等功能      |
@@ -1415,10 +1423,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **电台/DJ**               |                                       |
 | `azuracast`               | 电台                                  |
 | `mixxx`                   | DJ, 电台推流                          |
-| **系统维护/管理**         |                                       |
-| `cockpit`                 | web UI 系统监控                       |
-| `grafana`                 | web UI 系统监控                       |
-| `drkonqi`                 | kde 日志查看工具                      |
 | **玩具**                  |                                       |
 | `lolcat`                  | 渐变色输出                            |
 | `sl`                      | 火车                                  |
@@ -1612,7 +1616,7 @@ mangohud --dlsym glxgears
 
   ```bash
   [general]
-  renice=10
+  renice=5
 
   [gpu]
   apply_gpu_optimisations=accept-responsibility
