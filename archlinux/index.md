@@ -111,6 +111,7 @@
     - [mangohud](#mangohud)
       - [mangohud with opengl](#mangohud-with-opengl)
       - [mangohud 快捷键](#mangohud-快捷键)
+    - [gamemode](#gamemode)
     - [toilet](#toilet)
   - [KVM 显卡直通](#kvm-显卡直通)
   - [技巧](#技巧)
