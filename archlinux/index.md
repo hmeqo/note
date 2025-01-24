@@ -400,6 +400,9 @@ timedatectl set-ntp true
 
 参考文档: <https://wiki.archlinuxcn.org/wiki/Arch_%E7%9A%84%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B#%E5%BC%95%E5%AF%BC%E5%8A%A0%E8%BD%BD%E7%A8%8B%E5%BA%8F>
 
+> [!NOTE]  
+> 以下出现的 `<esp>` 为 EFI 挂载点
+
 ##### GRUB
 
 ###### 安装GRUB
@@ -488,10 +491,29 @@ refind-install
 > 当 refind-install 运行在chroot环境下 (例如：安装Arch Linux时的live环境) /boot/refind_linux.conf 内将会添加live系统的内核选项，而不是安装它的系统。
 > 编辑 /boot/refind_linux.conf 并确保其中的 内核参数 对于你的系统是正确的，否则下次启动可能会出现内核错误。
 
+- 配置
+
+  配置文件路径 `<esp>/EFI/refind/refind.conf`
+
+  ```conf
+  # 引导时以图形代替文字
+  use_graphics_for osx,linux,grub,windows
+
+  # 是否折叠内核选项, 当有多个可选内核时折叠, 默认为 true
+  fold_linux_kernels false
+
+  # 填写任何内核变体版本字符串, 以便在 /boot/refind_linux.conf 中的 %v 可以正常工作
+  extra_kernel_version_strings linux-zen,linux-cachyos
+  ```
+
+  更多信息可以看 archwiki: <https://wiki.archlinuxcn.org/wiki/REFInd#%E9%85%8D%E7%BD%AE>
+
 ###### rEFInd 主题
 
 - refind-theme-regular
   github: <https://github.com/kmyi/refind-theme-regular>
+
+主题文件一般放在 `<esp>/EFI/refind/themes/` 目录下, 然后在 `<esp>/EFI/refind/refind.conf` 中添加 `include themes/refind-theme-regular/theme.conf`
 
 ### 4. 重启
 
@@ -1858,4 +1880,4 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 - CrossOver
 
-  付费版 Wine
+  ���费版 Wine
