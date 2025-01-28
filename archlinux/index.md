@@ -676,6 +676,12 @@ pacman -S lib32-openal
 
   检验 VA-API: <https://wiki.archlinuxcn.org/wiki/%E7%A1%AC%E4%BB%B6%E8%A7%86%E9%A2%91%E5%8A%A0%E9%80%9F#%E6%A3%80%E9%AA%8C_VA-API>
 
+- NVIDIA
+
+  ```bash
+  pacman -S libva-nvidia-driver
+  ```
+
 #### OpenCL
 
 - Intel
@@ -1395,8 +1401,9 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `spectacle`               | 屏幕截图/录制                         |
 | `grim`                    | wayland 屏幕截图                      |
 | **开发工具**              |                                       |
-| `neovide`                 | nvim的GUI                             |
+| `neovide`                 | nvim GUI                              |
 | `blender`                 | 建模                                  |
+| `aegisub`                 | 字幕编辑                              |
 | **通信**                  |                                       |
 | `thunderbird`             | 邮件                                  |
 | **办公**                  |                                       |
@@ -1417,6 +1424,9 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `faugus-launcher`         | wine/proton 启动器                    |
 | `zinkrun`                 | OpenGL 转 Vulkan (可直接通过环境变量) |
 | `vkbasalt`                | 为 Vulkan 游戏提供额外的后处理        |
+| **终端游戏**              |                                       |
+| `gnugo`                   | 围棋                                  |
+| `gnuchess`                | 象棋                                  |
 | **磁盘管理**              |                                       |
 | `gparted`                 | 分区工具                              |
 | `partiionmanager`         | 分区工具                              |
@@ -1854,7 +1864,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 > [!NOTE]
 > Proton 能够以高性能运行 Windows 游戏, 主要功劳在于 DXVK 和 VKD3D  
-> 各种利用 Wine 运行 Windows 游戏的启动器都默认帮你配好了 DXVK, VKD3D 等工具, 其游戏性能和 Proton 无太大区别
+> 各种利用 Wine 运行 Windows 游戏的启动器都默认帮你配好了 DXVK, VKD3D 等工具, 其游戏性能和 Proton 无太大区���
 
 #### WINE/PROTON GUI 启动器
 
@@ -1880,4 +1890,4 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 - CrossOver
 
-  ���费版 Wine
+  付费版 Wine
