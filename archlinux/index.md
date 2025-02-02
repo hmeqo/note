@@ -58,6 +58,7 @@
     - [显卡驱动](#显卡驱动)
       - [Vulkan](#vulkan)
       - [VA-API 视频加速](#va-api-视频加速)
+      - [Nvidia VDPAU](#nvidia-vdpau)
       - [OpenCL](#opencl)
     - [计算加速](#计算加速)
       - [Intel oneAPI](#intel-oneapi)
@@ -113,9 +114,10 @@
       - [mangohud 快捷键](#mangohud-快捷键)
     - [gamemode](#gamemode)
     - [toilet](#toilet)
-  - [KVM 显卡直通](#kvm-显卡直通)
   - [技巧](#技巧)
+    - [在 KDE 中使 GTK 程序使用 KDE 对话框以获得一致的外观](#在-kde-中使-gtk-程序使用-kde-对话框以获得一致的外观)
     - [如何解除 sudo 锁定](#如何解除-sudo-锁定)
+    - [KVM 显卡直通](#kvm-显卡直通)
   - [Wiki](#wiki)
     - [GNU/Linux 基础目录结构](#gnulinux-基础目录结构)
     - [文件系统](#文件系统)
@@ -681,6 +683,14 @@ pacman -S lib32-openal
   ```bash
   pacman -S libva-nvidia-driver
   ```
+
+#### Nvidia VDPAU
+
+```bash
+pacman -S libvdpau
+# [Optinal] driver using VAAPI
+pacman -S libvdpau-va-gl
+```
 
 #### OpenCL
 
@@ -1664,7 +1674,31 @@ mangohud --dlsym glxgears
   toilet -f mono12 -F metal -t ArchLinux
   ```
 
-## KVM 显卡直通
+## 技巧
+
+### 在 KDE 中使 GTK 程序使用 KDE 对话框以获得一致的外观
+
+安装 `xdg-desktop-portal-gtk` 和 `kdialog` 并设置环境变量 `GTK_USE_PORTAL=1`
+
+### 如何解除 sudo 锁定
+
+- 方法1:
+
+  重启
+
+- 方法2:
+
+  对于非root用户, 可 su 切到 root, 然后执行
+
+  ```bash
+  faillock --user <username> --reset
+  ```
+
+- 方法3 (未验证方法):
+
+  禁用 `faillock`, 编辑 `/etc/pam.d/system-auth`, 注释 `pam_faillock.so` 所在行
+
+### KVM 显卡直通
 
 以 intel + nvidia 举例
 
@@ -1692,26 +1726,6 @@ softdep nvidia pre: vfio-pci
 ```
 
 通过 virt-manager 配置pci直通显卡即可, 具体自行搜索教程 (施工中)
-
-## 技巧
-
-### 如何解除 sudo 锁定
-
-- 方法1:
-
-  ~~重启~~
-
-- 方法2:
-
-  对于非root用户, 可 su 切到 root, 然后执行
-
-  ```bash
-  faillock --user <username> --reset
-  ```
-
-- 方法3 (未验证方法):
-
-  禁用 `faillock`, 编辑 `/etc/pam.d/system-auth`, 注释 `pam_faillock.so` 所在行
 
 ## Wiki
 
