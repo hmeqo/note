@@ -113,6 +113,8 @@
       - [mangohud with opengl](#mangohud-with-opengl)
       - [mangohud 快捷键](#mangohud-快捷键)
     - [gamemode](#gamemode)
+    - [zerotier](#zerotier)
+    - [tailscale](#tailscale)
     - [toilet](#toilet)
   - [技巧](#技巧)
     - [在 KDE 中使 GTK 程序使用 KDE 对话框以获得一致的外观](#在-kde-中使-gtk-程序使用-kde-对话框以获得一致的外观)
@@ -138,7 +140,7 @@
 > 如果你想用 Arch 作为第一个 GNU/Linux 发行版, 建议在身边有人传教的情况下尝试
 >
 > Arch Linux 安装过程没有图形界面, 所有编辑操作都是在终端  
-> 本文默认你能使用任何一种终端编辑器, 不会用请自行学习后再来, 建议学习 `vim`
+> 本文默认你能使用任何一种终端编辑器, 不会用请自行学习后再来 (新手可以用 nano)
 
 ### 视频教程
 
@@ -207,6 +209,10 @@ Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需
 
 swap分区不推荐放第一个, 放后面的话以后如果需要修改比较方便, 对于swap分区/文件要分多大, 可以参考这里 [swap大小建议](#swap大小建议)
 
+> [!NOTE]
+> 也可以使用swapfile而非swap分区, 这样可以动态分配swap的大小, 无需调整分区, 可以等挂载完分区后再创建, [创建swapfile](#创建swapfile)  
+> 在Arch安装过程中(非arch-chroot下), 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
+
 然后对照下表设置分区的类型
 
 | 分区          | 类型             |
@@ -216,10 +222,6 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
 | swap          | Linux swap       |
 
 `cfdisk` 编辑完之后记得 `Write`, 否则你的更改不会生效
-
-> [!NOTE]
-> 也可以使用swapfile而非swap分区, 这样可以动态分配swap的大小, 无需调整分区, 可以等挂载完分区后再创建, [创建swapfile](#创建swapfile)  
-> 在Arch安装过程中(非arch-chroot下), 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
 
 ##### 格式化分区
 
@@ -234,7 +236,7 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
 - Linux 文件系统分区
 
   ```bash
-  # mkfs.<格式>, 可以选择其他的格式, 如 btrfs 等 (善用 tab 键和wiki)
+  # mkfs.<格式>, 可以选择其他的格式, 如 btrfs 等 (善用 tab 键和 wiki)
   mkfs.ext4 /dev/root_partition
   ```
 
@@ -1454,7 +1456,9 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `remmina`                 | 远程连接工具, 支持VNC/RDP等           |
 | `rustdesk`                | 屏幕分享                              |
 | `frpc / frps`             | 内网穿透                              |
-| `npc / nps`               | 内网穿透/P2P                          |
+| `npc / nps`               | 内网穿透                              |
+| [`zerotier`](#zerotier)   | 内网穿透                              |
+| [`tailscale`](#tailscale) | 内网穿透                              |
 | **代理/VPN**              |                                       |
 | `dae`                     | Linux下的透明代理方式                 |
 | `daed`                    | dae + web UI                          |
@@ -1664,6 +1668,101 @@ mangohud --dlsym glxgears
   [gpu]
   apply_gpu_optimisations=accept-responsibility
   nv_powermizer_mode=1
+  ```
+
+### zerotier
+
+- 安装
+
+  - Windows
+
+    自行下载安装包
+
+  - Linux
+
+    ```bash
+    sudo pacman -S zerotier-one
+    ```
+
+    需要 enable/start `zerotier-one` 服务
+
+    ```bash
+    sudo systemctl start zerotier-one
+    ```
+
+- Quick start
+
+  登录 [zerotier 网站](https://my.zerotier.com/login), 注册一个用户, 创建一个网络
+
+  然后让所有需要穿透的设备加入这个网络
+
+  - Windows / Mac
+
+    有 GUI
+
+  - Linux
+
+    加入网络
+
+    ```bash
+    sudo zerotier-cli join <network_id>
+    ```
+
+    查看当前设备信息 (留意第三列设备id)
+
+    ```bash
+    sudo zerotier-cli info
+    ```
+
+    到 zerotier 网站 Members 板块勾选新加入的设备, 点击授权即可
+
+    通过 `sudo zerotier-cli list-networks` 命令查看加入的网络和分配的局域网ip
+
+- 搭建 zerotier moon 服务器
+
+  服务器下载 zerotier-one 并加入网络
+
+  到 /var/lib/zerotier-one 执行下面命令创建配置文件
+
+  ```bash
+  sudo zerotier-idtool initmoon identity.public | sudo tee moon.json
+  ```
+
+  编辑 moon.json, 将 `"stableEndpoints": []"` 改为 `"stableEndpoints": ["<SererIP>/9993"]"`, 例如 `["123.456.789.012/9993"]`
+
+  然后生成 .moon 文件
+
+  ```bash
+  sudo mkdir moons.d
+  cd moons.d
+  sudo zerotier-idtool genmoon ../moon.json
+  ```
+
+  最后重启 `zerotier-one` 服务
+
+  ```bash
+  sudo systemctl restart zerotier-one
+  ```
+
+- 使用 zerotier moon
+
+  - Linux
+
+    `sudo zerotier-cli listpeers` 确认找到搭建好的节点, 类似这样的字样 `200 listpeers <id> - -1 - LEAF`,
+    其中 `<id>` 为服务器id, 也可以通过服务器运行 `sudo zerotier-cli info` 来查看id
+
+    通过 `sudo zerotier-cli orbit <id> <id>` 连接 moon, 出现 `200 orbit OK` 表示成功,
+    再次运行 `sudo zerotier-cli listpeers` 可以看到对应的行 LEAF 变成了 MOON (可能有延迟)
+
+### tailscale
+
+安装 tailscale 并登录账号即可
+
+- Linux 命令行启动方式
+
+  ```bash
+  sudo systemctl start tailscaled
+  sudo tailscale up  # Or use 'tailscale up --operator=$USER' to not require root.
   ```
 
 ### toilet
@@ -1878,7 +1977,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 > [!NOTE]
 > Proton 能够以高性能运行 Windows 游戏, 主要功劳在于 DXVK 和 VKD3D  
-> 各种利用 Wine 运行 Windows 游戏的启动器都默认帮你配好了 DXVK, VKD3D 等工具, 其游戏性能和 Proton 无太大区���
+> 各种利用 Wine 运行 Windows 游戏的启动器都默认帮你配好了 DXVK, VKD3D 等工具, 其游戏性能和 Proton 无太大区别
 
 #### WINE/PROTON GUI 启动器
 
