@@ -1676,7 +1676,11 @@ mangohud --dlsym glxgears
 
   - Windows
 
-    自行下载安装包
+    下载安装包
+
+  - Android
+
+    Google play
 
   - Linux
 
@@ -1690,7 +1694,7 @@ mangohud --dlsym glxgears
     sudo systemctl start zerotier-one
     ```
 
-- Quick start
+- 使用
 
   登录 [zerotier 网站](https://my.zerotier.com/login), 注册一个用户, 创建一个网络
 
@@ -1702,17 +1706,9 @@ mangohud --dlsym glxgears
 
   - Linux
 
-    加入网络
+    加入网络 `sudo zerotier-cli join <network_id>`
 
-    ```bash
-    sudo zerotier-cli join <network_id>
-    ```
-
-    查看当前设备信息 (留意第三列设备id)
-
-    ```bash
-    sudo zerotier-cli info
-    ```
+    `sudo zerotier-cli info` 查看当前设备信息 (留意第三列设备id)
 
     到 zerotier 网站 Members 板块勾选新加入的设备, 点击授权即可
 
@@ -1748,7 +1744,7 @@ mangohud --dlsym glxgears
 
   - Linux
 
-    `sudo zerotier-cli listpeers` 确认找到搭建好的节点, 类似这样的字样 `200 listpeers <id> - -1 - LEAF`,
+    `sudo zerotier-cli listpeers` 确认找到搭建好的中继, 类似这样的字样 `200 listpeers <id> - -1 - LEAF`,
     其中 `<id>` 为服务器id, 也可以通过服务器运行 `sudo zerotier-cli info` 来查看id
 
     通过 `sudo zerotier-cli orbit <id> <id>` 连接 moon, 出现 `200 orbit OK` 表示成功,
@@ -1756,13 +1752,77 @@ mangohud --dlsym glxgears
 
 ### tailscale
 
-安装 tailscale 并登录账号即可
+- 安装
 
-- Linux 命令行启动方式
+  - Windows
+
+    安装包
+  
+  - Android
+
+    Google play 和 F-Droid
+
+  - Linux
+
+    ```bash
+    sudo pacman -S tailscale
+    ```
+
+- 使用
+
+  - Linux
+
+    ```bash
+    sudo systemctl start tailscaled
+    sudo tailscale up  # Or use 'tailscale up --operator=$USER' to not require root.
+    ```
+
+    在tailscale网页控制台可以看到所有已连接设备的虚拟网络IP
+
+  - Android
+
+    打开 tailscale app, 登录账号, 点击连接
+
+- derp 服务器搭建
+
+  对于安装了ArchLinux的无域名只有IPv4的服务器
+
+  从 AUR 或者 archlinuxcn 安装 `derp-ipcert`, 然后修改配置文件将 127.0.0.1 替换为你的服务器 IP, 启动服务
 
   ```bash
-  sudo systemctl start tailscaled
-  sudo tailscale up  # Or use 'tailscale up --operator=$USER' to not require root.
+  paru -S derp-ipcert
+
+  # 使用以下命令或手动替换服务器 IP
+  sudo sed -i 's/127.0.0.1/<你的服务器IP>/g' /etc/derper/openssl.cnf /etc/conf.d/derper
+
+  sudo systemctl enable --now derper
+  ```
+
+  记得给服务器防火墙开放 UDP 的 3478 和 TCP 的 10443,5100 端口 (或者你修改后的端口)
+
+  最后在 tailscale 网页控制台添加以下内容到 json 配置中, 添加到最外层花括号内保存即可
+
+  ```json
+  "derpMap": {
+		"OmitDefaultRegions": true, // 是否忽略默认节点
+		"Regions": {
+			"901": {
+				"RegionID":   901,
+				"RegionCode": "Myself",
+				"RegionName": "JD Cloud",
+				"Nodes": [
+					{
+						"Name":             "901a",
+						"RegionID":         901,
+						"DERPPort":         10443, // derper 的 https 端口
+						"HostName":         "", // 留空即可
+						"IPv4":             "123.456.789.012", // 改为你的服务器 IP
+						"InsecureForTests": true,
+					},
+				],
+			},
+		},
+	},
   ```
 
 ### toilet
