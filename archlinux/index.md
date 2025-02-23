@@ -115,6 +115,9 @@
     - [gamemode](#gamemode)
     - [zerotier](#zerotier)
     - [tailscale](#tailscale)
+    - [sunshine](#sunshine)
+      - [sunshine 配置虚拟显示器](#sunshine-配置虚拟显示器)
+    - [moonlight](#moonlight)
     - [toilet](#toilet)
   - [技巧](#技巧)
     - [在 KDE 中使 GTK 程序使用 KDE 对话框以获得一致的外观](#在-kde-中使-gtk-程序使用-kde-对话框以获得一致的外观)
@@ -1411,11 +1414,11 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `gimp`                    | 修图                                  |
 | `inkscape`                | 矢量图编辑                            |
 | `pureref`                 | 多图片查看, 钉图, 编辑                |
-| `vhs`                     | 生成终端命令动图                      |
 | **截图/录制**             |                                       |
 | `obs-studio`              | 视频录制/推流                         |
 | `spectacle`               | 屏幕截图/录制                         |
 | `grim`                    | wayland 屏幕截图                      |
+| `vhs`                     | 生成终端命令动图                      |
 | **通信**                  |                                       |
 | `thunderbird`             | 邮件                                  |
 | **办公**                  |                                       |
@@ -1454,7 +1457,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `motrix`                  | 下载工具                              |
 | `alist`                   | 整合各种网盘                          |
 | `davfs`                   | 可将 alist 网盘挂载到本地             |
-| **远程**                  |                                       |
+| **远程/VPN/串流**         |                                       |
 | `kdeconnect`              | 手机电脑局域网连接                    |
 | `scrcpy`                  | Android 屏幕远程控制                  |
 | `remmina`                 | 远程连接工具, 支持VNC/RDP等           |
@@ -1463,9 +1466,11 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `npc / nps`               | 内网穿透                              |
 | [`zerotier`](#zerotier)   | 内网穿透                              |
 | [`tailscale`](#tailscale) | 内网穿透                              |
-| **代理/VPN**              |                                       |
-| `dae`                     | Linux下的透明代理方式                 |
-| `daed`                    | dae + web UI                          |
+| [`sunshine`](#sunshine)   | 串流服务端                            |
+| [`moonlight`](#moonlight) | 串流客户端                            |
+| **代理**                  |                                       |
+| `dae`                     | 通过内核分流的透明代理                |
+| `daed`                    | dae core + web UI                     |
 | `glider`                  | 绑定可走代理的 http / socks 端口      |
 | `proxychains`             | 终端强制代理工具, 可代理ping流量      |
 | `v2raya`                  | v2ray web UI                          |
@@ -1486,6 +1491,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `nyancat`                 | 彩虹猫                                |
 | `carbonyl`                | 终端浏览器                            |
 | `griddycode`              | 代码编辑器                            |
+| `pipes.sh`                | 管道                                  |
+| `cbonsai`                 | 盆栽                                  |
 | **其他**                  |                                       |
 | `teamspeak3`              | 语音服务器                            |
 | `kanshi`                  | Wayland 动态显示屏切换                |
@@ -1824,6 +1831,21 @@ mangohud --dlsym glxgears
   },
   ```
 
+### sunshine
+
+sunshine 在 windows 和 linux 下都是通过 web 页面操作, 启动方式也很简单, 直接从启动菜单中运行 sunshine 或启动服务即可
+
+#### sunshine 配置虚拟显示器
+
+通过 sunshine 串流虚拟显示器, 实现另一台电脑充当副屏
+
+windows 端可安装虚拟显示器软件如 parsec-vdd / virtual-display-driver,
+2025 新版 sunshine 在视频和音频配置中填写虚拟显示器的ID, 虚拟显示器ID可在故障排除中找到
+
+### moonlight
+
+下载安装 moonlight-qt, 添加 sunshine 服务端所在 ip, 点击连接, 在 sunshine 服务端输入 ping 码和客户端的主机名即可
+
 ### toilet
 
 - 示例
@@ -1852,7 +1874,7 @@ mangohud --dlsym glxgears
   faillock --user <username> --reset
   ```
 
-- 方法3 (未验证方法):
+- 方法3 (未验证有效性):
 
   禁用 `faillock`, 编辑 `/etc/pam.d/system-auth`, 注释 `pam_faillock.so` 所在行
 
