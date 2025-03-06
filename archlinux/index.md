@@ -1907,6 +1907,11 @@ softdep nvidia pre: vfio-pci
 
 通过 virt-manager 配置pci直通显卡即可, 具体自行搜索教程 (施工中)
 
+### Proton 指定特定显卡运行
+
+对于 DXVK 可以用 `DXVK_FILTER_DEVICE_NAME="Device Name"`, 例如 `DXVK_FILTER_DEVICE_NAME="Intel"`  
+Device Name 可以通过 `vulkaninfo | grep deviceName` 获取
+
 ## Wiki
 
 Archwiki: <https://wiki.archlinux.org/title/Main_page>
