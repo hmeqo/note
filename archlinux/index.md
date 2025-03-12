@@ -1736,8 +1736,8 @@ mangohud --dlsym glxgears
 
   ```bash
   sudo mkdir moons.d
-  cd moons.d
-  sudo zerotier-idtool genmoon ../moon.json
+  sudo zerotier-idtool genmoon ./moon.json
+  sudo mv *.moon moons.d
   ```
 
   最后重启 `zerotier-one` 服务
@@ -1911,6 +1911,16 @@ softdep nvidia pre: vfio-pci
 
 对于 DXVK 可以用 `DXVK_FILTER_DEVICE_NAME="Device Name"`, 例如 `DXVK_FILTER_DEVICE_NAME="Intel"`  
 Device Name 可以通过 `vulkaninfo | grep deviceName` 获取
+
+### 关闭桌面环境特效
+
+- xfce
+
+  `xfconf-query -c xfwm4 -p /general/use_compositing -s false`
+
+- mate (gnome)
+
+  `gsettings set org.mate.Marco.general compositing-manager false`
 
 ## Wiki
 
