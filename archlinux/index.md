@@ -123,6 +123,9 @@
     - [在 KDE 中使 GTK 程序使用 KDE 对话框以获得一致的外观](#在-kde-中使-gtk-程序使用-kde-对话框以获得一致的外观)
     - [如何解除 sudo 锁定](#如何解除-sudo-锁定)
     - [KVM 显卡直通](#kvm-显卡直通)
+    - [Proton 指定特定显卡运行](#proton-指定特定显卡运行)
+    - [关闭桌面环境特效](#关闭桌面环境特效)
+    - [防止 ssh 断连](#防止-ssh-断连)
   - [Wiki](#wiki)
     - [GNU/Linux 基础目录结构](#gnulinux-基础目录结构)
     - [文件系统](#文件系统)
@@ -476,7 +479,7 @@ menuentry 'Microsoft Windows 10' {
 
 ##### systemd-boot
 
-systemd-boot 是 systemd 全家桶的一部分, 在 arch 不需要额外安装
+systemd-boot 是 systemd 全家桶的一部分, 在 arch 不需要额外安装软件包
 
 运行以下命令即可安装
 
@@ -1363,8 +1366,9 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `nslookup`                | 域名解析工具                          |
 | `nali`                    | ip归属查询                            |
 | `dnsmasq`                 | DNS 服务                              |
-| `mtr`                     | traceroute 和 ping 功能的结合         |
+| `traceroute`              | 网络路径分析                          |
 | `nexttrace`               | 网络路径分析                          |
+| `mtr`                     | traceroute 和 ping 功能的结合         |
 | `openresolv`              | resolv.conf 管理                      |
 | `nethogs`                 | 网络流量监听                          |
 | `wireshark`               | 网络分析工具                          |
@@ -1385,7 +1389,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `wavemon`                 | wifi 管理                             |
 | `cockpit`                 | web UI 系统监控                       |
 | `grafana`                 | web UI 系统监控                       |
-| `drkonqi`                 | kde 日志查看工具                      |
+| `drkonqi`                 | 日志查看工具                          |
 | **hack**                  |                                       |
 | [`fcrackzip`](#fcrackzip) | 压缩包破解                            |
 | **GUI 工具**              |                                       |
@@ -1464,8 +1468,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `rustdesk`                | 屏幕分享                              |
 | `frpc / frps`             | 内网穿透                              |
 | `npc / nps`               | 内网穿透                              |
-| [`zerotier`](#zerotier)   | 内网穿透                              |
-| [`tailscale`](#tailscale) | 内网穿透                              |
+| [`zerotier`](#zerotier)   | VPN                                   |
+| [`tailscale`](#tailscale) | VPN                                   |
 | [`sunshine`](#sunshine)   | 串流服务端                            |
 | [`moonlight`](#moonlight) | 串流客户端                            |
 | **代理**                  |                                       |
@@ -1493,21 +1497,36 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `griddycode`              | 代码编辑器                            |
 | `pipes.sh`                | 管道                                  |
 | `cbonsai`                 | 盆栽                                  |
-| **其他**                  |                                       |
-| `teamspeak3`              | 语音服务器                            |
-| `kanshi`                  | Wayland 动态显示屏切换                |
-| `xdg-ninja`               | 检查家目录下的点文件的 XDG 支持情况   |
-| `zbar`                    | 二维码条形码扫描                      |
 | **字体**                  |                                       |
 | `noto-fonts-cjk`          | 中文                                  |
 | `noto-fonts-emoji`        | 表情                                  |
 | `noto-fonts-extra`        |                                       |
+| `ttf-babelstone-han`      | 生僻字字体                            |
 | `ttf-nerd-fonts-symbols`  |                                       |
+| **编程字体**              |                                       |
 | `ttf-fira-code`           | Fira Code                             |
 | `ttf-firacode-nerd`       | Fira Code Nerd Font                   |
 | `ttf-maple`               |                                       |
 | `otf-codenewroman-nerd`   |                                       |
 | `ttf-meslo-nerd`          |                                       |
+| `Comic Code`              |                                       |
+| **编程**                  |                                       |
+| `vscode`                  |                                       |
+| `mise`                    |                                       |
+| `usage`                   |                                       |
+| `python`                  |                                       |
+| `uv`                      |                                       |
+| `ruff`                    |                                       |
+| `nodejs`                  |                                       |
+| `deno`                    |                                       |
+| `prettier`                |                                       |
+| `eslint`                  |                                       |
+| `biome`                   |                                       |
+| **其他**                  |                                       |
+| `teamspeak3`              | 语音服务器                            |
+| `kanshi`                  | Wayland 动态显示屏切换                |
+| `xdg-ninja`               | 检查家目录下的点文件的 XDG 支持情况   |
+| `zbar`                    | 二维码条形码扫描                      |
 
 ### KDE软件生态
 
@@ -1921,6 +1940,15 @@ Device Name 可以通过 `vulkaninfo | grep deviceName` 获取
 - mate (gnome)
 
   `gsettings set org.mate.Marco.general compositing-manager false`
+
+### 防止 ssh 断连
+
+`~/.ssh/config`
+
+```sshconfig
+Host *
+  ServerAliveInterval 60
+```
 
 ## Wiki
 
