@@ -113,6 +113,7 @@
       - [mangohud with opengl](#mangohud-with-opengl)
       - [mangohud 快捷键](#mangohud-快捷键)
     - [gamemode](#gamemode)
+    - [davfs](#davfs)
     - [zerotier](#zerotier)
     - [tailscale](#tailscale)
     - [sunshine](#sunshine)
@@ -290,7 +291,7 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
 推荐一个国内速度较快的镜像源
 
 ```conf
-Server = http://mirrors.jlu.edu.cn/archlinux/$repo/os/$arch
+Server = http://mirrors.nju.edu.cn/archlinux/$repo/os/$arch
 ```
 
 #### 更新密钥环
@@ -1408,7 +1409,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `mpv`                     | 精简视频播放器                        |
 | `karuna`                  | KDE 基于 mpv 的视频播放器             |
 | `kdenlive`                | 视频剪辑                              |
-| `media-download`          | 视频下载                              |
+| `media-downloader`        | 视频下载                              |
 | **音频**                  |                                       |
 | `elisa`                   | 音乐播放器, 支持电台                  |
 | `easyeffects`             | 音频效果                              |
@@ -1460,7 +1461,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **下载/网盘**             |                                       |
 | `motrix`                  | 下载工具                              |
 | `alist`                   | 整合各种网盘                          |
-| `davfs`                   | 可将 alist 网盘挂载到本地             |
+| [`davfs`](#davfs)         | 可将 alist 网盘挂载到本地             |
 | **远程/VPN/串流**         |                                       |
 | `kdeconnect`              | 手机电脑局域网连接                    |
 | `scrcpy`                  | Android 屏幕远程控制                  |
@@ -1693,6 +1694,40 @@ mangohud --dlsym glxgears
   [gpu]
   apply_gpu_optimisations=accept-responsibility
   nv_powermizer_mode=1
+  ```
+
+### davfs
+
+- 挂载本机 alist (非本机地址改一下 ip)
+
+  添加 systemd 服务 `/etc/systemd/system/mnt-dav.mount`
+
+  ```ini
+  [Unit]
+  Description=Mount WebDAV
+  After=alist.service
+
+  [Mount]
+  What=http://127.0.0.1:5244/dav/
+  Where=/mnt/dav
+  Options=noauto,user,uid=hmeqo,gid=hmeqo
+  Type=davfs
+  TimeoutSec=60
+
+  [Install]
+  WantedBy=remote-fs.target
+  ```
+
+  编辑 `/etc/davfs2/secrets`, 添加如下内容
+  
+  ```conf
+  http://127.0.0.1:5244/dav/ admin <your_password>
+  ```
+
+  最后启动 alist 和 mnt-dav.mount
+
+  ```bash
+  sudo systemctl start alist mnt-dav.mount
   ```
 
 ### zerotier
