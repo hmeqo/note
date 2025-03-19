@@ -83,6 +83,8 @@
     - [zswap](#zswap)
     - [Ananicy](#ananicy)
     - [性能优化](#性能优化)
+    - [操作文件系统](#操作文件系统)
+      - [修改分区 Label](#修改分区-label)
   - [pacman](#pacman)
     - [初始化密钥环](#初始化密钥环)
     - [多线程下载](#多线程下载)
@@ -129,7 +131,6 @@
     - [防止 ssh 断连](#防止-ssh-断连)
   - [Wiki](#wiki)
     - [GNU/Linux 基础目录结构](#gnulinux-基础目录结构)
-    - [文件系统](#文件系统)
     - [WINE/PROTON 运行 Windows 应用/游戏](#wineproton-运行-windows-应用游戏)
       - [WINE 生态中的各种工具介绍](#wine-生态中的各种工具介绍)
       - [WINE/PROTON GUI 启动器](#wineproton-gui-启动器)
@@ -474,9 +475,13 @@ menuentry 'Microsoft Windows 10' {
 
   Github: <https://github.com/Se7endAY/grub2-theme-vimix>
 
-- Dark Matter GRUB Theme
+- Dark Matter
 
   GitLab: <https://gitlab.com/VandalByte/darkmatter-grub-theme>
+
+- MineCraft
+
+  GitLab: <https://github.com/Lxtharia/minegrub-world-sel-theme>
 
 ##### systemd-boot
 
@@ -1105,6 +1110,37 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
 ### 性能优化
 
 文档: <https://wiki.archlinuxcn.org/wiki/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96>
+
+### 操作文件系统
+
+#### 修改分区 Label
+
+- ext4
+
+  ```bash
+  sudo e2label <device> <newlabel>
+  ```
+
+- btrfs
+
+  ```bash
+  # 对于已挂载的设备
+  sudo btrfs filesystem label <mountpoint> <newlabel>
+  # 否则
+  sudo btrfs filesystem label <device> <newlabel>
+  ```
+
+- fat32
+
+  ```bash
+  sudo fatlabel <device> <newlabel>
+  ```
+
+- ntfs
+
+  ```bash
+  sudo ntfslabel <device> <newlabel>
+  ```
 
 ## pacman
 
@@ -2063,36 +2099,6 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
   EFI 分区目录, 如果你把 EFI 分区挂载到了 `/boot`, 那么你可以在 `/boot/EFI` 中找到启动项  
   如果你的 EFI 挂载点是 `/`, 那么对应的 EFI 目录则是 `/EFI`
-
-### 文件系统
-
-- ext4
-
-  稳定, 性能不错
-
-- btrfs
-
-  支持很多特性
-
-- xfs
-
-- zfs
-
-- f2fs
-
-- fat32
-
-  常用于 EFI 分区
-
-- exfat
-
-  常用于 U盘, 兼容性好
-
-- tmpfs
-
-  常见于 /tmp /run /dev
-
-  挂载在内存的文件系统
 
 ### WINE/PROTON 运行 Windows 应用/游戏
 
