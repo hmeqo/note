@@ -68,7 +68,6 @@
       - [双显卡切换](#双显卡切换)
       - [指定使用独立显卡](#指定使用独立显卡)
     - [功耗控制和电源管理](#功耗控制和电源管理)
-    - [关闭睿频](#关闭睿频)
     - [fstab](#fstab)
     - [Swap](#swap)
       - [Swap大小建议](#swap大小建议)
@@ -110,6 +109,8 @@
       - [配置paru](#配置paru)
         - [paru 配置项含义](#paru-配置项含义)
     - [reflector](#reflector)
+    - [samba](#samba)
+    - [lscpu](#lscpu)
     - [fcrackzip](#fcrackzip)
     - [mangohud](#mangohud)
       - [mangohud with opengl](#mangohud-with-opengl)
@@ -129,6 +130,8 @@
     - [Proton 指定特定显卡运行](#proton-指定特定显卡运行)
     - [关闭桌面环境特效](#关闭桌面环境特效)
     - [防止 ssh 断连](#防止-ssh-断连)
+    - [关闭睿频](#关闭睿频)
+    - [关闭 Intel 小核](#关闭-intel-小核)
   - [Wiki](#wiki)
     - [GNU/Linux 基础目录结构](#gnulinux-基础目录结构)
     - [WINE/PROTON 运行 Windows 应用/游戏](#wineproton-运行-windows-应用游戏)
@@ -824,41 +827,7 @@ Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有�
 
 - tlp
 
-### 关闭睿频
-
-如果你用的是 tlp 之类的电源管理, 可找对应设置直接关闭
-
-如果用的电源管理没有这个选项 (例如 ppd), 或者你不用电源管理, 可以尝试以下方法
-
-- `Intel`
-
-  对于 Intel CPU, 可简单通过 /sys 关闭或启用睿频
-
-  ```bash
-  # 1 表示关闭, 0 表示启用
-  echo 1 | sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo
-  ```
-
-  对 /sys 的修改是临时的, 重启后会恢复默认值, 如果需要持久化, 可以考虑添加一个开机启动脚本或者 crontab 任务
-
-  crontab 示例, 安装 crontab 任意实现, 将以下内容写入到 `/etc/cron.d/no_turbo` 或者 `/etc/crontab`:
-
-  ```crontab
-  @reboot root echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
-  ```
-
-- `cpupower` (不推荐)
-
-  如果你知道你的 cpu 在无睿频情况下的频率, 可以尝试这个方法
-
-  安装 `cpupower`, 修改 `/etc/default/cpupower`, 写入如下内容
-
-  ```conf
-  # 改为你的 CPU 无睿频的频率
-  max_freq="2.7GHz"
-  ```
-
-  然后启用服务 `sudo systemctl enable --now cpupower.service` 以持久化更改
+- thermald
 
 ### fstab
 
@@ -1380,9 +1349,11 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `btmgmt`                  | Bluetooth 管理                        |
 | `tlp / tlp-rdw / tlpui`   | 电源管理                              |
 | `power-profiles-daemon`   | 电源管理                              |
+| `thermald`                | Intel 温控守护进程                    |
 | `pamixer`                 |                                       |
 | `brightnessctl`           |                                       |
 | `authbind`                | 非root绑定特权端口                    |
+| `tealdeer`                | 命令文档                              |
 | **分区管理**              |                                       |
 | `efibootmgr`              | EFI 启动管理                          |
 | `lsblk`                   |                                       |
@@ -1409,8 +1380,9 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `openresolv`              | resolv.conf 管理                      |
 | `nethogs`                 | 网络流量监听                          |
 | `wireshark`               | 网络分析工具                          |
+| [`samba`](#samba)         | 文件共享                              |
 | **CPU**                   |                                       |
-| `lscpu`                   |                                       |
+| [`lscpu`](#lscpu)         |                                       |
 | `turbostat`               | CPU 温度频率监测                      |
 | `cpupower`                |                                       |
 | **系统维护/管理**         |                                       |
@@ -1559,6 +1531,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `prettier`                |                                       |
 | `eslint`                  |                                       |
 | `biome`                   |                                       |
+| `tokei`                   | 代码行数统计                          |
 | **其他**                  |                                       |
 | `teamspeak3`              | 语音服务器                            |
 | `kanshi`                  | Wayland 动态显示屏切换                |
@@ -1651,6 +1624,31 @@ GitHub: <https://github.com/Morganamilo/paru>
 
   ```bash
   sudo reflector -c CN --save /etc/pacman.d/mirrorlist
+  ```
+
+### samba
+
+安装后需要先配置才能使用, 示例: `https://raw.githubusercontent.com/hmeqo/dotfiles/refs/heads/main/data/etc/samba/smb.conf`,
+配置完成后启动服务 `smb.service`, 要支持 smb://xxx/ 路径访问需要服务 `nmb.service`
+
+- 非 Windows 网络自动发现
+
+  如果需要在非 Windows 上的文件夹中可被发现 (如 macOS Finder, Linux GUI 文件管理器), 需要安装 `avahi` 并启动服务 `avahi-daemon.service`
+
+- Windows 网络自动发现
+
+  Windows 10 1511 以及以上默认禁用了 samba 自动发现, 可以安装并启动 `wsdd` 服务,
+
+- 用户共享文件
+
+  请看Wiki: <https://wiki.archlinuxcn.org/wiki/Samba#%E5%90%AF%E7%94%A8_Usershare>
+
+### lscpu
+
+- 查看 cpu 分布情况
+
+  ```bash
+  lscpu -e
   ```
 
 ### fcrackzip
@@ -2020,6 +2018,47 @@ Device Name 可以通过 `vulkaninfo | grep deviceName` 获取
 Host *
   ServerAliveInterval 60
 ```
+
+### 关闭睿频
+
+如果你用的是 tlp 之类的电源管理, 可找对应设置直接关闭
+
+如果用的电源管理没有这个选项 (例如 ppd), 或者你不用电源管理, 可以尝试以下方法
+
+- `Intel`
+
+  对于 Intel CPU, 可简单通过 /sys 关闭或启用睿频
+
+  ```bash
+  # 1 表示关闭, 0 表示启用
+  echo 1 | sudo tee /sys/devices/system/cpu/intel_pstate/no_turbo
+  ```
+
+  对 /sys 的修改是临时的, 重启后会恢复默认值, 如果需要持久化, 可以考虑添加一个开机启动脚本或者 crontab 任务
+
+  crontab 示例, 安装 crontab 任意实现, 将以下内容写入到 `/etc/cron.d/no_turbo` 或者 `/etc/crontab`:
+
+  ```crontab
+  @reboot root echo 1 > /sys/devices/system/cpu/intel_pstate/no_turbo
+  ```
+
+- `cpupower` (不推荐)
+
+  如果你知道你的 cpu 在无睿频情况下的频率, 可以尝试这个方法
+
+  安装 `cpupower`, 修改 `/etc/default/cpupower`, 写入如下内容
+
+  ```conf
+  # 改为你的 CPU 无睿频的频率
+  max_freq="2.7GHz"
+  ```
+
+  然后启用服务 `sudo systemctl enable --now cpupower.service` 以持久化更改
+
+### 关闭 Intel 小核
+
+通过 `lscpu -e` 查看 cpu 分布情况,
+然后通过 `echo 0 | sudo tee /sys/bus/cpu/devices/cpu{12,13,14,15}/online` (其中数字改为实际cpu核心编号) 使核心离线
 
 ## Wiki
 
