@@ -132,6 +132,7 @@
     - [防止 ssh 断连](#防止-ssh-断连)
     - [关闭睿频](#关闭睿频)
     - [关闭 Intel 小核](#关闭-intel-小核)
+    - [测试实际带宽](#测试实际带宽)
   - [Wiki](#wiki)
     - [GNU/Linux 基础目录结构](#gnulinux-基础目录结构)
     - [WINE/PROTON 运行 Windows 应用/游戏](#wineproton-运行-windows-应用游戏)
@@ -1521,7 +1522,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `Comic Code`              |                                       |
 | **编程**                  |                                       |
 | `vscode`                  |                                       |
-| `mise`                    |                                       |
+| `mise`                    | 环境管理                              |
 | `usage`                   |                                       |
 | `python`                  |                                       |
 | `uv`                      |                                       |
@@ -2059,6 +2060,14 @@ Host *
 
 通过 `lscpu -e` 查看 cpu 分布情况,
 然后通过 `echo 0 | sudo tee /sys/bus/cpu/devices/cpu{12,13,14,15}/online` (其中数字改为实际cpu核心编号) 使核心离线
+
+### 测试实际带宽
+
+利用 dd 和 ssh 测试实际带宽
+
+```bash
+dd if=/dev/zero | ssh <target_myserver> dd of=/dev/null status=progress
+```
 
 ## Wiki
 
