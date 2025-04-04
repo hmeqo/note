@@ -125,10 +125,11 @@
     - [toilet](#toilet)
   - [技巧](#技巧)
     - [在 KDE 中使 GTK 程序使用 KDE 对话框以获得一致的外观](#在-kde-中使-gtk-程序使用-kde-对话框以获得一致的外观)
+    - [关闭桌面环境特效](#关闭桌面环境特效)
+    - [使用 sudo nvim 编辑文件时共享剪切板](#使用-sudo-nvim-编辑文件时共享剪切板)
     - [如何解除 sudo 锁定](#如何解除-sudo-锁定)
     - [KVM 显卡直通](#kvm-显卡直通)
     - [Proton 指定特定显卡运行](#proton-指定特定显卡运行)
-    - [关闭桌面环境特效](#关闭桌面环境特效)
     - [防止 ssh 断连](#防止-ssh-断连)
     - [关闭睿频](#关闭睿频)
     - [关闭 Intel 小核](#关闭-intel-小核)
@@ -296,7 +297,7 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
 推荐一个国内速度较快的镜像源
 
 ```conf
-Server = http://mirrors.nju.edu.cn/archlinux/$repo/os/$arch
+Server = http://mirrors.jlu.edu.cn/archlinux/$repo/os/$arch
 ```
 
 #### 更新密钥环
@@ -1949,6 +1950,24 @@ windows 端可安装虚拟显示器软件如 parsec-vdd / virtual-display-driver
 
 安装 `xdg-desktop-portal-gtk` 和 `kdialog` 并设置环境变量 `GTK_USE_PORTAL=1`
 
+### 关闭桌面环境特效
+
+- xfce
+
+  `xfconf-query -c xfwm4 -p /general/use_compositing -s false`
+
+- mate (gnome)
+
+  `gsettings set org.mate.Marco.general compositing-manager false`
+
+### 使用 sudo nvim 编辑文件时共享剪切板
+
+可以在 nvim 中执行 `:health clipboard` 检查剪切板是否工作, 如果没有, 通过 `:help clipboard` 查看如何配置
+
+如果你是 x11 用户, 只需要安装 `xclip` 即可, wayland 用户安装 `wl-clipboard`,
+需要注意的是, nvim 通过 `WAYLAND_DISPLAY` 环境变量检测 wayland 环境以确认是否使用 `wl-clipboard`,
+所以需要传递该环境变量给 `sudo`, 可以通过 `sudo -E nvim [path]` 执行 nvim
+
 ### 如何解除 sudo 锁定
 
 - 方法1:
@@ -2000,16 +2019,6 @@ softdep nvidia pre: vfio-pci
 
 对于 DXVK 可以用 `DXVK_FILTER_DEVICE_NAME="Device Name"`, 例如 `DXVK_FILTER_DEVICE_NAME="Intel"`  
 Device Name 可以通过 `vulkaninfo | grep deviceName` 获取
-
-### 关闭桌面环境特效
-
-- xfce
-
-  `xfconf-query -c xfwm4 -p /general/use_compositing -s false`
-
-- mate (gnome)
-
-  `gsettings set org.mate.Marco.general compositing-manager false`
 
 ### 防止 ssh 断连
 
