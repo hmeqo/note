@@ -133,7 +133,7 @@
     - [防止 ssh 断连](#防止-ssh-断连)
     - [关闭睿频](#关闭睿频)
     - [关闭 Intel 小核](#关闭-intel-小核)
-    - [测试实际带宽](#测试实际带宽)
+    - [网速测试](#网速测试)
   - [Wiki](#wiki)
     - [GNU/Linux 基础目录结构](#gnulinux-基础目录结构)
     - [WINE/PROTON 运行 Windows 应用/游戏](#wineproton-运行-windows-应用游戏)
@@ -1995,25 +1995,31 @@ windows 端可安装虚拟显示器软件如 parsec-vdd / virtual-display-driver
 ```bash
 $ lspci -nn | grep "NVIDIA"
 # 显卡
-01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GA107M [GeForce RTX 3050 Ti Mobile] [10de:25a0] (rev a1)
-# 声卡
+01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GA107M [GeForce RTX XXXX] [10de:25a0] (rev a1)
+# 声卡 (如果没有输出声卡, 可以跳过)
 01:00.1 Audio device [0403]: NVIDIA Corporation GA107 High Definition Audio Controller [10de:2291] (rev a1)
 ```
 
-添加内核参数, vfio-pci.ids 填写显卡PCI ID
+然后将参数传递到内核
 
-```bash
-... intel_iommu=on vfio-pci.ids=10de:25a0,10de:2291
-```
+- 方法一
 
-也可以不通过内核参数, 在modprobe中配置, `/etc/modprobe.d/vfio.conf`
+  grub 或其他 bootloader 中添加内核参数, vfio-pci.ids 填写显卡和声卡(如果有)的PCI ID
 
-```modconf
-options vfio-pci ids=10de:25a0,10de:2291
-softdep nvidia pre: vfio-pci
-```
+  ```bash
+  ... intel_iommu=on vfio-pci.ids=10de:25a0,10de:2291
+  ```
 
-通过 virt-manager 配置pci直通显卡即可, 具体自行搜索教程 (施工中)
+- 方法二
+
+  也可以不通过 bootloader, 在modprobe中配置, `/etc/modprobe.d/vfio.conf`
+
+  ```modconf
+  options vfio-pci ids=10de:25a0,10de:2291
+  softdep nvidia pre: vfio-pci
+  ```
+
+通过 virt-manager 配置pci直通显卡即可, 在虚拟机配置中选择添加硬件, 选择 PCI Host Device, 选择直通的 PCI 设备即可
 
 ### Proton 指定特定显卡运行
 
@@ -2070,13 +2076,15 @@ Host *
 通过 `lscpu -e` 查看 cpu 分布情况,
 然后通过 `echo 0 | sudo tee /sys/bus/cpu/devices/cpu{12,13,14,15}/online` (其中数字改为实际cpu核心编号) 使核心离线
 
-### 测试实际带宽
+### 网速测试
 
-利用 dd 和 ssh 测试实际带宽
+- 利用 dd 和 ssh 测试网速
 
-```bash
-dd if=/dev/zero | ssh <target_myserver> dd of=/dev/null status=progress
-```
+  此方法通过 ssh 远程执行 dd 命令来测试网速, 需要能够远程执行命令
+
+  ```bash
+  dd if=/dev/zero | ssh <target_myserver> dd of=/dev/null status=progress
+  ```
 
 ## Wiki
 
