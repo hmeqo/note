@@ -126,6 +126,7 @@
   - [技巧](#技巧)
     - [在 KDE 中使 GTK 程序使用 KDE 对话框以获得一致的外观](#在-kde-中使-gtk-程序使用-kde-对话框以获得一致的外观)
     - [关闭桌面环境特效](#关闭桌面环境特效)
+    - [KDE 网络连接提示无法访问互联网但实际正常](#kde-网络连接提示无法访问互联网但实际正常)
     - [使用 sudo nvim 编辑文件时共享剪切板](#使用-sudo-nvim-编辑文件时共享剪切板)
     - [如何解除 sudo 锁定](#如何解除-sudo-锁定)
     - [KVM 显卡直通](#kvm-显卡直通)
@@ -1959,6 +1960,10 @@ windows 端可安装虚拟显示器软件如 parsec-vdd / virtual-display-driver
 - mate (gnome)
 
   `gsettings set org.mate.Marco.general compositing-manager false`
+
+### KDE 网络连接提示无法访问互联网但实际正常
+
+KDE 通过此 uri 检测网络连接状态 `ping.archlinux.org`, 如果是挂代理的情况下无法访问, 将此 uri 过滤掉就行
 
 ### 使用 sudo nvim 编辑文件时共享剪切板
 
