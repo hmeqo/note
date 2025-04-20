@@ -135,6 +135,7 @@
     - [关闭睿频](#关闭睿频)
     - [关闭 Intel 小核](#关闭-intel-小核)
     - [网速测试](#网速测试)
+    - [preempt=full](#preemptfull)
   - [Wiki](#wiki)
     - [GNU/Linux 基础目录结构](#gnulinux-基础目录结构)
     - [WINE/PROTON 运行 Windows 应用/游戏](#wineproton-运行-windows-应用游戏)
@@ -1264,9 +1265,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `pacman -S <软件包>`            | 安装软件包                                                        |
 | `pacman -Ss <regex>`            | 搜索软件包(s)                                                     |
 | `pacman -Si <软件包>`           | 查看软件包信息(i)                                                 |
-| `pacman -Syyuu`                 | 强制更新数据库(yy)并升级/降级软件包(uu)                           |
-| `pacman -S --rebuild <软件包>`  | 重新构建并安装软件包(--rebuild)                                   |
-| `pacman --fm nvim -S <软件包>`  | 安装软件包, 并在安装之前编辑仓库, 例如修改 PKGBUILD (--fm)        |
+| `pacman -Syy`                   | 强制更新数据库(yy), 不建议使用, 浪费流量                          |
+| `pacman -Syuu`                  | 更新数据库(y)并升级/降级软件包(uu)                                |
 | `pacman -Rsn <软件包>`          | 删除软件包以及相关依赖(s)和配置文件(n)                            |
 | `pacman -Rsnc <软件包>`         | 删除软件包以及相关依赖(s)和配置文件(n), 并且删除依赖它的软件包(c) |
 | `pacman -Rsndd <软件包>`        | 强制删除软件包以及相关依赖(s)和配置文件(n), 忽略依赖问题(dd)      |
@@ -1287,9 +1287,11 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `pacman -Fy`                    | 更新文件数据库(y)                                                 |
 | `pacman -U <file>`              | 从文件安装软件包(package.tar.gz)                                  |
 | **paru**                        |                                                                   |
-| `paru -c`                       | 删除不再需要的软件包                                              |
-| `paru -Gc <软件包>`             | 查看aur软件包评论                                                 |
+| `paru -S --rebuild <软件包>`    | 重新构建并安装软件包(--rebuild)                                   |
+| `paru --fm nvim -S <软件包>`    | 安装软件包, 并在安装之前编辑仓库, 例如修改 PKGBUILD (--fm)        |
 | `paru -Ui --chroot`             | chroot 隔离下安装软件包, 避免依赖冲突                             |
+| `paru -Gc <软件包>`             | 查看aur软件包评论                                                 |
+| `paru -c`                       | 删除不再需要的软件包                                              |
 
 ### 软件包降级
 
@@ -1332,17 +1334,9 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `foot`                    | 终端                                  |
 | `ghostty`                 | 终端                                  |
 | `cool-retro-term`         | 复古终端                              |
-| **Shell 工具**            |                                       |
-| [`reflector`](#reflector) | pacman 镜像服务器地址生成             |
-| `mirro-rs`                | 查找速度最快的 pacman 镜像服务器      |
-| [`tmux`](./tmux.md)       | 终端复用                              |
-| `bat`                     | better cat                            |
-| `exa`                     | better ls                             |
-| `fzf`                     | fuzzy finder                          |
-| `yazi`                    | 终端下的文件管理器                    |
-| `superfile`               | 终端下的文件管理器                    |
-| `hyperfine`               | 命令行性能测试                        |
 | **基础设施**              |                                       |
+| `man`                     | 命令手册                              |
+| `tldr(tealdeer)`          | 命令用例                              |
 | `lspci`                   |                                       |
 | `lsusb`                   |                                       |
 | `watch`                   | 定时执行                              |
@@ -1356,7 +1350,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `pamixer`                 |                                       |
 | `brightnessctl`           |                                       |
 | `authbind`                | 非root绑定特权端口                    |
-| `tealdeer`                | 命令文档                              |
 | **分区管理**              |                                       |
 | `efibootmgr`              | EFI 启动管理                          |
 | `lsblk`                   |                                       |
@@ -1388,7 +1381,20 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | [`lscpu`](#lscpu)         |                                       |
 | `turbostat`               | CPU 温度频率监测                      |
 | `cpupower`                |                                       |
-| **系统维护/管理**         |                                       |
+| **Shell 工具**            |                                       |
+| [`reflector`](#reflector) | pacman 镜像服务器地址生成             |
+| `mirro-rs`                | 查找速度最快的 pacman 镜像服务器      |
+| [`tmux`](./tmux.md)       | 终端复用                              |
+| `bat`                     | better cat                            |
+| `exa`                     | better ls                             |
+| `fzf`                     | fuzzy finder                          |
+| `yazi`                    | 终端下的文件管理器                    |
+| `superfile`               | 终端下的文件管理器                    |
+| `hyperfine`               | 命令行性能测试                        |
+| **TUI 工具**              |                                       |
+| `lazygit`                 | git TUI                               |
+| `lazydocker`              | docker TUI                            |
+| **运维 TUI 工具**         |                                       |
 | `top`                     |                                       |
 | `iftop`                   |                                       |
 | `iotop`                   |                                       |
@@ -1399,17 +1405,22 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `nvidia-smi`              |                                       |
 | `nvtop`                   | 终端GPU监视器                         |
 | `wavemon`                 | wifi 管理                             |
-| `cockpit`                 | web UI 系统监控                       |
-| `grafana`                 | web UI 系统监控                       |
-| `drkonqi`                 | 日志查看工具                          |
-| **hack**                  |                                       |
-| [`fcrackzip`](#fcrackzip) | 压缩包破解                            |
+| `nmtui`                   | NetworkManager TUI                    |
+| `bluetui`                 | Bluetooth TUI                         |
+| `gping`                   | ping TUI                              |
+| `gdu`                     | ping TUI                              |
 | **GUI 工具**              |                                       |
 | `pavu-control`            | pipewire GUI                          |
 | `qpwgraph`                | 音频控制                              |
 | `mission-center`          | 类 Windows 任务管理器                 |
 | `cpu-x`                   | CPU 信息监测                          |
 | `wev`                     | Wayland 操作事件提示                  |
+| **hack**                  |                                       |
+| [`fcrackzip`](#fcrackzip) | 压缩包破解                            |
+| **系统维护/管理**         |                                       |
+| `cockpit`                 | web UI 系统监控                       |
+| `grafana`                 | web UI 系统监控                       |
+| `drkonqi`                 | 日志查看工具                          |
 | **开发**                  |                                       |
 | `neovide`                 | nvim GUI                              |
 | `sourcegit`               | git GUI                               |
@@ -1418,7 +1429,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **视频**                  |                                       |
 | `vlc`                     | 视频播放器                            |
 | `mpv`                     | 精简视频播放器                        |
-| `karuna`                  | KDE 基于 mpv 的视频播放器             |
 | `kdenlive`                | 视频剪辑                              |
 | `media-downloader`        | 视频下载                              |
 | **音频**                  |                                       |
@@ -1490,7 +1500,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `glider`                  | 绑定可走代理的 http / socks 端口      |
 | `proxychains`             | 终端强制代理工具, 可代理ping流量      |
 | `v2raya`                  | v2ray web UI                          |
-| `nekoray`                 | sing-box GUI                          |
 | `clash-verge-rev`         | clash-meta GUI                        |
 | **电台/DJ**               |                                       |
 | `azuracast`               | 电台                                  |
@@ -1555,7 +1564,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `partitionmanager` | 分区工具                         |
 | `spectacle`        | 屏幕截图/录制                    |
 | `gwenview`         | 图片查看                         |
-| `karuna`           | 视频                             |
 | `kdenlive`         | 视频剪辑工具                     |
 | `elisa`            | 音乐播放器                       |
 | `okular`           | PDF/MD 阅读                      |
@@ -2090,6 +2098,17 @@ Host *
   ```bash
   dd if=/dev/zero | ssh <target_myserver> dd of=/dev/null status=progress
   ```
+
+### preempt=full
+
+判断实时内核是否完全启用, 可通过
+
+```bash
+$ sudo dmesg | grep -i preempt
+Dynamic Preempt: full
+```
+
+如果没有, 在内核参数添加 `preempt=full` 然后重新启动
 
 ## Wiki
 
