@@ -93,9 +93,9 @@
       - [Arch 用户软件仓库 (AUR)](#arch-用户软件仓库-aur)
         - [安装AUR助手](#安装aur助手)
         - [手动安装AUR软件包](#手动安装aur软件包)
-      - [ALHP](#alhp)
-      - [archlinuxcn软件仓库](#archlinuxcn软件仓库)
       - [Chaotic-AUR](#chaotic-aur)
+      - [archlinuxcn软件仓库](#archlinuxcn软件仓库)
+      - [ALHP](#alhp)
       - [CachyOS](#cachyos)
     - [Arch Linux Archive](#arch-linux-archive)
     - [pacman 彩蛋](#pacman-彩蛋)
@@ -607,13 +607,15 @@ pacman -S lib32-openal
 
   - 官方驱动
 
-    NVIDIA 官方提供了闭源和开源两种内核驱动, 分别是 `nvidia` 和 `nvidia-open` (仅2060及以上)  
+    NVIDIA 官方提供了闭源和开源两种内核驱动, 分别是 `nvidia` 和 `nvidia-open`  
     nvidia-utils 中包含了 vulkan 驱动
+
+    可以安装 `nvidia-open` 的显卡优先安装 `nvidia-open`, 显卡兼容情况看这里 <https://github.com/NVIDIA/open-gpu-kernel-modules?tab=readme-ov-file#compatible-gpus>
 
     **注意: 对于非标准内核 (比如linux-zen), 请安装 nvidia-dkms / nvidia-open-dkms, 而不是 nvidia / nvidia-open**
 
     ```bash
-    pacman -S nvidia nvidia-utils
+    pacman -S nvidia-open nvidia-utils
     # for multilib
     pacman -S lib32-nvidia-utils
     ```
@@ -1190,11 +1192,11 @@ cd <包名>
 makepkg -si
 ```
 
-#### ALHP
+#### Chaotic-AUR
 
-> Buildbot for Archlinux based repos with different x86-64 feature levels, -O3 and LTO.
+包含许多预编 AUR 软件包的仓库
 
-文档: <https://github.com/an0nfunc/ALHP>
+文档: <https://aur.chaotic.cx/docs>
 
 #### archlinuxcn软件仓库
 
@@ -1217,11 +1219,11 @@ Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch
 sudo pacman -Sy archlinuxcn-keyring
 ```
 
-#### Chaotic-AUR
+#### ALHP
 
-包含许多预编软件包 AUR 软件包的仓库
+> Buildbot for Archlinux based repos with different x86-64 feature levels, -O3 and LTO.
 
-文档: <https://aur.chaotic.cx/docs>
+文档: <https://github.com/an0nfunc/ALHP>
 
 #### CachyOS
 
