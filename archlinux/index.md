@@ -1876,11 +1876,6 @@ mangohud --dlsym glxgears
     sudo pacman -S tailscale
     ```
 
-- 服务端口
-
-  tcp: 47482,48040
-  udp: 41641
-
 - 使用
 
   - Linux
