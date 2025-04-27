@@ -136,6 +136,7 @@
     - [关闭 Intel 小核](#关闭-intel-小核)
     - [网速测试](#网速测试)
     - [preempt=full](#preemptfull)
+    - [全局搜索替换](#全局搜索替换)
   - [Wiki](#wiki)
     - [GNU/Linux 基础目录结构](#gnulinux-基础目录结构)
     - [WINE/PROTON 运行 Windows 应用/游戏](#wineproton-运行-windows-应用游戏)
@@ -346,7 +347,7 @@ arch-chroot /mnt
 # 复制时区文件
 ln -sf /usr/share/zoneinfo/<Region>/<City> /etc/localtime
 # 生成 /etc/adjtime
-hwc/alock --systohc
+hwclock --systohc
 ```
 
 #### 3.4 设置地区
@@ -1875,6 +1876,11 @@ mangohud --dlsym glxgears
     sudo pacman -S tailscale
     ```
 
+- 服务端口
+
+  tcp: 47482,48040
+  udp: 41641
+
 - 使用
 
   - Linux
@@ -1911,24 +1917,24 @@ mangohud --dlsym glxgears
 
   ```json
   "derpMap": {
-  	"OmitDefaultRegions": true, // 是否忽略默认节点
-  	"Regions": {
-  		"901": {
-  			"RegionID":   901,
-  			"RegionCode": "Myself",
-  			"RegionName": "Myself Region",
-  			"Nodes": [
-  				{
-  					"Name":             "901a",
-  					"RegionID":         901,
-  					"DERPPort":         10443, // derper 的 https 端口
-  					"HostName":         "", // 留空即可
-  					"IPv4":             "123.456.789.012", // 改为你的服务器 IP
-  					"InsecureForTests": true,
-  				},
-  			],
-  		},
-  	},
+    "OmitDefaultRegions": true, // 是否忽略默认节点
+    "Regions": {
+      "901": {
+        "RegionID":   901,
+        "RegionCode": "GuangZhou",
+        "RegionName": "MyDerp (Guang Zhou)",
+        "Nodes": [
+          {
+            "Name":             "901a", // 节点名称
+            "RegionID":         901,
+            "DERPPort":         10443, // derper 的 https 端口
+            "HostName":         "", // 填写服务器域名, 没有的话留空或者localhost
+            "IPv4":             "123.456.789.012", // 改为你的服务器 IP
+            "InsecureForTests": true,
+          },
+        ],
+      },
+    },
   },
   ```
 
@@ -2111,6 +2117,12 @@ Dynamic Preempt: full
 ```
 
 如果没有, 在内核参数添加 `preempt=full` 然后重新启动
+
+### 全局搜索替换
+
+```bash
+rg -l '<pattern>' </path/to> | sed 's/.*/"&"/' | xargs sed -i 's/<pattern>/<replacement>/g'
+```
 
 ## Wiki
 
