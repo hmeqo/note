@@ -1074,7 +1074,7 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
   sudo pacman -S ananicy-cpp ananicy-rules-git
   ```
 
-- 启动服务
+- 启用服务
 
   ```bash
   sudo systemctl enable --now ananicy-cpp
@@ -1380,6 +1380,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `nethogs`                 | 网络流量监听                          |
 | `wireshark`               | 网络分析工具                          |
 | [`samba`](#samba)         | 文件共享                              |
+| `rustscan`                | 端口扫描                              |
 | **CPU**                   |                                       |
 | [`lscpu`](#lscpu)         |                                       |
 | `turbostat`               | CPU 温度频率监测                      |
@@ -1643,11 +1644,11 @@ GitHub: <https://github.com/Morganamilo/paru>
 ### samba
 
 安装后需要先配置才能使用, 示例: `https://raw.githubusercontent.com/hmeqo/dotfiles/refs/heads/main/data/etc/samba/smb.conf`,
-配置完成后启动服务 `smb.service`, 要支持 smb://xxx/ 路径访问需要服务 `nmb.service`
+配置完成后启用服务 `smb.service`, 要支持 smb://xxx/ 路径访问需要服务 `nmb.service`
 
 - 非 Windows 网络自动发现
 
-  如果需要在非 Windows 上的文件夹中可被发现 (如 macOS Finder, Linux GUI 文件管理器), 需要安装 `avahi` 并启动服务 `avahi-daemon.service`
+  如果需要在非 Windows 上的文件夹中可被发现 (如 macOS Finder, Linux GUI 文件管理器), 需要安装 `avahi` 并启用服务 `avahi-daemon.service`
 
 - Windows 网络自动发现
 
@@ -1895,7 +1896,7 @@ mangohud --dlsym glxgears
 
   对于安装了ArchLinux的无域名只有IPv4的服务器
 
-  从 AUR 或者 archlinuxcn 安装 `derp-ipcert`, 然后修改配置文件将 127.0.0.1 替换为你的服务器 IP, 启动服务
+  从 AUR 或者 archlinuxcn 安装 `derp-ipcert`, 修改配置文件将 127.0.0.1 替换为你的服务器 IP, 然后启用服务
 
   ```bash
   paru -S derp-ipcert
@@ -1923,7 +1924,7 @@ mangohud --dlsym glxgears
             "Name":             "901a", // 节点名称
             "RegionID":         901,
             "DERPPort":         10443, // derper 的 https 端口
-            "HostName":         "", // 填写服务器域名, 没有的话留空或者localhost
+            "HostName":         "", // 填写服务器域名, 没有的话留空
             "IPv4":             "123.456.789.012", // 改为你的服务器 IP
             "InsecureForTests": true,
           },
@@ -1935,7 +1936,7 @@ mangohud --dlsym glxgears
 
 ### sunshine
 
-sunshine 在 windows 和 linux 下都是通过 web 页面操作, 启动方式也很简单, 直接从启动菜单中运行 sunshine 或启动服务即可
+sunshine 在 windows 和 linux 下都是通过 web 页面操作, 启动方式也很简单, 直接从启动菜单中运行 sunshine 或启用服务即可
 
 #### sunshine 配置虚拟显示器
 
@@ -1978,11 +1979,13 @@ KDE 通过此 uri 检测网络连接状态 `ping.archlinux.org`, 如果是挂代
 
 ### 使用 sudo nvim 编辑文件时共享剪切板
 
+首先确认在当前用户下 nvim 是否支持剪切板
+
 可以在 nvim 中执行 `:health clipboard` 检查剪切板是否工作, 如果没有, 通过 `:help clipboard` 查看如何配置
 
-如果你是 x11 用户, 只需要安装 `xclip` 即可, wayland 用户安装 `wl-clipboard`,
-需要注意的是, nvim 通过 `WAYLAND_DISPLAY` 环境变量检测 wayland 环境以确认是否使用 `wl-clipboard`,
-所以需要传递该环境变量给 `sudo`, 可以通过 `sudo -E nvim [path]` 执行 nvim
+如果你是 x11 用户, 只需要安装 `xclip` 和 `xsel` 即可, wayland 用户安装 `wl-clipboard`,
+
+wayland 下安装 `wl-clipboard`, `xclip`, `xsel`, `clipboard-sync`, 并启用 `clipboard-sync` 服务即可
 
 ### 如何解除 sudo 锁定
 
