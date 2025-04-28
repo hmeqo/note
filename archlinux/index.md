@@ -127,7 +127,8 @@
     - [在 KDE 中使 GTK 程序使用 KDE 对话框以获得一致的外观](#在-kde-中使-gtk-程序使用-kde-对话框以获得一致的外观)
     - [关闭桌面环境特效](#关闭桌面环境特效)
     - [KDE 网络连接提示无法访问互联网但实际正常](#kde-网络连接提示无法访问互联网但实际正常)
-    - [使用 sudo nvim 编辑文件时共享剪切板](#使用-sudo-nvim-编辑文件时共享剪切板)
+    - [nvim 共享剪切板](#nvim-共享剪切板)
+      - [使用 sudo nvim 共享剪切板](#使用-sudo-nvim-共享剪切板)
     - [如何解除 sudo 锁定](#如何解除-sudo-锁定)
     - [KVM 显卡直通](#kvm-显卡直通)
     - [Proton 指定特定显卡运行](#proton-指定特定显卡运行)
@@ -1977,15 +1978,15 @@ windows 端可安装虚拟显示器软件如 parsec-vdd / virtual-display-driver
 
 KDE 通过此 uri 检测网络连接状态 `ping.archlinux.org`, 如果是挂代理的情况下无法访问, 将此 uri 过滤掉就行
 
-### 使用 sudo nvim 编辑文件时共享剪切板
+### nvim 共享剪切板
 
-首先确认在当前用户下 nvim 是否支持剪切板
+可以在 nvim 中执行 `:health clipboard` 检查剪切板是否工作, 如果没有, 可通过 `:help clipboard` 查看如何配置
 
-可以在 nvim 中执行 `:health clipboard` 检查剪切板是否工作, 如果没有, 通过 `:help clipboard` 查看如何配置
+#### 使用 sudo nvim 共享剪切板
 
-如果你是 x11 用户, 只需要安装 `xclip` 和 `xsel` 即可, wayland 用户安装 `wl-clipboard`,
+如果你是 x11 用户, 只需要安装 `xclip` 和 `xsel`
 
-wayland 下安装 `wl-clipboard`, `xclip`, `xsel`, `clipboard-sync`, 并启用 `clipboard-sync` 服务即可
+wayland 下要让 sudo nvim 与系统剪切板互通, 需要安装 `wl-clipboard`, `xclip`, `xsel`, `clipboard-sync`, 并启用 `clipboard-sync` 服务
 
 ### 如何解除 sudo 锁定
 
