@@ -129,6 +129,7 @@
     - [KDE 网络连接提示无法访问互联网但实际正常](#kde-网络连接提示无法访问互联网但实际正常)
     - [nvim 共享剪切板](#nvim-共享剪切板)
       - [使用 sudo nvim 共享剪切板](#使用-sudo-nvim-共享剪切板)
+    - [查找用户目录下非本用户的文件](#查找用户目录下非本用户的文件)
     - [如何解除 sudo 锁定](#如何解除-sudo-锁定)
     - [KVM 显卡直通](#kvm-显卡直通)
     - [Proton 指定特定显卡运行](#proton-指定特定显卡运行)
@@ -1274,7 +1275,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `pacman -Rsn <软件包>`          | 删除软件包以及相关依赖(s)和配置文件(n)                            |
 | `pacman -Rsnc <软件包>`         | 删除软件包以及相关依赖(s)和配置文件(n), 并且删除依赖它的软件包(c) |
 | `pacman -Rsndd <软件包>`        | 强制删除软件包以及相关依赖(s)和配置文件(n), 忽略依赖问题(dd)      |
-| `pacman -Rsnc $(pacman -Qdttq)` | 删除所有孤包                                                      |
 | `pacman -Q`                     | 列出已安装的软件包                                                |
 | `pacman -Qs <regex>`            | 搜索软件包(s)                                                     |
 | `pacman -Qi <软件包>`           | 查看软件包信息(i)                                                 |
@@ -1289,10 +1289,11 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `pacman -Qkk`                   | 校验软件包文件完整性(kk)                                          |
 | `pacman -F <file>`              | 查询文件或命令所属软件包                                          |
 | `pacman -Fy`                    | 更新文件数据库(y)                                                 |
-| `pacman -U <file>`              | 从文件安装软件包(package.tar.gz)                                  |
+| `pacman -U <file>`              | 从文件安装软件包                                                  |
+| `pacman -Rsnc $(pacman -Qdttq)` | 删除所有孤包                                                      |
 | **paru**                        |                                                                   |
-| `paru -S --rebuild <软件包>`    | 重新构建并安装软件包(--rebuild)                                   |
-| `paru --fm nvim -S <软件包>`    | 安装软件包, 并在安装之前编辑仓库, 例如修改 PKGBUILD (--fm)        |
+| `paru -S --rebuild <软件包>`    | 重新构建并安装 AUR 软件包                                         |
+| `paru --fm nvim -S <软件包>`    | 安装软件包, 并在安装之前编辑仓库, 例如修改 PKGBUILD               |
 | `paru -Ui --chroot`             | chroot 隔离下安装软件包, 避免依赖冲突                             |
 | `paru -Gc <软件包>`             | 查看aur软件包评论                                                 |
 | `paru -c`                       | 删除不再需要的软件包                                              |
@@ -1984,9 +1985,33 @@ KDE 通过此 uri 检测网络连接状态 `ping.archlinux.org`, 如果是挂代
 
 #### 使用 sudo nvim 共享剪切板
 
-如果你是 x11 用户, 只需要安装 `xclip` 和 `xsel`
+- x11
 
-wayland 下要让 sudo nvim 与系统剪切板互通, 需要安装 `wl-clipboard`, `xclip`, `xsel`, `clipboard-sync`, 并启用 `clipboard-sync` 服务
+  只需要安装 `xclip`
+
+- wayland
+
+  - 方法1
+
+    配置 `EDITOR=nvim` 环境变量, 使用 `sudoedit`
+
+  - 方法2
+
+    `lambdalisue/suda.vim` 插件
+
+  - 方法2
+
+    安装 `wl-clipboard`, `xclip`, `clipboard-sync`, 并启用 `clipboard-sync` 服务
+
+### 查找用户目录下非本用户的文件
+
+```bash
+find ~ ! -user $USER -print 2>/dev/null
+find ~ ! -group $USER -print 2>/dev/null
+
+# or
+fd -u --owner "!$USER" --owner ":!$USER"
+```
 
 ### 如何解除 sudo 锁定
 
