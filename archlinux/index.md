@@ -80,6 +80,7 @@
     - [kernel-modules-hook](#kernel-modules-hook)
     - [zram](#zram)
     - [zswap](#zswap)
+    - [透明大页面](#透明大页面)
     - [Ananicy](#ananicy)
     - [性能优化](#性能优化)
     - [操作文件系统](#操作文件系统)
@@ -928,11 +929,11 @@ swapon /swapfile
 
 ### mkinitcpio的systemd钩子
 
-systemd钩子可异步加载内核模块, 速度相对udev快一些, 可能不支持老旧硬件  
-mkinitcpio 默认的钩子组合是以udev为主的, 如果需要更换为systemd
+systemd 钩子可异步加载模块, 开机速度相对 udev 快一些, 可能不支持老旧硬件  
 
+mkinitcpio 默认的钩子组合是以udev为主的, 如果需要更换为systemd,  
 编辑 `/etc/mkinitcpio.conf`, 找到 HOOKS 配置项, 并替换为以下内容  
-HOOKS上面应该是有注释说明的, 注释中也有systemd配置的示例
+(PS: HOOKS上方应该是有注释说明 systemd 配置的示例)
 
 ```conf
 HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block filesystems fsck)
@@ -946,45 +947,54 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block
 
 有两种情况
 
-- 对于udev
+- 对于 udev
 
-  参考以下代码, 将 `resume` 添加到 udev 之后
+  参考以下代码, 将 `resume` 添加到 udev 之后, 可参考以下示例中的位置
 
   ```conf
   HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems resume fsck)
   ```
 
-- 对于systemd
+- 对于 systemd
 
-  Systemd 钩子, 自带resume, 不需要手动添加
+  systemd 钩子自带 resume, 不需要手动添加
 
   ```conf
   HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block filesystems fsck)
   ```
+
+编辑完成后执行 `sudo mkinitcpio -P`
 
 > [!NOTE]
 > 注意： 如果使用堆叠存储作为交换空间，例如 dm-crypt、RAID 或 LVM，则最终映射的设备必须在早期用户空间中可用，并且在恢复过程启动之前。也就是说，在这样的设置中，resume 钩子必须放在诸如 encrypt、lvm2 等钩子之后。
 
 #### 2. 添加休眠内核参数
 
-使用 `blkid /dev/nvme0n1p1`, 查看 UUID
+- swap 分区
 
-示例:
+  使用 `blkid /dev/nvme0n1p1`, 查看 UUID
 
-```bash
-❯ sudo blkid /dev/nvme0n1p1
-/dev/nvme0n1p1: LABEL="archlinux" UUID="4483df75-6a1d-42a1-9a3e-66406b7a9cac" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="1cf11453-a83c-4dd9-9f88-28a24754818f"
-```
+  示例:
 
-然后将 `resume=UUID=xxxxxx` 写入到内核参数  
-对于 swapfile, 需要额外加上 `resume_offset=xxxxxx`, 表示偏移量, 偏移量可以通过此命令快速获取 `filefrag -v <swap_file> | awk '$1=="0:" {print substr($4, 1, length($4)-2)}'`
+  ```bash
+  ❯ sudo blkid /dev/nvme0n1p1
+  /dev/nvme0n1p1: LABEL="archlinux" UUID="4483df75-6a1d-42a1-9a3e-66406b7a9cac" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="1cf11453-a83c-4dd9-9f88-28a24754818f"
+  ```
 
-获取 swapfile 偏移量示例:
+  然后将 `resume=UUID=xxxxxx` 写入到内核参数
 
-```bash
-❯ sudo filefrag -v /swap.img | awk '$1=="0:" {print substr($4, 1, length($4)-2)}'
-3643392
-```
+- swapfile
+
+  第一步和 swap 分区的步骤一样, UUID 是 swapfile 所在分区的 ID
+  
+  然后加上 `resume_offset=xxxxxx` 表示偏移量, 偏移量可以通过此命令快速获取 `filefrag -v <swap_file> | awk '$1=="0:" {print substr($4, 1, length($4)-2)}'`
+
+  获取 swapfile 偏移量示例:
+
+  ```bash
+  ❯ sudo filefrag -v /swapfile | awk '$1=="0:" {print substr($4, 1, length($4)-2)}'
+  3643392
+  ```
 
 完成后的内核参数示例:
 
@@ -1063,6 +1073,14 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
 ### zswap
 
 在写入 swap 之前, 会先在内存里压缩数据, 再写入 swap
+
+### 透明大页面
+
+(待验证)
+
+```bash
+transparent_hugepage=madvise
+```
 
 ### Ananicy
 
