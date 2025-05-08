@@ -109,9 +109,14 @@
     - [paru](#paru)
       - [配置paru](#配置paru)
         - [paru 配置项含义](#paru-配置项含义)
-    - [reflector](#reflector)
+    - [ssh](#ssh)
+      - [配置 ssh](#配置-ssh)
+      - [生成 ssh 密钥对](#生成-ssh-密钥对)
+      - [防止 ssh 断连](#防止-ssh-断连)
+    - [openssl](#openssl)
     - [samba](#samba)
     - [lscpu](#lscpu)
+    - [reflector](#reflector)
     - [fcrackzip](#fcrackzip)
     - [mangohud](#mangohud)
       - [mangohud with opengl](#mangohud-with-opengl)
@@ -134,7 +139,6 @@
     - [如何解除 sudo 锁定](#如何解除-sudo-锁定)
     - [KVM 显卡直通](#kvm-显卡直通)
     - [Proton 指定特定显卡运行](#proton-指定特定显卡运行)
-    - [防止 ssh 断连](#防止-ssh-断连)
     - [关闭睿频](#关闭睿频)
     - [关闭 Intel 小核](#关闭-intel-小核)
     - [网速测试](#网速测试)
@@ -560,11 +564,15 @@ refind-install
 
 - KDE
 
-  可以参考 [KDE软件生态](#kde软件生态), 选择你需要的软件  
-  sddm 是 kde 官方的会话管理器, 如果不喜欢也可以换成别的
+  plasma 可以选择安装 plasma-meta (元包), plasma (包组), plasma-desktop (最小安装),
+  元包可以自动安装新增/删除依赖, 但无法单独删除其中的软件包,
+  包组可自由选择需要的软件包, 如果需要包组则将下面示例的 plasma-meta 修改为 plasma
+
+  kde 官方自带了 sddm (会话管理器), 如果不喜欢也可以自行更换  
+  额外软件可以参考 [KDE软件生态](#kde软件生态), 选择你需要的软件
 
   ```bash
-  pacman -S sddm plasma dolphin konsole yakuake zen-browser spectacle ark filelight
+  pacman -S plasma-meta dolphin konsole yakuake zen-browser spectacle ark filelight
 
   # 然后设置sddm开机自启, 重启电脑后自动显示登录界面
   systemctl enable sddm
@@ -949,7 +957,7 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block
 
 - 对于 udev
 
-  参考以下代码, 将 `resume` 添加到 udev 之后, 可参考以下示例中的位置
+  将 `resume` 添加到 udev 之后, 可参考以下示例中的位置
 
   ```conf
   HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems resume fsck)
@@ -999,8 +1007,11 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block
 完成后的内核参数示例:
 
 ```bash
-... root=UUID=4483df75-6a1d-42a1-9a3e-66406b7a9cac rw splash resume=UUID=4483df75-6a1d-42a1-9a3e-66406b7a9cac resume_offset=3643392
+... resume=UUID=4483df75-6a1d-42a1-9a3e-66406b7a9cac resume_offset=3643392
 ```
+
+> [!NOTE]
+> 如果你用的是 grub, 编辑完配置文件记得重新运行 grub-mkconfig
 
 #### 3. 启动休眠服务
 
@@ -1358,6 +1369,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `ghostty`                 | 终端                                  |
 | `cool-retro-term`         | 复古终端                              |
 | **基础设施**              |                                       |
+| [`ssh`](#ssh)             |                                       |
+| [`openssl`](#openssl)     |                                       |
 | `man`                     | 命令手册                              |
 | `tldr(tealdeer)`          | 命令用例                              |
 | `lspci`                   |                                       |
@@ -1651,14 +1664,61 @@ GitHub: <https://github.com/Morganamilo/paru>
 
 - `Chroot`: 使用 chroot 隔离安装
 
-### reflector
+### ssh
 
-- cli
-
-  按照速度自动生成 CN 镜像服务器列表
+- 安装
 
   ```bash
-  sudo reflector -c CN --save /etc/pacman.d/mirrorlist
+  sudo pacman -S openssh
+  ```
+
+- 启用 sshd 服务以支持远程连接此端
+
+  ```bash
+  sudo systemctl enable --now sshd
+  ```
+
+#### 配置 ssh
+
+- 允许/禁止 root 登录
+
+  编辑 `/etc/ssh/sshd_config`, 找到 `PermitRootLogin`,
+  取消注释并将值改为 `yes` 允许密码登录,
+  `prohibit-password` 禁止密码登录 (可通过密钥登录)
+
+#### 生成 ssh 密钥对
+
+```bash
+# RSA
+ssh-keygen -t rsa -b 4096
+
+# ED25519
+ssh-keygen
+```
+
+#### 防止 ssh 断连
+
+编辑 `~/.ssh/config`, 加入以下内容
+
+```sshconfig
+Host *
+  ServerAliveInterval 60
+```
+
+### openssl
+
+生成自签名证书
+
+- 生成私钥
+
+  ```bash
+  openssl genrsa -out ca.key 2048
+  ```
+
+- 生成证书
+
+  ```bash
+  openssl req -new -x509 -days 3650 -key ca.key -out ca.crt
   ```
 
 ### samba
@@ -1684,6 +1744,16 @@ GitHub: <https://github.com/Morganamilo/paru>
 
   ```bash
   lscpu -e
+  ```
+
+### reflector
+
+- cli
+
+  按照速度自动生成 CN 镜像服务器列表
+
+  ```bash
+  sudo reflector -c CN --save /etc/pacman.d/mirrorlist
   ```
 
 ### fcrackzip
@@ -1933,24 +2003,24 @@ mangohud --dlsym glxgears
 
   ```json
   "derpMap": {
-    "OmitDefaultRegions": true, // 是否忽略默认节点
-    "Regions": {
-      "901": {
-        "RegionID":   901,
-        "RegionCode": "GuangZhou",
-        "RegionName": "MyDerp (Guang Zhou)",
-        "Nodes": [
-          {
-            "Name":             "901a", // 节点名称
-            "RegionID":         901,
-            "DERPPort":         10443, // derper 的 https 端口
-            "HostName":         "", // 填写服务器域名, 没有的话留空
-            "IPv4":             "123.456.789.012", // 改为你的服务器 IP
-            "InsecureForTests": true,
-          },
-        ],
-      },
-    },
+  	"OmitDefaultRegions": true, // 是否忽略默认节点
+  	"Regions": {
+  		"901": {
+  			"RegionID":   901,
+  			"RegionCode": "GuangZhou",
+  			"RegionName": "MyDerp (Guang Zhou)",
+  			"Nodes": [
+  				{
+  					"Name":             "901a", // 节点名称
+  					"RegionID":         901,
+  					"DERPPort":         10443, // derper 的 https 端口
+  					"HostName":         "", // 填写服务器域名, 没有的话留空
+  					"IPv4":             "123.456.789.012", // 改为你的服务器 IP
+  					"InsecureForTests": true,
+  				},
+  			],
+  		},
+  	},
   },
   ```
 
@@ -2088,15 +2158,6 @@ $ lspci -nn | grep "NVIDIA"
 
 对于 DXVK 可以用 `DXVK_FILTER_DEVICE_NAME="Device Name"`, 例如 `DXVK_FILTER_DEVICE_NAME="Intel"`  
 Device Name 可以通过 `vulkaninfo | grep deviceName` 获取
-
-### 防止 ssh 断连
-
-`~/.ssh/config`
-
-```sshconfig
-Host *
-  ServerAliveInterval 60
-```
 
 ### 关闭睿频
 
@@ -2299,17 +2360,17 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
   流行且通用的游戏/应用启动/管理工具
 
-- heroic-games-launcher
-
-  非官方 Epic 游戏启动器
-
 - bottles
 
-  UI 不错
+  通用 win 应用/游戏启动/管理工具
 
 - faugus-launcher
 
   利用 UMU-Launcher 的游戏/应用启动器
+
+- heroic-games-launcher
+
+  非官方 Epic 游戏启动器
 
 - CrossOver
 
