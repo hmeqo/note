@@ -4,7 +4,7 @@
 > Github MD页面右上角可以打开目录树
 >
 > 本文所有引用部分均来自 archwiki
-> Archlinux: <https://www.archlinux.org/>  
+> Archlinux: <https://www.archlinux.org/>
 > Archlinuxcn: <https://www.archlinuxcn.org/>
 
 ## 目录
@@ -53,13 +53,15 @@
       - [安装桌面环境](#安装桌面环境)
       - [安装各种驱动](#安装各种驱动)
   - [驱动](#驱动)
-    - [音频驱动](#音频驱动)
-      - [OpenAL](#openal)
     - [显卡驱动](#显卡驱动)
       - [Vulkan](#vulkan)
+    - [视频驱动](#视频驱动)
       - [VA-API 视频加速](#va-api-视频加速)
+    - [Intel VPL](#intel-vpl)
       - [Nvidia VDPAU](#nvidia-vdpau)
       - [OpenCL](#opencl)
+    - [音频驱动](#音频驱动)
+      - [OpenAL](#openal)
     - [计算加速](#计算加速)
       - [Intel oneAPI](#intel-oneapi)
   - [系统配置](#系统配置)
@@ -81,10 +83,14 @@
     - [zram](#zram)
     - [zswap](#zswap)
     - [透明大页面](#透明大页面)
-    - [Ananicy](#ananicy)
     - [性能优化](#性能优化)
+      - [scx-scheds](#scx-scheds)
+      - [Ananicy](#ananicy)
     - [操作文件系统](#操作文件系统)
       - [修改分区 Label](#修改分区-label)
+    - [Intel xe](#intel-xe)
+    - [modprobe](#modprobe)
+      - [禁用模块](#禁用模块)
   - [pacman](#pacman)
     - [初始化密钥环](#初始化密钥环)
     - [多线程下载](#多线程下载)
@@ -98,6 +104,7 @@
       - [archlinuxcn软件仓库](#archlinuxcn软件仓库)
       - [ALHP](#alhp)
       - [CachyOS](#cachyos)
+      - [Arch4edu](#arch4edu)
     - [Arch Linux Archive](#arch-linux-archive)
     - [pacman 彩蛋](#pacman-彩蛋)
     - [pacman以及AUR助手常用命令](#pacman以及aur助手常用命令)
@@ -112,9 +119,12 @@
     - [ssh](#ssh)
       - [配置 ssh](#配置-ssh)
       - [生成 ssh 密钥对](#生成-ssh-密钥对)
+      - [发送 ssh 公钥](#发送-ssh-公钥)
       - [防止 ssh 断连](#防止-ssh-断连)
     - [openssl](#openssl)
+    - [awk](#awk)
     - [samba](#samba)
+    - [httping](#httping)
     - [lscpu](#lscpu)
     - [reflector](#reflector)
     - [fcrackzip](#fcrackzip)
@@ -122,7 +132,8 @@
       - [mangohud with opengl](#mangohud-with-opengl)
       - [mangohud 快捷键](#mangohud-快捷键)
     - [gamemode](#gamemode)
-    - [davfs](#davfs)
+    - [alist](#alist)
+      - [alist 挂载 webdav](#alist-挂载-webdav)
     - [zerotier](#zerotier)
     - [tailscale](#tailscale)
     - [sunshine](#sunshine)
@@ -144,6 +155,11 @@
     - [网速测试](#网速测试)
     - [preempt=full](#preemptfull)
     - [全局搜索替换](#全局搜索替换)
+    - [热插拔 pci 设备](#热插拔-pci-设备)
+    - [NVIDIA 锁频](#nvidia-锁频)
+    - [伪造 uptime](#伪造-uptime)
+  - [Hacker](#hacker)
+    - [清除登录记录](#清除登录记录)
   - [Wiki](#wiki)
     - [GNU/Linux 基础目录结构](#gnulinux-基础目录结构)
     - [WINE/PROTON 运行 Windows 应用/游戏](#wineproton-运行-windows-应用游戏)
@@ -158,17 +174,20 @@
 > 某些特殊符号, 例如 \<xxx\> 代表根据实际情况填写的必填项, \[xxx\] 代表可选项, 请根据上下文自行判断
 
 > [!WARNING]
-> 如果你是第一次安装 Arch, 请全程自行手动操作, 不要使用 archinstall 逃课  
-> 如果你不熟悉 GNU/Linux, 建议先到其他有图形化安装的发行版 (Manjaro, Linux Mint, Ubuntu 等), 熟悉后再尝试 Arch  
+> 如果你是第一次安装 Arch, 请全程自行手动操作, 不要使用 archinstall 逃课
+> 如果你不熟悉 GNU/Linux, 建议先到其他有图形化安装的发行版 (Manjaro, Linux Mint, Ubuntu 等), 熟悉后再尝试 Arch
 > 如果你想用 Arch 作为第一个 GNU/Linux 发行版, 建议在身边有人传教的情况下尝试
 >
-> Arch Linux 安装过程没有图形界面, 所有编辑操作都是在终端  
-> 本文默认你能使用任何一种终端编辑器, 不会用请自行学习后再来 (新手可以用 nano)
+> Arch Linux 安装过程没有图形界面, 所有编辑操作都是在终端
+> 本文默认你能使用任何一种终端编辑器 (如 vim, nano), 不会用请自行学习后再来 (新手可以用 nano)
 
 ### 视频教程
 
-BiliBili: <https://www.bilibili.com/video/BV1J34y1f74E>  
+BiliBili: <https://www.bilibili.com/video/BV1J34y1f74E>
 BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
+
+> [!WARNING]
+> 视频仅作参考, 请根据实际情况自行调整
 
 ### 1. 准备
 
@@ -198,14 +217,14 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 `ip link` 可以查看网络设备, 确保你的网络设备有被列出
 
-`rfkill` 或者 `rfkill list` 查询网卡列表  
-如果网卡被禁用(SOFT blocked)可以使用 `rfkill unblock <device>` 解锁设备  
+`rfkill` 或者 `rfkill list` 查询网卡列表
+如果网卡被禁用(SOFT blocked)可以使用 `rfkill unblock <device>` 解锁设备
 如果 WIFI 未启用(HARD blocked), 使用 `ip link set <device> up` 启用设备
 
-通过 `iwctl` 命令进入交互式环境配对设备  
-使用 `station <device> scan` 扫描可用 WIFI  
-使用 `station <device> get-networks` 列出可用 WIFI  
-使用 `station <device> connect <SSID>` 连接 WIFI  
+通过 `iwctl` 命令进入交互式环境配对设备
+使用 `station <device> scan` 扫描可用 WIFI
+使用 `station <device> get-networks` 列出可用 WIFI
+使用 `station <device> connect <SSID>` 连接 WIFI
 完成后按 `ctrl+d` 或输入 `exit` 即可退出, `ctrl+d` 算是 linux 下 cli 的通用退出快捷键了
 
 安装完系统之后, 如果装了 `networkmanager` 可以用 `nmtui`、`nmcli` 连接 WIFI, archiso环境中用的是 `iwd`, 所以命令不同
@@ -219,21 +238,21 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 推荐使用 `cfdisk` 进行分区, `cfdist` 主界面可以按 h 查看帮助, 按 n 可以新建分区
 
 > [!WARNING]
-> 请勿对已经存在的分区使用 `cfdisk` 进行二次分区, 会导致分区损坏  
-> ntfs文件系统分区建议提前使用Windows自带的分区程序或PE提前分一块空闲分区
+> 请勿对已经存在的分区使用 `cfdisk` 进行二次分区, 会导致分区损坏
+> ntfs文件系统分区建议使用Windows自带的分区程序或PE提前分一块未分配区域
 
 几种主要的分区方案:
 
 - 一个EFI分区(建议. 对于UEFI) + 一个Linux文件系统分区(必须) + 一个swap分区(可选)
 - 一个EFI分区(建议. 对于UEFI) + 一个Linux文件系统分区(必须) + 一个swap分区(可选) + 一个home目录分区(可选)
 
-如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB  
-Windows/Linux 双系统本身已经有 EFI 分区了, 可以不用再分, 只需要把原来的 EFI 分区扩容到推荐大小即可
+如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB
+Windows/Linux 双系统本身已经有 EFI 分区了, 可以选择和 Windows 共用, 只需要把原来的 EFI 分区扩容到推荐大小即可
 
 swap分区不推荐放第一个, 放后面的话以后如果需要修改比较方便, 对于swap分区/文件要分多大, 可以参考这里 [swap大小建议](#swap大小建议)
 
 > [!NOTE]
-> 也可以使用swapfile而非swap分区, 这样可以动态分配swap的大小, 无需调整分区, 可以等挂载完分区后再创建, [创建swapfile](#创建swapfile)  
+> 也可以使用swapfile而非swap分区, 这样可以动态分配swap的大小, 无需调整分区, 可以等挂载完分区后再创建, [创建swapfile](#创建swapfile)
 > 在Arch安装过程中(非arch-chroot下), 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
 
 然后对照下表设置分区的类型
@@ -250,7 +269,7 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
 
 创建完分区之后, 需要格式化分区
 
-- 对于 EFI 分区 (如果选择和 Windows 共用同一个 EFI 分区, 跳过这一步)
+- 对于 EFI 分区 (如果是安装双系统, 选择和 Windows 共用同一个 EFI 分区, 跳过这一步)
 
   ```bash
   mkfs.fat -F 32 /dev/efi_system_partition
@@ -295,7 +314,7 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
   ```
 
 > [!NOTE]
-> 如果你要创建swapfile, 挂载完 `/mnt` 就可以创建了, 创建到 `/mnt/swapfile`, [创建swapfile](#创建swapfile)  
+> 如果你要创建swapfile, 挂载完 `/mnt` 就可以创建了, 创建到 `/mnt/swapfile`, [创建swapfile](#创建swapfile)
 > 如果你提前创建了, `swapoff` 之后移动swapfile到 `/mnt` 下然后 `swapon` 即可
 
 ### 2. 安装
@@ -304,10 +323,12 @@ swap分区不推荐放第一个, 放后面的话以后如果需要修改比较�
 
 如果需要可以先配置镜像源, 调整 `/etc/pacman.d/mirrorlist` 中镜像的顺序即可 (此更改只在当前安装过程中生效)
 
-推荐一个国内速度较快的镜像源
+推荐几个个国内速度较快的镜像源 (选择一个即可)
 
 ```conf
 Server = http://mirrors.jlu.edu.cn/archlinux/$repo/os/$arch
+Server = http://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
+Server = http://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch
 ```
 
 #### 更新密钥环
@@ -325,7 +346,7 @@ pacman -Sy archlinux-keyring
 
 `linux-headers` 是内核的头文件, dkms 会用到, 也可以需要时再安装
 
-根据 CPU 选择安装 `intel-ucode` (Intel CPU) 或 `amd-ucode` (Amd CPU)  
+根据 CPU 选择安装 `intel-ucode` (Intel CPU) 或 `amd-ucode` (Amd CPU)
 这个安装项是可选的, 如果装不了可以不用管
 
 `vi/vim/neovim` 是一种常用的终端文件编辑器, 不会用可以装 `nano`
@@ -418,16 +439,16 @@ timedatectl set-ntp true
 
 常见的引导方式有下面几种, 选择一个硬件支持的引导方式即可
 
-| 引导方式                        | BIOS 固件 | UEFI 固件 | MBR 分区表 | GPT 分区表 |                    |
+| 引导方式                        | BIOS 固件 | UEFI 固件 | MBR 分区表 | GPT 分区表 | 说明               |
 | ------------------------------- | --------- | --------- | ---------- | ---------- | ------------------ |
 | [`GRUB`](#grub)                 | 支持      | 支持      | 支持       | 支持       | 不知道选啥就选这个 |
 | [`systemd-boot`](#systemd-boot) | 不支持    | 支持      | 手动       | 支持       | 简单省事           |
 | [`rEFInd`](#refind)             | 不支持    | 支持      | 支持       | 支持       | 双系统推荐         |
-| syslinux                        | 支持      | 部分支持  | 支持       | 支持       |                    |
+| `syslinux`                      | 支持      | 部分支持  | 支持       | 支持       | -                  |
 
 参考文档: <https://wiki.archlinuxcn.org/wiki/Arch_%E7%9A%84%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B#%E5%BC%95%E5%AF%BC%E5%8A%A0%E8%BD%BD%E7%A8%8B%E5%BA%8F>
 
-> [!NOTE]  
+> [!NOTE]
 > 以下出现的 `<esp>` 为 EFI 挂载点
 
 ##### GRUB
@@ -555,6 +576,7 @@ refind-install
 #### 考虑启用pacman的multilib和AUR
 
 - [multilib软件仓库](#multilib软件仓库)
+- [chaotic-aur](#chaotic-aur)
 - [archlinuxcn软件仓库](#archlinuxcn软件仓库)
 - [安装AUR助手](#安装aur助手)
 
@@ -568,7 +590,7 @@ refind-install
   元包可以自动安装新增/删除依赖, 但无法单独删除其中的软件包,
   包组可自由选择需要的软件包, 如果需要包组则将下面示例的 plasma-meta 修改为 plasma
 
-  kde 官方自带了 sddm (会话管理器), 如果不喜欢也可以自行更换  
+  kde 官方自带了 sddm (会话管理器), 如果不喜欢也可以自行更换
   额外软件可以参考 [KDE软件生态](#kde软件生态), 选择你需要的软件
 
   ```bash
@@ -580,28 +602,10 @@ refind-install
 
 #### 安装各种驱动
 
-- [音频驱动](#音频驱动)
 - [显卡驱动](#显卡驱动)
+- [音频驱动](#音频驱动)
 
 ## 驱动
-
-### 音频驱动
-
-```bash
-pacman -S pipewire pipewire-pulse pipewire-alsa pipewire-jack
-# for multilib
-pacman -S lib32-pipewire lib32-pipewire-jack
-```
-
-#### OpenAL
-
-跨平台3D音频库
-
-```bash
-pacman -S openal
-# for multilib
-pacman -S lib32-openal
-```
 
 ### 显卡驱动
 
@@ -619,7 +623,7 @@ pacman -S lib32-openal
 
   - 官方驱动
 
-    NVIDIA 官方提供了闭源和开源两种内核驱动, 分别是 `nvidia` 和 `nvidia-open`  
+    NVIDIA 官方提供了闭源和开源两种内核驱动, 分别是 `nvidia` 和 `nvidia-open`
     nvidia-utils 中包含了 vulkan 驱动
 
     可以安装 `nvidia-open` 的显卡优先安装 `nvidia-open`, 显卡兼容情况看这里 <https://github.com/NVIDIA/open-gpu-kernel-modules?tab=readme-ov-file#compatible-gpus>
@@ -691,6 +695,8 @@ pacman -S lib32-openal
     pacman -S lib32-vulkan-nouveau
     ```
 
+### 视频驱动
+
 #### VA-API 视频加速
 
 详情看这里: <https://wiki.archlinuxcn.org/wiki/%E7%A1%AC%E4%BB%B6%E8%A7%86%E9%A2%91%E5%8A%A0%E9%80%9F#%E5%AE%89%E8%A3%85>
@@ -719,6 +725,15 @@ pacman -S lib32-openal
   pacman -S libva-nvidia-driver
   ```
 
+### Intel VPL
+
+```bash
+# Tiger Lake and newer
+pacman -S vpl-gpu-rt
+# 老显卡
+pacman -S intel-media-sdk
+```
+
 #### Nvidia VDPAU
 
 ```bash
@@ -742,6 +757,24 @@ pacman -S libvdpau-va-gl
   # for multilib
   pacman -S lib32-opencl-nvidia
   ```
+
+### 音频驱动
+
+```bash
+pacman -S pipewire pipewire-pulse pipewire-alsa pipewire-jack
+# for multilib
+pacman -S lib32-pipewire lib32-pipewire-jack
+```
+
+#### OpenAL
+
+跨平台3D音频库
+
+```bash
+pacman -S openal
+# for multilib
+pacman -S lib32-openal
+```
 
 ### 计算加速
 
@@ -825,7 +858,7 @@ Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有�
 
   - 桌面环境适配
 
-    然后你应该能在桌面环境编辑 .desktop 的属性时看到使用独立显卡的选项  
+    然后你应该能在桌面环境编辑 .desktop 的属性时看到使用独立显卡的选项
     或者在 .desktop 的 [Desktop Entry] 中添加以下内容
 
     ```desktop
@@ -851,27 +884,27 @@ Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有�
 
 archwiki: <https://wiki.archlinuxcn.org/wiki/Fstab>
 
-> fstab(5)文件可用于定义磁盘分区，各种其他块设备或远程文件系统应如何装入文件系统。  
-> 每个文件系统在一个单独的行中描述。这些定义将在引导时动态地转换为系统挂载单元，并在系统管理器的配置重新加载时转换。在启动需要挂载的服务之前，默认设置会自动 fsck 和挂载文件系统。例如，Systemd 会自动确保远程文件系统挂载（如 NFS 或 Samba ）仅在网络设置完成后启动。因此，在 /etc/fstab 中指定的本地和远程文件系统挂载应该是开箱即用的。有关详细信息，请参阅 systemd.mount(5) 。  
-> mount命令将使用fstab，如果仅给出其中一个目录或设备，则填充其他参数的值。 这样做时，也将使用 fstab 中列出的挂载选项。  
+> fstab(5)文件可用于定义磁盘分区，各种其他块设备或远程文件系统应如何装入文件系统。
+> 每个文件系统在一个单独的行中描述。这些定义将在引导时动态地转换为系统挂载单元，并在系统管理器的配置重新加载时转换。在启动需要挂载的服务之前，默认设置会自动 fsck 和挂载文件系统。例如，Systemd 会自动确保远程文件系统挂载（如 NFS 或 Samba ）仅在网络设置完成后启动。因此，在 /etc/fstab 中指定的本地和远程文件系统挂载应该是开箱即用的。有关详细信息，请参阅 systemd.mount(5) 。
+> mount命令将使用fstab，如果仅给出其中一个目录或设备，则填充其他参数的值。 这样做时，也将使用 fstab 中列出的挂载选项。
 > 编辑 `/etc/fstab`, 按照这样的格式编写
 
-`<file system> <dir> <type> <options> <dump> <pass>`  
+`<file system> <dir> <type> <options> <dump> <pass>`
 分别代表:
 
 - `<file system>` 文件系统, 填写 `UUID=xxx`, 或者 `/dev/xxx`
 - `<dir>` 挂载点, 对于 swap 或没有挂载点的分区, 填 `none`
 - `<type>` 分区类型
-- `<options>` 挂载选项  
+- `<options>` 挂载选项
   可选值(可多选, 用 `,` 分隔):
   - `defaults`: 默认
-- `<dump>` 备份  
-  此选项广泛用于 ext2/3 文件系统和磁带备份, 如今, 由于更新的文件系统和实用程序, 它已经过时了, 填 `0` 即可  
+- `<dump>` 备份
+  此选项广泛用于 ext2/3 文件系统和磁带备份, 如今, 由于更新的文件系统和实用程序, 它已经过时了, 填 `0` 即可
   可选值:
   - `0`: 不备份
   - `1`: 备份
-- `<pass>` 系统启动后通过`fsck`检查  
-  通常给根分区设置`1`其余分区设置`2`或`0`  
+- `<pass>` 系统启动后通过`fsck`检查
+  通常给根分区设置`1`其余分区设置`2`或`0`
   可选值:
   - `0`: 不检查
   - `1`: 检查
@@ -937,10 +970,10 @@ swapon /swapfile
 
 ### mkinitcpio的systemd钩子
 
-systemd 钩子可异步加载模块, 开机速度相对 udev 快一些, 可能不支持老旧硬件  
+systemd 钩子可异步加载模块, 开机速度相对 udev 快一些, 可能不支持老旧硬件
 
-mkinitcpio 默认的钩子组合是以udev为主的, 如果需要更换为systemd,  
-编辑 `/etc/mkinitcpio.conf`, 找到 HOOKS 配置项, 并替换为以下内容  
+mkinitcpio 默认的钩子组合是以udev为主的, 如果需要更换为systemd,
+编辑 `/etc/mkinitcpio.conf`, 找到 HOOKS 配置项, 并替换为以下内容
 (PS: HOOKS上方应该是有注释说明 systemd 配置的示例)
 
 ```conf
@@ -994,7 +1027,7 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block
 - swapfile
 
   第一步和 swap 分区的步骤一样, UUID 是 swapfile 所在分区的 ID
-  
+
   然后加上 `resume_offset=xxxxxx` 表示偏移量, 偏移量可以通过此命令快速获取 `filefrag -v <swap_file> | awk '$1=="0:" {print substr($4, 1, length($4)-2)}'`
 
   获取 swapfile 偏移量示例:
@@ -1028,7 +1061,7 @@ sudo systemctl enable --now linux-modules-cleanup
 
 ### zram
 
-zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存空间  
+zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存空间
 利用 zram-generator 和 systemd-zram-generator 可以轻松创建 zram
 
 - 安装
@@ -1039,7 +1072,7 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
 
 - 配置
 
-  编辑 `/etc/systemd/zram-generator.conf`, 添加如下内容:  
+  编辑 `/etc/systemd/zram-generator.conf`, 添加如下内容:
   具体细节看: `/usr/share/doc/zram-generator/zram-generator.conf.example`
 
   ```bash
@@ -1054,7 +1087,12 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
   编辑 `/etc/sysctl.d/99-zram.conf`, 添加如下内容:
 
   ```bash
+  # 建议大于等于 150
   vm.swappiness = 150
+  # 可选
+  vm.watermark_boost_factor = 0
+  vm.watermark_scale_factor = 125
+  vm.page-cluster = 0
   ```
 
   配置完成后重启系统即可生效
@@ -1093,7 +1131,17 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
 transparent_hugepage=madvise
 ```
 
-### Ananicy
+### 性能优化
+
+文档: <https://wiki.archlinuxcn.org/wiki/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96>
+
+需要注意: 优化选贤之间或与其他程序能不兼容
+
+#### scx-scheds
+
+文档: <https://wiki.archlinuxcn.org/wiki/Scx-scheds>
+
+#### Ananicy
 
 > Ananicy是一个用于自动调节可执行程序nice值的守护进程。nice值表示了在为特定可执行程序分配CPU资源时的优先级。
 
@@ -1113,10 +1161,6 @@ transparent_hugepage=madvise
 
 > [!WARNING]
 > ananicy-cpp 和 gamemode 都会修改游戏进程的 nice, 如果要一起用, 最好只让 ananicy-cpp 或 gamemode 其中一个管理游戏进程的 nice
-
-### 性能优化
-
-文档: <https://wiki.archlinuxcn.org/wiki/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96>
 
 ### 操作文件系统
 
@@ -1149,9 +1193,26 @@ transparent_hugepage=madvise
   sudo ntfslabel <device> <newlabel>
   ```
 
+### Intel xe
+
+Wiki: <https://wiki.archlinuxcn.org/wiki/Intel_%E5%9B%BE%E5%BD%A2%E5%A4%84%E7%90%86%E5%99%A8#%E6%B5%8B%E8%AF%95%E6%96%B0%E7%9A%84%E5%AE%9E%E9%AA%8C%E6%80%A7_Xe_%E9%A9%B1%E5%8A%A8>
+
+### modprobe
+
+#### 禁用模块
+
+在 `/etc/modprobe.d` 中创建一个 `blacklist-<module>.conf` 文件
+
+```bash
+# /etc/modprobe.d/blacklist-<module>.conf
+blacklist <module>
+# 也可以是 pci bus_id
+# blacklist 0000:01:00.0
+```
+
 ## pacman
 
-配置文件路径: `/etc/pacman.conf`  
+配置文件路径: `/etc/pacman.conf`
 镜像服务器列表路径: `/etc/pacman.d/mirrorlist`
 
 ### 初始化密钥环
@@ -1201,7 +1262,7 @@ Include = /etc/pacman.d/mirrorlist
 
 #### Arch 用户软件仓库 (AUR)
 
-> Arch 用户软件仓库（Arch User Repository，AUR）是为用户而建、由用户主导的 Arch Linux 软件仓库。AUR 中的软件包以软件包生成脚本（PKGBUILD）的形式提供，用户自己通过 makepkg 生成包，再由 pacman 安装。创建 AUR 的初衷是方便用户维护和分享新软件包，并由官方定期从中挑选软件包进入 extra 仓库。本文介绍用户访问和使用 AUR 的方法。  
+> Arch 用户软件仓库（Arch User Repository，AUR）是为用户而建、由用户主导的 Arch Linux 软件仓库。AUR 中的软件包以软件包生成脚本（PKGBUILD）的形式提供，用户自己通过 makepkg 生成包，再由 pacman 安装。创建 AUR 的初衷是方便用户维护和分享新软件包，并由官方定期从中挑选软件包进入 extra 仓库。本文介绍用户访问和使用 AUR 的方法。
 > 许多官方仓库软件包都来自 AUR。通过 AUR，大家相互分享新的软件包生成脚本（PKGBUILD 和其他相关文件）。用户还可以为软件包投票。如果一个软件包投票足够多、没有许可证问题、打包质量好，那么它就很有希望被收录进官方 community 仓库（以后就可以直接通过 pacman 或 abs 安装了）。
 
 > [!WARNING]
@@ -1209,7 +1270,7 @@ Include = /etc/pacman.d/mirrorlist
 
 ##### 安装AUR助手
 
-AUR助手帮你省去了上网站搜索AUR包, 克隆仓库手动执行命令的过程, 还能自动更新  
+AUR助手帮你省去了上网站搜索AUR包, 克隆仓库手动执行命令的过程, 还能自动更新
 可选的 aur 助手有: [yay](#yay)、[paru](#paru), 使用 aur 助手代替 pacman
 
 ##### 手动安装AUR软件包
@@ -1262,6 +1323,12 @@ sudo pacman -Sy archlinuxcn-keyring
 CachyOS 官方仓库, CachyOS 专注于性能, 提供许多 v3, v4 包和优化后的 cachyos 内核
 
 文档: <https://wiki.cachyos.org/features/optimized_repos/>
+
+#### Arch4edu
+
+> Arch4edu 是面向高校用户推出的非官方软件仓库，支持 Arch Linux 和 Arch Linux ARM，主要包含高校用户常用的科研、教学及开发软件。
+
+文档: <https://mirrors.tuna.tsinghua.edu.cn/help/arch4edu/>
 
 ### Arch Linux Archive
 
@@ -1380,18 +1447,26 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `crontab`                 | 定时任务                              |
 | `bluetoothctl`            | Bluetooth 管理                        |
 | `btmgmt`                  | Bluetooth 管理                        |
-| `tlp / tlp-rdw / tlpui`   | 电源管理                              |
-| `power-profiles-daemon`   | 电源管理                              |
-| `thermald`                | Intel 温控守护进程                    |
 | `pamixer`                 |                                       |
 | `brightnessctl`           |                                       |
 | `authbind`                | 非root绑定特权端口                    |
-| **分区管理**              |                                       |
+| [`awk`](#awk)             |                                       |
+| `sed`                     |                                       |
+| **终端分区管理**          |                                       |
 | `efibootmgr`              | EFI 启动管理                          |
 | `lsblk`                   |                                       |
 | `cfdisk`                  |                                       |
 | `df`                      |                                       |
 | `du`                      |                                       |
+| **图形分区管理**          |                                       |
+| `gparted`                 | 分区工具                              |
+| `partiionmanager`         | 分区工具                              |
+| `etcher`                  | 刻录工具                              |
+| `isoimagewriter`          | 刻录工具                              |
+| **电源管理**              |                                       |
+| `tlp / tlp-rdw / tlpui`   | 电源管理                              |
+| `power-profiles-daemon`   | 电源管理                              |
+| `thermald`                | Intel 温控守护进程                    |
 | **归档/压缩管理**         |                                       |
 | `tar`                     |                                       |
 | `zip / unzip`             |                                       |
@@ -1414,6 +1489,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `wireshark`               | 网络分析工具                          |
 | [`samba`](#samba)         | 文件共享                              |
 | `rustscan`                | 端口扫描                              |
+| [`httping`](#httping)     | http ping                             |
+| `somo`                    | 查看进程端口                          |
 | **CPU**                   |                                       |
 | [`lscpu`](#lscpu)         |                                       |
 | `turbostat`               | CPU 温度频率监测                      |
@@ -1429,6 +1506,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `superfile`               | 终端下的文件管理器                    |
 | `hyperfine`               | 命令行性能测试                        |
 | **TUI 工具**              |                                       |
+| `isd`                     | systemd TUI                           |
+| `tracexec`                | strace TUI                            |
 | `lazygit`                 | git TUI                               |
 | `lazydocker`              | docker TUI                            |
 | **运维 TUI 工具**         |                                       |
@@ -1464,8 +1543,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `blender`                 | 建模                                  |
 | `aegisub`                 | 字幕编辑                              |
 | **视频**                  |                                       |
+| `mpv`                     | 极简视频播放器                        |
 | `vlc`                     | 视频播放器                            |
-| `mpv`                     | 精简视频播放器                        |
 | `kdenlive`                | 视频剪辑                              |
 | `media-downloader`        | 视频下载                              |
 | **音频**                  |                                       |
@@ -1509,21 +1588,18 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **终端游戏**              |                                       |
 | `gnugo`                   | 围棋                                  |
 | `gnuchess`                | 象棋                                  |
-| **磁盘管理**              |                                       |
-| `gparted`                 | 分区工具                              |
-| `partiionmanager`         | 分区工具                              |
-| `etcher`                  | 刻录工具                              |
-| `isoimagewriter`          | 刻录工具                              |
 | **键盘/鼠标**             |                                       |
 | `keyd`                    | 键盘按键重新映射                      |
+| `input-remapper`          | 输入按键重新映射 (GUI)                |
 | **下载/网盘**             |                                       |
 | `motrix`                  | 下载工具                              |
-| `alist`                   | 整合各种网盘                          |
-| [`davfs`](#davfs)         | 可将 alist 网盘挂载到本地             |
+| [`alist`](#alist)         | 整合各种网盘                          |
+| `davfs`                   | 可将 alist 网盘挂载到本地             |
 | **远程/VPN/串流**         |                                       |
 | `kdeconnect`              | 手机电脑局域网连接                    |
 | `scrcpy`                  | Android 屏幕远程控制                  |
-| `remmina`                 | 远程连接工具, 支持VNC/RDP等           |
+| `krfb`                    | KDE VNC 远程服务端                    |
+| `remmina`                 | 远程连接客户端, 支持VNC/RDP等         |
 | `rustdesk`                | 屏幕分享                              |
 | `frpc / frps`             | 内网穿透                              |
 | `npc / nps`               | 内网穿透                              |
@@ -1538,6 +1614,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `proxychains`             | 终端强制代理工具, 可代理ping流量      |
 | `v2raya`                  | v2ray web UI                          |
 | `clash-verge-rev`         | clash-meta GUI                        |
+| `gg`                      | wrapper 形式调用, 支持 golang 代理    |
 | **电台/DJ**               |                                       |
 | `azuracast`               | 电台                                  |
 | `mixxx`                   | DJ, 电台推流                          |
@@ -1572,14 +1649,18 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `vscode`                  |                                       |
 | `mise`                    | 环境管理                              |
 | `usage`                   |                                       |
-| `python`                  |                                       |
+| `python`                  | py                                    |
 | `uv`                      |                                       |
 | `ruff`                    |                                       |
-| `nodejs`                  |                                       |
+| `nodejs`                  | js/ts                                 |
 | `deno`                    |                                       |
 | `prettier`                |                                       |
 | `eslint`                  |                                       |
 | `biome`                   |                                       |
+| `dbeaver`                 | 数据库客户端                          |
+| `redis`                   |                                       |
+| `valkey`                  |                                       |
+| `tiny-rdm`                | redis客户端                           |
 | `tokei`                   | 代码行数统计                          |
 | **其他**                  |                                       |
 | `teamspeak3`              | 语音服务器                            |
@@ -1600,6 +1681,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `kdf`              | 磁盘使用量                       |
 | `partitionmanager` | 分区工具                         |
 | `spectacle`        | 屏幕截图/录制                    |
+| `karuna`           | 视频查看                         |
 | `gwenview`         | 图片查看                         |
 | `kdenlive`         | 视频剪辑工具                     |
 | `elisa`            | 音乐播放器                       |
@@ -1609,6 +1691,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `sweeper`          | 垃圾清理                         |
 | `kwalletmanager`   | KDE密钥管理                      |
 | `kdeconnect`       | 跨平台的手机电脑局域网连接工具   |
+| `krfb`             | KDE VNC 远程服务端               |
 | `isoimagewriter`   | U盘刻录                          |
 | `cantor`           | 数学软件                         |
 | `drkonqi`          | kde 日志查看工具                 |
@@ -1696,6 +1779,14 @@ ssh-keygen -t rsa -b 4096
 ssh-keygen
 ```
 
+#### 发送 ssh 公钥
+
+```bash
+ssh-copy-id user@hostname
+# or
+ssh-copy-id -i ~/.ssh/id_rsa.pub user@hostname
+```
+
 #### 防止 ssh 断连
 
 编辑 `~/.ssh/config`, 加入以下内容
@@ -1712,7 +1803,7 @@ Host *
 - 生成私钥
 
   ```bash
-  openssl genrsa -out ca.key 2048
+  openssl genrsa -out ca.key 4096
   ```
 
 - 生成证书
@@ -1720,6 +1811,93 @@ Host *
   ```bash
   openssl req -new -x509 -days 3650 -key ca.key -out ca.crt
   ```
+
+### awk
+
+> [!WARNING]
+> AI 生成, 请注意甄别
+
+1. 基本语法
+
+   awk 'pattern {action}' 文件名
+
+   - pattern：匹配条件（可选）
+   - action：对匹配行执行的操作（如打印、计算等）
+
+2. 常用内置变量
+
+   | 变量 | 说明                       |
+   | ---- | -------------------------- |
+   | $0   | 整行内容                   |
+   | NF   | 当前行的列数               |
+   | NR   | 当前行号                   |
+   | FS   | 输入字段分隔符（默认空格） |
+   | OFS  | 输出字段分隔符（默认空格） |
+
+3. 基础示例
+
+   1. 打印文件内容
+
+      ```bash
+      awk '{print}' file.txt        # 打印所有行（等同于 cat）
+      awk '{print $0}' file.txt    # 同上
+      awk '{print $1}' file.txt    # 打印第1列
+      awk '{print $1, $3}' file.txt # 打印第1和第3列
+      ```
+
+   2. 指定分隔符
+
+      ```bash
+      awk -F':' '{print $1}' /etc/passwd  # 以冒号分隔，打印第1列（用户名）
+      awk -F'[,;]' '{print $2}' data.csv  # 支持多个分隔符（逗号或分号）
+      ```
+
+   3. 条件过滤
+
+      ```bash
+      awk '$3 > 100 {print}' data.txt    # 第3列大于100的行
+      awk '/error/ {print}' log.txt      # 包含"error"的行
+      awk 'NR >= 10 && NR <= 20' file.txt # 打印10-20行
+      ```
+
+4. 进阶用法
+
+   1. BEGIN 和 END 块
+
+      ```bash
+      awk 'BEGIN {print "Start"} {print $1} END {print "End"}' file.txt
+      ```
+
+      - BEGIN：处理文件前执行
+      - END：处理文件后执行
+
+   2. 计算列总和
+
+      ```bash
+      awk '{sum += $1} END {print sum}' numbers.txt
+      ```
+
+   3. 格式化输出
+
+      ```bash
+      awk '{printf "Name: %-10s Age: %d\n", $1, $2}' data.txt
+      ```
+
+      - %-10s：左对齐字符串，宽度10
+      - %d：整数
+
+   4. 修改输出分隔符
+
+      ```bash
+      awk 'BEGIN {OFS="|"} {print $1, $2}' file.txt
+      ```
+
+   5. 统计行数/列数
+
+      ```bash
+      awk 'END {print NR " lines"}' file.txt      # 总行数
+      awk '{print NF " columns in line " NR}' file.txt # 每行列数
+      ```
 
 ### samba
 
@@ -1737,6 +1915,12 @@ Host *
 - 用户共享文件
 
   请看Wiki: <https://wiki.archlinuxcn.org/wiki/Samba#%E5%90%AF%E7%94%A8_Usershare>
+
+### httping
+
+```bash
+httping xxx -i 1 -G
+```
 
 ### lscpu
 
@@ -1835,39 +2019,49 @@ mangohud --dlsym glxgears
   nv_powermizer_mode=1
   ```
 
-### davfs
+### alist
 
-- 挂载本机 alist (非本机地址改一下 ip)
+#### alist 挂载 webdav
 
-  添加 systemd 服务 `/etc/systemd/system/mnt-dav.mount`
+下面出现的 ip 地址按需修改, 如果是本机就是 127.0.0.1
 
-  ```ini
-  [Unit]
-  Description=Mount WebDAV
-  After=alist.service
+首先修改 `/etc/davfs2/davfs2.conf`, 添加如下内容, 或找到对应部分取消注释并修改其值
 
-  [Mount]
-  What=http://127.0.0.1:5244/dav/
-  Where=/mnt/dav
-  Options=noauto,user,uid=hmeqo,gid=hmeqo
-  Type=davfs
-  TimeoutSec=60
+```conf
+use_locks 0
+follow_redirect 1
+```
 
-  [Install]
-  WantedBy=remote-fs.target
-  ```
+编辑 `/etc/davfs2/secrets`, 添加如下内容
 
-  编辑 `/etc/davfs2/secrets`, 添加如下内容
-  
-  ```conf
-  http://127.0.0.1:5244/dav/ admin <your_password>
-  ```
+```conf
+http://127.0.0.1:5244/dav/ admin <your_password>
+```
 
-  最后启动 alist 和 mnt-dav.mount
+添加 systemd 服务 `/etc/systemd/system/mnt-dav.mount`
 
-  ```bash
-  sudo systemctl start alist mnt-dav.mount
-  ```
+```ini
+[Unit]
+Description=Mount WebDAV
+After=alist.service
+
+[Mount]
+What=http://127.0.0.1:5244/dav/
+Where=/mnt/dav
+Options=_netdev,uid=<user_id_or_name>,gid=<group_id_or_name>
+Type=davfs
+TimeoutSec=60
+
+[Install]
+WantedBy=remote-fs.target
+```
+
+最后启动 alist 和 mnt-dav.mount
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl start alist mnt-dav.mount
+```
 
 ### zerotier
 
@@ -2015,7 +2209,7 @@ mangohud --dlsym glxgears
   					"RegionID":         901,
   					"DERPPort":         10443, // derper 的 https 端口
   					"HostName":         "", // 填写服务器域名, 没有的话留空
-  					"IPv4":             "123.456.789.012", // 改为你的服务器 IP
+  					"IPv4":             "127.0.0.1", // 改为你的服务器 IP
   					"InsecureForTests": true,
   				},
   			],
@@ -2065,7 +2259,8 @@ windows 端可安装虚拟显示器软件如 parsec-vdd / virtual-display-driver
 
 ### KDE 网络连接提示无法访问互联网但实际正常
 
-KDE 通过此 uri 检测网络连接状态 `ping.archlinux.org`, 如果是挂代理的情况下无法访问, 将此 uri 过滤掉就行
+KDE 通过此 uri 检测网络连接状态 `ping.archlinux.org`, 如果是挂代理的情况下无法访问, 只需将此 url 过滤掉,
+如果用了 fakeip, 将其排除, 使用真实 ip 访问
 
 ### nvim 共享剪切板
 
@@ -2087,7 +2282,7 @@ KDE 通过此 uri 检测网络连接状态 `ping.archlinux.org`, 如果是挂代
 
     `lambdalisue/suda.vim` 插件
 
-  - 方法2
+  - 方法3
 
     安装 `wl-clipboard`, `xclip`, `clipboard-sync`, 并启用 `clipboard-sync` 服务
 
@@ -2156,7 +2351,7 @@ $ lspci -nn | grep "NVIDIA"
 
 ### Proton 指定特定显卡运行
 
-对于 DXVK 可以用 `DXVK_FILTER_DEVICE_NAME="Device Name"`, 例如 `DXVK_FILTER_DEVICE_NAME="Intel"`  
+对于 DXVK 可以用 `DXVK_FILTER_DEVICE_NAME="Device Name"`, 例如 `DXVK_FILTER_DEVICE_NAME="Intel"`
 Device Name 可以通过 `vulkaninfo | grep deviceName` 获取
 
 ### 关闭睿频
@@ -2226,6 +2421,60 @@ Dynamic Preempt: full
 ```bash
 rg -l '<pattern>' </path/to> | sed 's/.*/"&"/' | xargs sed -i 's/<pattern>/<replacement>/g'
 ```
+
+### 热插拔 pci 设备
+
+```bash
+# 卸载
+echo 1 | sudo tee /sys/bus/pci/devices/<bus_id>/remove
+
+# 重新插入
+echo 1 > /sys/bus/pci/rescan
+```
+
+### NVIDIA 锁频
+
+解决使用 NVIDIA KDE UI 动画卡顿问题
+
+```bash
+sudo nvidia-smi -lgc 2000,400000
+```
+
+### 伪造 uptime
+
+```bash
+unshare -UT --boottime 36000000 --fork fastfetch
+```
+
+## Hacker
+
+### 清除登录记录
+
+- 全部清除
+
+  ```bash
+  sudo truncate -s 0 /var/log/wtmp
+  ```
+
+- 选择性清除
+
+  导出现有登录记录
+
+  ```bash
+  sudo utmpdump /var/log/wtmp > wtmp.txt
+  ```
+
+  清除与特定用户相关的登录记录
+
+  ```bash
+  sed -i '/<username>/d' wtmp.txt
+  ```
+
+  将清除后的登录记录导入
+
+  ```bash
+  utmpdump -r wtmp_filtered.txt | sudo tee /var/log/wtmp
+  ```
 
 ## Wiki
 
@@ -2303,7 +2552,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 - `EFI`
 
-  EFI 分区目录, 如果你把 EFI 分区挂载到了 `/boot`, 那么你可以在 `/boot/EFI` 中找到启动项  
+  EFI 分区目录, 如果你把 EFI 分区挂载到了 `/boot`, 那么你可以在 `/boot/EFI` 中找到启动项
   如果你的 EFI 挂载点是 `/`, 那么对应的 EFI 目录则是 `/EFI`
 
 ### WINE/PROTON 运行 Windows 应用/游戏
@@ -2312,7 +2561,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 - Wine
 
-  - 是什么: Wine 是一个开源兼容层, 允许在类 Unix 操作系统 (如 Linux、macOS) 上运行设计为在 Microsoft Windows 上运行的应用程序 (特别是那些使用 Win32 API 的应用程序)  
+  - 是什么: Wine 是一个开源兼容层, 允许在类 Unix 操作系统 (如 Linux、macOS) 上运行设计为在 Microsoft Windows 上运行的应用程序 (特别是那些使用 Win32 API 的应用程序)
     其原理是重写了 Windows 的 dll
 
 - DXVK
@@ -2325,7 +2574,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 - Proton
 
-  - 是什么: Proton 是 Valve 为其数字发行平台 Steam 开发的一个开源工具, 基于 Wine, 但专门为运行 Windows 游戏进行了优化  
+  - 是什么: Proton 是 Valve 为其数字发行平台 Steam 开发的一个开源工具, 基于 Wine, 但专门为运行 Windows 游戏进行了优化
     Proton 整合了 DXVK, VKD3D 等一系列工具, Valve 对 Proton 的更改都会回馈到上游 (Wine, DXVK, VKD3D 等), Proton 极大促进了 Linux 游戏/软件生态的发展
   - 与 Wine 的关系: Proton 构建于 Wine 之上, 使用 Wine 的代码库作为其核心, 并添加了 Valve 自己的补丁、优化和额外功能, 以提高游戏的兼容性和性能
 
@@ -2339,7 +2588,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 - UMU-Launcher
 
-  由于 Proton 是专门为 Steam 游戏开发的, 在 Wine9.0 之前, 一般建议用 Wine-GE 运行非 Steam 游戏/应用, Proton-GE 运行 Steam 游戏  
+  由于 Proton 是专门为 Steam 游戏开发的, 在 Wine9.0 之前, 一般建议用 Wine-GE 运行非 Steam 游戏/应用, Proton-GE 运行 Steam 游戏
   但在 9.0 之后, GE 作者不再分发 Wine-GE 版本, 转而开发了 UMU-Launcher, 用 Proton-GE 运行非 Steam 游戏/应用
 
 - GPTK (Game Porting Toolkit)
@@ -2347,7 +2596,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
   Apple 为 macOS 开发的基于 Wine 的游戏兼容层
 
 > [!NOTE]
-> Proton 能够以高性能运行 Windows 游戏, 主要功劳在于 DXVK 和 VKD3D  
+> Proton 能够以高性能运行 Windows 游戏, 主要功劳在于 DXVK 和 VKD3D
 > 各种利用 Wine 运行 Windows 游戏的启动器都默认帮你配好了 DXVK, VKD3D 等工具, 其游戏性能和 Proton 无太大区别
 
 #### WINE/PROTON GUI 启动器
