@@ -1,1 +1,1 @@
-- [Archlinux](./archlinux/index.md)
+- [Archlinux](./linux/archlinux.md)
