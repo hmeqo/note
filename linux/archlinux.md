@@ -154,7 +154,6 @@
     - [关闭 Intel 小核](#关闭-intel-小核)
     - [网速测试](#网速测试)
     - [preempt=full](#preemptfull)
-    - [全局搜索替换](#全局搜索替换)
     - [热插拔 pci 设备](#热插拔-pci-设备)
     - [NVIDIA 锁频](#nvidia-锁频)
     - [伪造 uptime](#伪造-uptime)
@@ -545,11 +544,13 @@ refind-install
 
 - 配置
 
-  配置文件路径 `<esp>/EFI/refind/refind.conf`
+  启动项配置: `<esp>/refind_linux.conf`
+
+  配置文件路径: `<esp>/EFI/refind/refind.conf`
 
   ```conf
   # 引导时以图形代替文字
-  use_graphics_for osx,linux,grub,windows
+  use_graphics_for osx,linux,grub
 
   # 是否折叠内核选项, 当有多个可选内核时折叠, 默认为 true
   fold_linux_kernels false
@@ -1001,7 +1002,7 @@ HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block
   systemd 钩子自带 resume, 不需要手动添加
 
   ```conf
-  HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block filesystems fsck)
+  HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole sd-encrypt block filesystems fsck)
   ```
 
 编辑完成后执行 `sudo mkinitcpio -P`
@@ -1503,8 +1504,9 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `exa`                     | better ls                             |
 | `fzf`                     | fuzzy finder                          |
 | `yazi`                    | 终端下的文件管理器                    |
-| `superfile`               | 终端下的文件管理器                    |
 | `hyperfine`               | 命令行性能测试                        |
+| `cyme`                    | lsusb 替代                            |
+| `luit`                    | 切换编码                              |
 | **TUI 工具**              |                                       |
 | `isd`                     | systemd TUI                           |
 | `tracexec`                | strace TUI                            |
@@ -1551,6 +1553,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `elisa`                   | 音乐播放器, 支持电台                  |
 | `easyeffects`             | 音频效果                              |
 | `cava`                    | 控制台音频可视化                      |
+| `ebumeter`                | EBU LUFS                              |
 | **图像**                  |                                       |
 | `gwenview`                | kde 图像查看器                        |
 | `gimp`                    | 修图                                  |
@@ -1591,6 +1594,9 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | **键盘/鼠标**             |                                       |
 | `keyd`                    | 键盘按键重新映射                      |
 | `input-remapper`          | 输入按键重新映射 (GUI)                |
+| **传输**                  |                                       |
+| `rsync`                   |                                       |
+| `rsyncy`                  |                                       |
 | **下载/网盘**             |                                       |
 | `motrix`                  | 下载工具                              |
 | [`alist`](#alist)         | 整合各种网盘                          |
@@ -1632,6 +1638,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `griddycode`              | 代码编辑器                            |
 | `pipes.sh`                | 管道                                  |
 | `cbonsai`                 | 盆栽                                  |
+| `edex-ui`                 | 黑客终端                              |
 | **字体**                  |                                       |
 | `noto-fonts-cjk`          | 中文                                  |
 | `noto-fonts-emoji`        | 表情                                  |
@@ -2415,12 +2422,6 @@ Dynamic Preempt: full
 ```
 
 如果没有, 在内核参数添加 `preempt=full` 然后重新启动
-
-### 全局搜索替换
-
-```bash
-rg -l '<pattern>' </path/to> | sed 's/.*/"&"/' | xargs sed -i 's/<pattern>/<replacement>/g'
-```
 
 ### 热插拔 pci 设备
 
