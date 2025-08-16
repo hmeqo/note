@@ -7,8 +7,8 @@ rg -l '<pattern>' </path/to> | sed 's/.*/"&"/' | xargs sed -i 's/<pattern>/<repl
 ### mysql 迁移到 postgresql
 
 ```bash
-docker run --rm dimitri/pgloader \
+docker run --rm --it --network host dimitri/pgloader \
   pgloader \
-  "mysql://root:password@host.docker.internal:3306/source_db" \
-  "postgresql://postgres:password@host.docker.internal:5432/target_db"
+  "mysql://root:password@localhost:3306/db" \
+  "postgresql://postgres:password@localhost:5432/db"
 ```

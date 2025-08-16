@@ -532,6 +532,8 @@ systemd-boot 使用教程请看此处: <https://wiki.archlinuxcn.org/wiki/System
 
 ##### rEFInd
 
+安装:
+
 ```bash
 pacman -S refind
 
@@ -542,11 +544,11 @@ refind-install
 > 当 refind-install 运行在chroot环境下 (例如：安装Arch Linux时的live环境) /boot/refind_linux.conf 内将会添加live系统的内核选项，而不是安装它的系统。
 > 编辑 /boot/refind_linux.conf 并确保其中的 内核参数 对于你的系统是正确的，否则下次启动可能会出现内核错误。
 
-- 配置
+配置:
 
-  启动项配置: `<esp>/refind_linux.conf`
+- 编辑 `/boot/refind_linux.conf` 配置启动项, 确保其中的内核参数是正确的
 
-  配置文件路径: `<esp>/EFI/refind/refind.conf`
+- 配置 refind, `<esp>/EFI/refind/refind.conf`
 
   ```conf
   # 引导时以图形代替文字
@@ -559,7 +561,7 @@ refind-install
   extra_kernel_version_strings linux-zen,linux-cachyos
   ```
 
-  更多信息可以看 archwiki: <https://wiki.archlinuxcn.org/wiki/REFInd#%E9%85%8D%E7%BD%AE>
+更多信息可以看 archwiki: <https://wiki.archlinuxcn.org/wiki/REFInd#%E9%85%8D%E7%BD%AE>
 
 ###### rEFInd 主题
 
@@ -2217,6 +2219,7 @@ sudo systemctl start alist mnt-dav.mount
   					"DERPPort":         10443, // derper 的 https 端口
   					"HostName":         "", // 填写服务器域名, 没有的话留空
   					"IPv4":             "127.0.0.1", // 改为你的服务器 IP
+  					// "IPv6":             "",
   					"InsecureForTests": true,
   				},
   			],
@@ -2233,8 +2236,11 @@ sunshine 在 windows 和 linux 下都是通过 web 页面操作, 启动方式也
 
 通过 sunshine 串流虚拟显示器, 实现另一台电脑充当副屏
 
-windows 端可安装虚拟显示器软件如 parsec-vdd / virtual-display-driver,
-2025 新版 sunshine 在视频和音频配置中填写虚拟显示器的ID, 虚拟显示器ID可在故障排除中找到
+- Windows
+
+  安装虚拟显示器软件如 parsec-vdd / virtual-display-driver
+
+  2025 新版 sunshine 在视频和音频配置中填写虚拟显示器的ID, 虚拟显示器ID可在故障排除中找到
 
 ### moonlight
 
