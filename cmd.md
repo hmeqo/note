@@ -4,11 +4,10 @@
 rg -l '<pattern>' </path/to> | sed 's/.*/"&"/' | xargs sed -i 's/<pattern>/<replacement>/g'
 ```
 
-### mysql 迁移到 postgresql
+### 生成自签名证书
 
 ```bash
-docker run --rm --it --network host dimitri/pgloader \
-  pgloader \
-  "mysql://root:password@localhost:3306/db" \
-  "postgresql://postgres:password@localhost:5432/db"
+openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 \
+  -nodes -keyout key.pem -out cert.pem \
+  -addext "subjectAltName=IP:127.0.0.1,DNS:localhost"
 ```

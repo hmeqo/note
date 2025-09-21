@@ -38,8 +38,7 @@
       - [3.7 更改 root 密码](#37-更改-root-密码)
       - [3.8 网络管理器](#38-网络管理器)
       - [3.9 创建用户](#39-创建用户)
-      - [3.10 更新系统时间](#310-更新系统时间)
-      - [3.11 开机引导](#311-开机引导)
+      - [3.10 开机引导](#310-开机引导)
         - [GRUB](#grub)
           - [安装GRUB](#安装grub)
           - [os-prober 找不到其他系统](#os-prober-找不到其他系统)
@@ -49,6 +48,7 @@
           - [rEFInd 主题](#refind-主题)
     - [4. 重启](#4-重启)
     - [5. 后续操作](#5-后续操作)
+      - [自动同步世界时](#自动同步世界时)
       - [考虑启用pacman的multilib和AUR](#考虑启用pacman的multilib和aur)
       - [安装桌面环境](#安装桌面环境)
       - [安装各种驱动](#安装各种驱动)
@@ -426,15 +426,7 @@ useradd -m <username>
 passwd <username>
 ```
 
-#### 3.10 更新系统时间
-
-自动同步世界时
-
-```bash
-timedatectl set-ntp true
-```
-
-#### 3.11 开机引导
+#### 3.10 开机引导
 
 常见的引导方式有下面几种, 选择一个硬件支持的引导方式即可
 
@@ -575,6 +567,13 @@ refind-install
 安装完引导之后 (可以先把后续操作做完再做这一步), 输入 `exit` 或按 `ctrl+d` 退出 chroot 环境, 然后输入 `reboot` 重启电脑
 
 ### 5. 后续操作
+
+#### 自动同步世界时
+
+```bash
+# sudo
+timedatectl set-ntp true
+```
 
 #### 考虑启用pacman的multilib和AUR
 
@@ -1426,6 +1425,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | [`yay`](#yay)             | Aur 助手                              |
 | [`paru`](#paru)           | Aur 助手                              |
 | `debtap`                  | deb 包转 pacman 包                    |
+| `pacui`                   | TUI                                   |
 | **Shell**                 |                                       |
 | `zsh`                     | shell                                 |
 | `fish`                    | shell                                 |
@@ -1438,29 +1438,29 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `foot`                    | 终端                                  |
 | `ghostty`                 | 终端                                  |
 | `cool-retro-term`         | 复古终端                              |
-| **基础设施**              |                                       |
+| **命令行工具**            |                                       |
 | [`ssh`](#ssh)             |                                       |
 | [`openssl`](#openssl)     |                                       |
-| `man`                     | 命令手册                              |
-| `tldr(tealdeer)`          | 命令用例                              |
-| `lspci`                   |                                       |
-| `lsusb`                   |                                       |
 | `watch`                   | 定时执行                              |
 | `at`                      | 定时执行                              |
-| `crontab`                 | 定时任务                              |
-| `bluetoothctl`            | Bluetooth 管理                        |
-| `btmgmt`                  | Bluetooth 管理                        |
-| `pamixer`                 |                                       |
-| `brightnessctl`           |                                       |
+| `crontab/fcron`           | 定时任务                              |
 | `authbind`                | 非root绑定特权端口                    |
 | [`awk`](#awk)             |                                       |
 | `sed`                     |                                       |
-| **终端分区管理**          |                                       |
+| `bat`                     | better cat                            |
+| `exa`                     | better ls                             |
+| `fzf`                     | fuzzy finder                          |
+| [`tmux`](./tmux.md)       | 终端复用                              |
+| `yazi`                    | 终端下的文件管理器                    |
+| `luit`                    | 切换编码                              |
+| **终端分区管理/文件统计** |                                       |
 | `efibootmgr`              | EFI 启动管理                          |
 | `lsblk`                   |                                       |
 | `cfdisk`                  |                                       |
 | `df`                      |                                       |
 | `du`                      |                                       |
+| `dust`                    |                                       |
+| `duf`                     |                                       |
 | **图形分区管理**          |                                       |
 | `gparted`                 | 分区工具                              |
 | `partiionmanager`         | 分区工具                              |
@@ -1498,17 +1498,25 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | [`lscpu`](#lscpu)         |                                       |
 | `turbostat`               | CPU 温度频率监测                      |
 | `cpupower`                |                                       |
-| **Shell 工具**            |                                       |
+| `cpu-x`                   |                                       |
+| **硬件控制**              |                                       |
+| `lspci`                   |                                       |
+| `lsusb`                   |                                       |
+| `cyme`                    | lsusb 替代                            |
+| **设备控制**              |                                       |
+| `bluetoothctl`            | Bluetooth 管理                        |
+| `btmgmt`                  | Bluetooth 管理                        |
+| `pamixer`                 |                                       |
+| `brightnessctl`           |                                       |
+| `kanshi`                  | Wayland 动态显示屏切换                |
+| **实用工具**              |                                       |
+| `man`                     | 命令手册                              |
+| `tldr(tealdeer)`          | 命令用例                              |
 | [`reflector`](#reflector) | pacman 镜像服务器地址生成             |
 | `mirro-rs`                | 查找速度最快的 pacman 镜像服务器      |
-| [`tmux`](./tmux.md)       | 终端复用                              |
-| `bat`                     | better cat                            |
-| `exa`                     | better ls                             |
-| `fzf`                     | fuzzy finder                          |
-| `yazi`                    | 终端下的文件管理器                    |
 | `hyperfine`               | 命令行性能测试                        |
-| `cyme`                    | lsusb 替代                            |
-| `luit`                    | 切换编码                              |
+| `xdg-ninja`               | 检查家目录下的点文件的 XDG 支持情况   |
+| `zbar`                    | 二维码条形码扫描                      |
 | **TUI 工具**              |                                       |
 | `isd`                     | systemd TUI                           |
 | `tracexec`                | strace TUI                            |
@@ -1592,8 +1600,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `vkbasalt`                | 为 Vulkan 游戏提供额外的后处理        |
 | **终端游戏**              |                                       |
 | `gnugo`                   | 围棋                                  |
-| `gnuchess`                | 象棋                                  |
-| **键盘/鼠标**             |                                       |
 | `keyd`                    | 键盘按键重新映射                      |
 | `input-remapper`          | 输入按键重新映射 (GUI)                |
 | **传输**                  |                                       |
@@ -1673,9 +1679,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `tokei`                   | 代码行数统计                          |
 | **其他**                  |                                       |
 | `teamspeak3`              | 语音服务器                            |
-| `kanshi`                  | Wayland 动态显示屏切换                |
-| `xdg-ninja`               | 检查家目录下的点文件的 XDG 支持情况   |
-| `zbar`                    | 二维码条形码扫描                      |
 
 ### KDE软件生态
 
@@ -1807,19 +1810,7 @@ Host *
 
 ### openssl
 
-生成自签名证书
-
-- 生成私钥
-
-  ```bash
-  openssl genrsa -out ca.key 4096
-  ```
-
-- 生成证书
-
-  ```bash
-  openssl req -new -x509 -days 3650 -key ca.key -out ca.crt
-  ```
+[生成自签名证书](/cmd.md)
 
 ### awk
 
@@ -2032,45 +2023,75 @@ mangohud --dlsym glxgears
 
 #### alist 挂载 webdav
 
-下面出现的 ip 地址按需修改, 如果是本机就是 127.0.0.1
+- 方法1: 使用 rclone
 
-首先修改 `/etc/davfs2/davfs2.conf`, 添加如下内容, 或找到对应部分取消注释并修改其值
+  运行 rclone, 选择 webdav, 根据向导一步步填写信息, 完成后即可挂载
 
-```conf
-use_locks 0
-follow_redirect 1
-```
+  ```bash
+  rclone mount <remote_name>:[remote_path] </mnt/dav>
+  ```
 
-编辑 `/etc/davfs2/secrets`, 添加如下内容
+  添加 systemd 服务:
 
-```conf
-http://127.0.0.1:5244/dav/ admin <your_password>
-```
+  ```bash
+  [Unit]
+  Description=Rclone Mount Service for [YourRemote]
+  Wants=network-online.target
+  After=network-online.target
 
-添加 systemd 服务 `/etc/systemd/system/mnt-dav.mount`
+  [Service]
+  Type=notify
+  ExecStart=/usr/bin/rclone mount <YOUR_REMOTE>:[MOUNT_PATH] --vfs-cache-mode full --user-agent "rclone-arch-mount-service"
+  ExecStop=/usr/bin/rclone rc vfs/refresh -vv --user-agent "rclone-arch-mount-service"
+  Restart=on-failure
+  User=<your_user>
+  Group=<your_user>
 
-```ini
-[Unit]
-Description=Mount WebDAV
-After=alist.service
+  [Install]
+  WantedBy=multi-user.target
+  ```
 
-[Mount]
-What=http://127.0.0.1:5244/dav/
-Where=/mnt/dav
-Options=_netdev,uid=<user_id_or_name>,gid=<group_id_or_name>
-Type=davfs
-TimeoutSec=60
+- 方法2: 使用 davfs
 
-[Install]
-WantedBy=remote-fs.target
-```
+  下面出现的 ip 地址按需修改, 如果是本机就是 127.0.0.1
 
-最后启动 alist 和 mnt-dav.mount
+  首先修改 `/etc/davfs2/davfs2.conf`, 添加如下内容, 或找到对应部分取消注释并修改其值
 
-```bash
-sudo systemctl daemon-reload
-sudo systemctl start alist mnt-dav.mount
-```
+  ```conf
+  use_locks 0
+  follow_redirect 1
+  ```
+
+  编辑 `/etc/davfs2/secrets`, 添加如下内容
+
+  ```conf
+  http://127.0.0.1:5244/dav/ admin <your_password>
+  ```
+
+  添加 systemd 服务 `/etc/systemd/system/mnt-dav.mount`
+
+  ```ini
+  [Unit]
+  Description=Mount WebDAV
+  After=alist.service
+
+  [Mount]
+  What=http://127.0.0.1:5244/dav/
+  Where=/mnt/dav
+  Options=_netdev,auto,uid=<user_id_or_name>,gid=<group_id_or_name>
+  Type=davfs
+  TimeoutSec=60
+
+  [Install]
+  WantedBy=remote-fs.target
+  ```
+
+  最后启动 alist 和 mnt-dav.mount
+
+  ```bash
+  sudo systemctl daemon-reload
+  sudo systemctl start alist mnt-dav.mount
+  ```
 
 ### zerotier
 
