@@ -3,7 +3,7 @@
 > [!NOTE]
 > Github MD页面右上角可以打开目录树
 >
-> 本文所有引用部分均来自 archwiki
+> 本文所有引用部分来自 archwiki
 > Archlinux: <https://www.archlinux.org/>
 > Archlinuxcn: <https://www.archlinuxcn.org/>
 
@@ -70,7 +70,10 @@
       - [双显卡切换](#双显卡切换)
       - [指定使用独立显卡](#指定使用独立显卡)
     - [功耗控制和电源管理](#功耗控制和电源管理)
-    - [fstab](#fstab)
+    - [挂载](#挂载)
+      - [命令行挂载](#命令行挂载)
+      - [fstab](#fstab)
+      - [systemd mount](#systemd-mount)
     - [Swap](#swap)
       - [Swap大小建议](#swap大小建议)
       - [创建swapfile](#创建swapfile)
@@ -82,12 +85,11 @@
     - [kernel-modules-hook](#kernel-modules-hook)
     - [zram](#zram)
     - [zswap](#zswap)
-    - [透明大页面](#透明大页面)
     - [性能优化](#性能优化)
       - [scx-scheds](#scx-scheds)
+      - [SSD 优化](#ssd-优化)
       - [Ananicy](#ananicy)
     - [操作文件系统](#操作文件系统)
-      - [修改分区 Label](#修改分区-label)
     - [Intel xe](#intel-xe)
     - [modprobe](#modprobe)
       - [禁用模块](#禁用模块)
@@ -558,6 +560,7 @@ refind-install
 ###### rEFInd 主题
 
 - refind-theme-regular
+
   github: <https://github.com/kmyi/refind-theme-regular>
 
 主题文件一般放在 `<esp>/EFI/refind/themes/` 目录下, 然后在 `<esp>/EFI/refind/refind.conf` 中添加 `include themes/refind-theme-regular/theme.conf`
@@ -596,7 +599,7 @@ timedatectl set-ntp true
   额外软件可以参考 [KDE软件生态](#kde软件生态), 选择你需要的软件
 
   ```bash
-  pacman -S plasma-meta dolphin konsole yakuake zen-browser spectacle ark filelight
+  pacman -S plasma-meta dolphin konsole yakuake zen-browser ark filelight
 
   # 然后设置sddm开机自启, 重启电脑后自动显示登录界面
   systemctl enable sddm
@@ -739,8 +742,9 @@ pacman -S intel-media-sdk
 #### Nvidia VDPAU
 
 ```bash
+# Installed as a dependency by the nvidia package
 pacman -S libvdpau
-# [Optinal] driver using VAAPI
+# [Optional] VDPAU driver with OpenGL/VAAPI backend
 pacman -S libvdpau-va-gl
 ```
 
@@ -882,7 +886,19 @@ Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有�
 
 - thermald
 
-### fstab
+### 挂载
+
+#### 命令行挂载
+
+```bash
+# 挂载 /dev/sda1
+mount --mkdir /dev/sda1 /mnt/sda1
+
+# 卸载 /dev/sda1
+umount /mnt/sda1
+```
+
+#### fstab
 
 archwiki: <https://wiki.archlinuxcn.org/wiki/Fstab>
 
@@ -910,13 +926,48 @@ archwiki: <https://wiki.archlinuxcn.org/wiki/Fstab>
   可选值:
   - `0`: 不检查
   - `1`: 检查
-  - `2`: 在1之后检查，但不一定检查
+  - `2`: 在1之后检查, 但不一定检查
 
 示例 :
 
 ```fstab
 UUID=xxx  /    ext4 rw,relatime 0 1
 UUID=xxxx /xxx ext4 defaults    0 2
+```
+
+#### systemd mount
+
+创建一个 `.mount` 文件, 例如 `/etc/systemd/system/mnt-data1.mount`,
+然后设置开机自启 `systemctl enable --now mnt-data1.mount`
+
+```conf
+[Unit]
+Description=Data 1
+
+[Mount]
+What=UUID=82072972-a34a-4c9d-8213-19fc1b722001
+Where=/mnt/data1
+Type=btrfs
+Options=defaults,autodefrag,compress=zstd
+
+[Install]
+WantedBy=multi-user.target
+```
+
+如果有延迟加载需求(如热插拔), 创建一个新文件 `/etc/systemd/system/mnt-data1.automount`,
+删除 `.mount` 文件的 `[Install]` 部分,
+并改用新的服务开机自启 `systemctl enable --now mnt-data1.automount`
+
+```conf
+[Unit]
+Description=Automount Data 1
+
+[Automount]
+Where=/mnt/data1
+DirectoryMode=0755
+
+[Install]
+WantedBy=multi-user.target
 ```
 
 ### Swap
@@ -1079,11 +1130,9 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
 
   ```bash
   [zram0]
-  compression-algorithm = zstd lz4 (type=huge)
-  # zram 大小一般推荐为内存的 0.1 - 0.5
+  # zstd 压缩比一般在 2:1 3:1, 最佳设置为内存的 1-2 倍, 需求小则 0.25-0.5
   zram-size = ram / 2
-  swap-priority = 100
-  fs-type = swap
+  compression-algorithm = zstd
   ```
 
   编辑 `/etc/sysctl.d/99-zram.conf`, 添加如下内容:
@@ -1097,6 +1146,12 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
   vm.page-cluster = 0
   ```
 
+  加载 sysctl 配置
+
+  ```bash
+  sudo sysctl --system
+  ```
+
   配置完成后重启系统即可生效
 
 - 不重启系统, 手动启动 zram
@@ -1107,14 +1162,8 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
   # systemd 会自动创建一个 /dev/zram0 设备
   sudo systemctl daemon-reload
 
-  # 初始化 zram0 设备
-  sudo /usr/lib/systemd/system-generators/zram-generator --setup-device zram0
-
-  # 挂载 zram0
-  sudo swapon -p 100 /dev/zram0
-
-  # 加载 sysctl 配置
-  sudo sysctl --system
+  # 初始化并挂载 zram0 设备
+  sudo systemctl start systemd-zram-setup@zram0.service
   ```
 
 - 运行状态
@@ -1125,14 +1174,6 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
 
 在写入 swap 之前, 会先在内存里压缩数据, 再写入 swap
 
-### 透明大页面
-
-(待验证)
-
-```bash
-transparent_hugepage=madvise
-```
-
 ### 性能优化
 
 文档: <https://wiki.archlinuxcn.org/wiki/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96>
@@ -1142,6 +1183,12 @@ transparent_hugepage=madvise
 #### scx-scheds
 
 文档: <https://wiki.archlinuxcn.org/wiki/Scx-scheds>
+
+#### SSD 优化
+
+```bash
+sudo systemctl enable --now fstrim.timer
+```
 
 #### Ananicy
 
@@ -1166,34 +1213,7 @@ transparent_hugepage=madvise
 
 ### 操作文件系统
 
-#### 修改分区 Label
-
-- ext4
-
-  ```bash
-  sudo e2label <device> <newlabel>
-  ```
-
-- btrfs
-
-  ```bash
-  # 对于已挂载的设备
-  sudo btrfs filesystem label <mountpoint> <newlabel>
-  # 否则
-  sudo btrfs filesystem label <device> <newlabel>
-  ```
-
-- fat32
-
-  ```bash
-  sudo fatlabel <device> <newlabel>
-  ```
-
-- ntfs
-
-  ```bash
-  sudo ntfslabel <device> <newlabel>
-  ```
+[filesystem](./filesystem.md)
 
 ### Intel xe
 
@@ -1219,12 +1239,12 @@ blacklist <module>
 
 ### 初始化密钥环
 
-一般正常安装 Archlinux 并不需要自己手动初始化密钥环, 某些情况例如 SteamOS 和 Termux 需要手动初始化
-
 ```bash
 pacman-key --init
 pacman-key --populate archlinux
 ```
+
+正常安装 Archlinux 不出意外并不需要自己手动初始化密钥环
 
 ### 多线程下载
 
@@ -1498,7 +1518,6 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | [`lscpu`](#lscpu)         |                                       |
 | `turbostat`               | CPU 温度频率监测                      |
 | `cpupower`                |                                       |
-| `cpu-x`                   |                                       |
 | **硬件控制**              |                                       |
 | `lspci`                   |                                       |
 | `lsusb`                   |                                       |
@@ -1537,11 +1556,13 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `bluetui`                 | Bluetooth TUI                         |
 | `gping`                   | ping TUI                              |
 | `gdu`                     | ping TUI                              |
+| **测试工具**              |                                       |
+| `hdparm`                  | 硬盘信息                              |
+| `cpu-x`                   | CPU 信息监测                          |
 | **GUI 工具**              |                                       |
 | `pavu-control`            | pipewire GUI                          |
 | `qpwgraph`                | 音频控制                              |
 | `mission-center`          | 类 Windows 任务管理器                 |
-| `cpu-x`                   | CPU 信息监测                          |
 | `wev`                     | Wayland 操作事件提示                  |
 | **hack**                  |                                       |
 | [`fcrackzip`](#fcrackzip) | 压缩包破解                            |
