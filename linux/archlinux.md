@@ -1,5 +1,7 @@
 # Arch Linux
 
+@auther hmeqo
+
 > [!NOTE]
 > Github MD页面右上角可以打开目录树
 >
@@ -419,7 +421,7 @@ passwd
 
 #### 3.9 创建用户
 
-推荐方式, 创建用户, 然后一个创建文件到 `/etc/sudoers.d/`, 并添加这段配置 `<username> ALL=(ALL:ALL) ALL` 以允许新用户使用 `sudo`
+创建用户, 然后一个创建文件到 `/etc/sudoers.d/`, 并添加这段配置 `<username> ALL=(ALL:ALL) ALL` 以允许新用户使用 `sudo`
 
 ```bash
 # 创建用户
@@ -587,7 +589,7 @@ timedatectl set-ntp true
 
 #### 安装桌面环境
 
-强烈建议创建一个非root用户再来使用桌面
+强烈建议用非root用户来使用桌面
 
 - KDE
 
@@ -595,11 +597,11 @@ timedatectl set-ntp true
   元包可以自动安装新增/删除依赖, 但无法单独删除其中的软件包,
   包组可自由选择需要的软件包, 如果需要包组则将下面示例的 plasma-meta 修改为 plasma
 
-  kde 官方自带了 sddm (会话管理器), 如果不喜欢也可以自行更换
-  额外软件可以参考 [KDE软件生态](#kde软件生态), 选择你需要的软件
+  元包和包组自带了 sddm (会话管理器), 如果不喜欢也可以自行更换,
+  额外的软件可以参考 [KDE软件生态](#kde软件生态), 选择你需要的软件
 
   ```bash
-  pacman -S plasma-meta dolphin konsole yakuake zen-browser ark filelight
+  pacman -S plasma-meta dolphin konsole yakuake firefox ark filelight
 
   # 然后设置sddm开机自启, 重启电脑后自动显示登录界面
   systemctl enable sddm
@@ -1023,6 +1025,8 @@ swapon /swapfile
 
 ### mkinitcpio的systemd钩子
 
+备注: 新的 arch 系统默认应该是 systemd 了
+
 systemd 钩子可异步加载模块, 开机速度相对 udev 快一些, 可能不支持老旧硬件
 
 mkinitcpio 默认的钩子组合是以udev为主的, 如果需要更换为systemd,
@@ -1030,7 +1034,7 @@ mkinitcpio 默认的钩子组合是以udev为主的, 如果需要更换为system
 (PS: HOOKS上方应该是有注释说明 systemd 配置的示例)
 
 ```conf
-HOOKS=(base systemd autodetect modconf kms keyboard sd-vconsole sd-encrypt block filesystems fsck)
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole sd-encrypt block filesystems fsck)
 ```
 
 ### 休眠
@@ -1178,7 +1182,7 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
 
 文档: <https://wiki.archlinuxcn.org/wiki/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96>
 
-需要注意: 优化选贤之间或与其他程序能不兼容
+需要注意: 优化选项之间或与其他程序可能不能兼容
 
 #### scx-scheds
 
@@ -1293,13 +1297,14 @@ Include = /etc/pacman.d/mirrorlist
 ##### 安装AUR助手
 
 AUR助手帮你省去了上网站搜索AUR包, 克隆仓库手动执行命令的过程, 还能自动更新
-可选的 aur 助手有: [yay](#yay)、[paru](#paru), 使用 aur 助手代替 pacman
+可选的 aur 助手有: [paru](#paru)、[yay](#yay),
+aur 助手兼容 pacman 命令, 日常使用时可用 aur 助手代替 pacman
 
 ##### 手动安装AUR软件包
 
 如果你没有AUR助手, 又需要安装AUR软件包, 可以通过以下步骤安装
 
-首先确认AUR包名, 然后执行以下命令
+首先确认安装了包 `git` 和 `base-devel`, 确认AUR包名, 然后执行以下命令
 
 ```bash
 git clone https://aur.archlinux.org/<包名>.git

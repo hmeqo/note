@@ -58,3 +58,11 @@
 - 优化 hdd
 
   启用 zstd:5 压缩, 启用元数据的dup，如果有双盘可以组raid1，单盘可以用dup (下策)
+
+## SSD
+
+### SSD 优化
+
+```bash
+sudo systemctl enable --now fstrim.timer
+```
