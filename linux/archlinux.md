@@ -91,6 +91,7 @@
       - [scx-scheds](#scx-scheds)
       - [SSD 优化](#ssd-优化)
       - [Ananicy](#ananicy)
+      - [preempt=full](#preemptfull)
     - [操作文件系统](#操作文件系统)
     - [Intel xe](#intel-xe)
     - [modprobe](#modprobe)
@@ -157,10 +158,10 @@
     - [关闭睿频](#关闭睿频)
     - [关闭 Intel 小核](#关闭-intel-小核)
     - [网速测试](#网速测试)
-    - [preempt=full](#preemptfull)
     - [热插拔 pci 设备](#热插拔-pci-设备)
     - [NVIDIA 锁频](#nvidia-锁频)
     - [伪造 uptime](#伪造-uptime)
+    - [允许登录用户访问 hidraw](#允许登录用户访问-hidraw)
   - [Hacker](#hacker)
     - [清除登录记录](#清除登录记录)
   - [Wiki](#wiki)
@@ -437,7 +438,7 @@ passwd <username>
 | 引导方式                        | BIOS 固件 | UEFI 固件 | MBR 分区表 | GPT 分区表 | 说明               |
 | ------------------------------- | --------- | --------- | ---------- | ---------- | ------------------ |
 | [`GRUB`](#grub)                 | 支持      | 支持      | 支持       | 支持       | 不知道选啥就选这个 |
-| [`systemd-boot`](#systemd-boot) | 不支持    | 支持      | 手动       | 支持       | 简单省事           |
+| [`systemd-boot`](#systemd-boot) | 不支持    | 支持      | 手动       | 支持       | 轻量简单省事       |
 | [`rEFInd`](#refind)             | 不支持    | 支持      | 支持       | 支持       | 双系统推荐         |
 | `syslinux`                      | 支持      | 部分支持  | 支持       | 支持       | -                  |
 
@@ -544,6 +545,13 @@ refind-install
 
 - 编辑 `/boot/refind_linux.conf` 配置启动项, 确保其中的内核参数是正确的
 
+  参考示例:
+
+  ```conf
+  "Boot with standard options"    "root=UUID=b438fc00-becf-4a22-8d50-ead76d972028 rw quiet splash resume=UUID=b438fc00-becf-4a22-8d50-ead76d972028 resume_offset=4161536"
+  "Boot with minimal options"     "ro root=UUID=b438fc00-becf-4a22-8d50-ead76d972028"
+  ```
+
 - 配置 refind, `<esp>/EFI/refind/refind.conf`
 
   ```conf
@@ -554,7 +562,7 @@ refind-install
   fold_linux_kernels false
 
   # 填写任何内核变体版本字符串, 以便在 /boot/refind_linux.conf 中的 %v 可以正常工作
-  extra_kernel_version_strings linux-zen,linux-cachyos
+  extra_kernel_version_strings linux-zen,linux-lts
   ```
 
 更多信息可以看 archwiki: <https://wiki.archlinuxcn.org/wiki/REFInd#%E9%85%8D%E7%BD%AE>
@@ -1215,6 +1223,21 @@ sudo systemctl enable --now fstrim.timer
 > [!WARNING]
 > ananicy-cpp 和 gamemode 都会修改游戏进程的 nice, 如果要一起用, 最好只让 ananicy-cpp 或 gamemode 其中一个管理游戏进程的 nice
 
+#### preempt=full
+
+该选项较为激进, 不一定会有好的效果, 默认情况下实时抢占已开启, 但并不是所有情况都会发生抢占, 该选项会无视所有禁止抢占的声明
+
+详情看: <https://www.reddit.com/r/Fedora/comments/158fy6x/comment/l5kwhvv/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button>
+
+在内核参数添加 `preempt=full` 然后重新启动即可启用
+
+判断实时内核是否完全启用, 可通过
+
+```bash
+$ sudo dmesg | grep -i preempt
+Dynamic Preempt: full
+```
+
 ### 操作文件系统
 
 [filesystem](./filesystem.md)
@@ -1326,9 +1349,10 @@ makepkg -si
 
 ```conf
 [archlinuxcn]
-## 北京外国语大学 (北京) (ipv4, ipv6, http, https)
-Server = https://mirrors.bfsu.edu.cn/archlinuxcn/$arch
+Server = https://mirrors.nju.edu.cn/archlinuxcn/$arch
 ```
+
+如遇下载缓慢请尝试更换镜像服务器
 
 > [!TIP]
 > 更多archlinuxcn镜像服务器查看此处 <https://github.com/archlinuxcn/mirrorlist-repo>
@@ -1502,6 +1526,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `ark`                     | 图形化归档/压缩管理                   |
 | **网络**                  |                                       |
 | `curl`                    | http 请求                             |
+| `httpie`                  | http 请求                             |
+| `websocat`                | websocket 请求                        |
 | `ss / netstat`            | 网络状态                              |
 | `nftables`                | 安装 iptables-nft 包即可              |
 | `whois`                   | 域名查询                              |
@@ -1523,6 +1549,10 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | [`lscpu`](#lscpu)         |                                       |
 | `turbostat`               | CPU 温度频率监测                      |
 | `cpupower`                |                                       |
+| **二进制分析**            |                                       |
+| `file`                    |                                       |
+| `readelf`                 |                                       |
+| `binsider`                |                                       |
 | **硬件控制**              |                                       |
 | `lspci`                   |                                       |
 | `lsusb`                   |                                       |
@@ -1575,12 +1605,16 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `cockpit`                 | web UI 系统监控                       |
 | `grafana`                 | web UI 系统监控                       |
 | `drkonqi`                 | 日志查看工具                          |
+| **基础开发工具**          |                                       |
+| `ccache`                  | 编译缓存                              |
+| `sccache`                 | 编译缓存                              |
 | **开发**                  |                                       |
 | `neovide`                 | nvim GUI                              |
 | `sourcegit`               | git GUI                               |
 | `blender`                 | 建模                                  |
 | `aegisub`                 | 字幕编辑                              |
 | **视频**                  |                                       |
+| `ffmpeg`                  | 万金油, 视频图片音频都行              |
 | `mpv`                     | 极简视频播放器                        |
 | `vlc`                     | 视频播放器                            |
 | `kdenlive`                | 视频剪辑                              |
@@ -2465,17 +2499,6 @@ Device Name 可以通过 `vulkaninfo | grep deviceName` 获取
   dd if=/dev/zero | ssh <target_myserver> dd of=/dev/null status=progress
   ```
 
-### preempt=full
-
-判断实时内核是否完全启用, 可通过
-
-```bash
-$ sudo dmesg | grep -i preempt
-Dynamic Preempt: full
-```
-
-如果没有, 在内核参数添加 `preempt=full` 然后重新启动
-
 ### 热插拔 pci 设备
 
 ```bash
@@ -2499,6 +2522,22 @@ sudo nvidia-smi -lgc 2000,400000
 ```bash
 unshare -UT --boottime 36000000 --fork fastfetch
 ```
+
+### 允许登录用户访问 hidraw
+
+在 `/etc/udev/rules.d/72-hidraw-access.rules` 添加如下内容
+
+```conf
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", MODE="0660", TAG+="uaccess"
+```
+
+刷新已有设备权限
+
+```bash
+sudo udevadm trigger
+```
+
+引用自: <https://unix.stackexchange.com/a/797099>
 
 ## Hacker
 
