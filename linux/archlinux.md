@@ -346,18 +346,31 @@ pacman -Sy archlinux-keyring
 
 #### 安装基本软件包
 
+```bash
+pacstrap -K /mnt base base-devel linux-zen linux-zen-headers [linux-firmware] [intel-ucode/amd-ucode] [vi/vim/neovim/msedit/nano] networkmanager git
+```
+
+`base` `base-devel` 基础包, 强烈建议装上
+
 `linux-zen` 是一种性能较好的内核, 可以替换为其他内核, 例如 `linux`、`linux-lts`
 
-`linux-headers` 是内核的头文件, dkms 会用到, 也可以需要时再安装
+`linux-headers` 是内核的头文件, dkms 和部分包会用到, 也可以等需要时再安装, 注意包名需要和内核匹配 (内核包名 + '-headers' 后缀)
 
-根据 CPU 选择安装 `intel-ucode` (Intel CPU) 或 `amd-ucode` (Amd CPU)
-这个安装项是可选的, 如果装不了可以不用管
+`linux-firmware` 是硬件需要的固件, 此包包含了所有常见固件, 可能会有你不需要的
+  
+  如果需要最小安装, 搜索 linux-firmware, 按需选择安装即可, 例如
 
-`vi/vim/neovim` 是一种常用的终端文件编辑器, 不会用可以装 `nano`
+  `linux-firmware-intel` 对于 intel 设备 (CPU, GPU)  
+  `linux-realtek` 对于 Realtek 的声卡/网卡等  
+  `linux-nvidia` nvidia 设备  
+  etc.
 
-```bash
-pacstrap -K /mnt base base-devel linux-zen linux-zen-headers linux-firmware [intel-ucode/amd-ucode] [vi/vim/neovim/nano] networkmanager git
-```
+`ucode` 根据 CPU 选择安装对应的 CPU 微码, 这一般包含了最新的安全补丁和更好的性能, 虚拟机不需要此包
+
+  `intel-ucode` Intel CPU  
+  `amd-ucode` Amd CPU
+
+`vi/vim/neovim` 是一种主流的终端文件编辑器, 不会用可以先装 `msedit` (微软推出的终端文件编辑器) / `nano`
 
 ### 3. 配置系统
 
