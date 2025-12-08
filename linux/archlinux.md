@@ -352,9 +352,9 @@ pacstrap -K /mnt base base-devel linux-zen linux-zen-headers [linux-firmware] [i
 
 `base` `base-devel` 基础包, 强烈建议装上
 
-`linux-zen` 是一种性能较好的内核, 可以替换为其他内核, 例如 `linux`、`linux-lts`
+`linux-zen` 是一种专门对桌面用户调优的内核, 你也可以替换为其他内核, 例如 `linux`、`linux-lts`
 
-`linux-headers` 是内核的头文件, dkms 和部分包会用到, 也可以等需要时再安装, 注意包名需要和内核匹配 (内核包名 + '-headers' 后缀)
+`linux-zen-headers` 是zen内核的头文件, dkms 和部分包会用到, 也可以等需要时再安装, 注意包名需要和内核匹配 (内核包名 + '-headers' 后缀)
 
 `linux-firmware` 是硬件需要的固件, 此包包含了所有常见固件, 可能会有你不需要的
   
