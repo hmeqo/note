@@ -1,7 +1,5 @@
 # Arch Linux
 
-@auther hmeqo
-
 > [!NOTE]
 > Github MD页面右上角可以打开目录树
 >
@@ -96,17 +94,19 @@
     - [Intel xe](#intel-xe)
     - [modprobe](#modprobe)
       - [禁用模块](#禁用模块)
+    - [sysctl](#sysctl)
+      - [kernel.sysrq](#kernelsysrq)
   - [pacman](#pacman)
     - [初始化密钥环](#初始化密钥环)
     - [多线程下载](#多线程下载)
     - [颜色](#颜色)
-    - [pacman的其他软件仓库](#pacman的其他软件仓库)
-      - [multilib软件仓库](#multilib软件仓库)
+    - [更多的软件仓库](#更多的软件仓库)
+      - [multilib 软件仓库](#multilib-软件仓库)
       - [Arch 用户软件仓库 (AUR)](#arch-用户软件仓库-aur)
         - [安装AUR助手](#安装aur助手)
         - [手动安装AUR软件包](#手动安装aur软件包)
       - [Chaotic-AUR](#chaotic-aur)
-      - [archlinuxcn软件仓库](#archlinuxcn软件仓库)
+      - [archlinuxcn 软件仓库](#archlinuxcn-软件仓库)
       - [ALHP](#alhp)
       - [CachyOS](#cachyos)
       - [Arch4edu](#arch4edu)
@@ -129,7 +129,6 @@
     - [openssl](#openssl)
     - [awk](#awk)
     - [samba](#samba)
-    - [httping](#httping)
     - [lscpu](#lscpu)
     - [reflector](#reflector)
     - [fcrackzip](#fcrackzip)
@@ -1155,17 +1154,15 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
 
   ```bash
   [zram0]
-  # zstd 压缩比一般在 2:1 3:1, 最佳设置为内存的 1-2 倍, 需求小则 0.25-0.5
-  zram-size = ram / 2
-  compression-algorithm = zstd
+  zram-size = min(ram / 2, 16384)
+  compression-algorithm = lzo-rle zstd(level=3) (type=idle)
   ```
 
   编辑 `/etc/sysctl.d/99-zram.conf`, 添加如下内容:
 
   ```bash
-  # 建议大于等于 150
-  vm.swappiness = 150
-  # 可选
+  vm.swappiness = 180
+
   vm.watermark_boost_factor = 0
   vm.watermark_scale_factor = 125
   vm.page-cluster = 0
@@ -1207,7 +1204,37 @@ zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存�
 
 #### scx-scheds
 
-文档: <https://wiki.archlinuxcn.org/wiki/Scx-scheds>
+安装
+
+```bash
+sudo pacman -S scx-scheds scx-tools
+```
+
+编辑配置文件 `/etc/scx_loader.toml`
+
+```toml
+default_sched = "scx_rustland"
+default_mode = "Auto" # Auto, Gaming, LowLatency, PowerSave
+```
+
+最后启动服务即可 `sudo systemctl enable --now scx_loader.service`
+
+可用的调度器: <https://wiki.cachyos.org/configuration/sched-ext/>
+
+cli
+
+- 当前调度器和模式
+
+  ```bash
+  scxctl get
+  ```
+
+- 设置调度器和模式
+
+  ```bash
+  sudo scxctl switch -s <调度器> -m <模式>
+  # sudo scxctl switch -s rustland -m gaming # auto, gaming, lowlatency, powersave
+  ```
 
 #### SSD 优化
 
@@ -1272,6 +1299,25 @@ blacklist <module>
 # blacklist 0000:01:00.0
 ```
 
+### sysctl
+
+#### kernel.sysrq
+
+- 0 - disable sysrq completely
+
+- 1 - enable all functions of sysrq
+
+- \>1 - bitmask of allowed sysrq functions (see below for detailed function description)
+
+    2 =   0x2 - enable control of console logging level
+    4 =   0x4 - enable control of keyboard (SAK, unraw)
+    8 =   0x8 - enable debugging dumps of processes etc.
+   16 =  0x10 - enable sync command
+   32 =  0x20 - enable remount read-only
+   64 =  0x40 - enable signalling of processes (term, kill, oom-kill)
+  128 =  0x80 - allow reboot/poweroff
+  256 = 0x100 - allow nicing of all RT tasks
+
 ## pacman
 
 配置文件路径: `/etc/pacman.conf`
@@ -1311,11 +1357,11 @@ Color
 ...
 ```
 
-### pacman的其他软件仓库
+### 更多的软件仓库
 
-#### multilib软件仓库
+#### multilib 软件仓库
 
-安装Steam或其他32位软件包需要此软件源, 在 pacman 配置文件中取消注释 multilib 部分
+安装Steam或其他32位软件包需要此软件仓库, 在 pacman 配置文件中取消注释 multilib 部分
 
 ```conf
 [multilib]
@@ -1350,11 +1396,11 @@ makepkg -si
 
 #### Chaotic-AUR
 
-包含许多预编 AUR 软件包的仓库
+包含许多预编译的 AUR 软件包的仓库
 
 文档: <https://aur.chaotic.cx/docs>
 
-#### archlinuxcn软件仓库
+#### archlinuxcn 软件仓库
 
 > Arch Linux 中文社区仓库是由 Arch Linux 中文社区驱动的非官方软件仓库，包含许多官方仓库未提供的额外的软件包，以及已有软件的 git 版本等变种。一部分软件包的打包脚本来源于 AUR，但也有许多包与 AUR 不一样。
 
@@ -1362,6 +1408,7 @@ makepkg -si
 
 ```conf
 [archlinuxcn]
+## 南京大学 (江苏南京) (ipv4, ipv6, http, https)
 Server = https://mirrors.nju.edu.cn/archlinuxcn/$arch
 ```
 
@@ -1426,7 +1473,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | 常用命令                        | 描述                                                              |
 | ------------------------------- | ----------------------------------------------------------------- |
 | **通用**                        |                                                                   |
-| `pacman -Syu`                   | 更新数据库(y)和软件包(u)                                          |
+| `pacman -Syu`                   | 更新软件数据库(y)和软件包(u)                                      |
 | `pacman -S <软件包>`            | 安装软件包                                                        |
 | `pacman -Ss <regex>`            | 搜索软件包(s)                                                     |
 | `pacman -Si <软件包>`           | 查看软件包信息(i)                                                 |
@@ -1488,6 +1535,10 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | [`paru`](#paru)           | Aur 助手                              |
 | `debtap`                  | deb 包转 pacman 包                    |
 | `pacui`                   | TUI                                   |
+| **系统信息**              |                                       |
+| `fastfetch`               |                                       |
+| `uwufetch`                |                                       |
+| `inxi`                    |                                       |
 | **Shell**                 |                                       |
 | `zsh`                     | shell                                 |
 | `fish`                    | shell                                 |
@@ -1541,6 +1592,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `curl`                    | http 请求                             |
 | `httpie`                  | http 请求                             |
 | `websocat`                | websocket 请求                        |
+| `netcat`                  |                                       |
 | `ss / netstat`            | 网络状态                              |
 | `nftables`                | 安装 iptables-nft 包即可              |
 | `whois`                   | 域名查询                              |
@@ -1556,7 +1608,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `wireshark`               | 网络分析工具                          |
 | [`samba`](#samba)         | 文件共享                              |
 | `rustscan`                | 端口扫描                              |
-| [`httping`](#httping)     | http ping                             |
+| `httping`                 | http ping                             |
 | `somo`                    | 查看进程端口                          |
 | **CPU**                   |                                       |
 | [`lscpu`](#lscpu)         |                                       |
@@ -1691,6 +1743,7 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 | `frpc / frps`             | 内网穿透                              |
 | `npc / nps`               | 内网穿透                              |
 | [`zerotier`](#zerotier)   | VPN                                   |
+| `easytier`                | VPN                                   |
 | [`tailscale`](#tailscale) | VPN                                   |
 | [`sunshine`](#sunshine)   | 串流服务端                            |
 | [`moonlight`](#moonlight) | 串流客户端                            |
@@ -1785,18 +1838,18 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 
 替代品通常有更好的性能和更多的特性
 
-| 工具       | 替代           | 相似    |
-| ---------- | -------------- | ------- |
-| `grep`     | `rg`           |         |
-| `find`     | `fd`           |         |
-| `cd`       | `zoxide`       |         |
-| `ls`       | `eza`          |         |
-| `cat`      | `bat`          |         |
-| `du`       | `dust`         | `gdu`   |
-| `df`       | `duf`          |         |
-| `ping`     |                | `gping` |
-| `iptables` | `iptables-nft` |         |
-| `zlib`     | `zlib-ng`      |         |
+| 工具       | 替代           | 相似              |
+| ---------- | -------------- | ----------------- |
+| `grep`     | `rg`           |                   |
+| `find`     | `fd`           |                   |
+| `cd`       | `zoxide`       |                   |
+| `ls`       | `eza`          |                   |
+| `cat`      | `bat`          |                   |
+| `du`       | `dust`         | `gdu`             |
+| `df`       | `duf`          |                   |
+| `ping`     |                | `gping` `httping` |
+| `iptables` | `iptables-nft` |                   |
+| `zlib`     | `zlib-ng`      |                   |
 
 ### yay
 
@@ -1988,12 +2041,6 @@ Host *
 - 用户共享文件
 
   请看Wiki: <https://wiki.archlinuxcn.org/wiki/Samba#%E5%90%AF%E7%94%A8_Usershare>
-
-### httping
-
-```bash
-httping xxx -i 1 -G
-```
 
 ### lscpu
 
