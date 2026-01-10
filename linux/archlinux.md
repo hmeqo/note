@@ -1080,10 +1080,6 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole sd-enc
 
   systemd 钩子自带 resume, 不需要手动添加
 
-  ```conf
-  HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole sd-encrypt block filesystems fsck)
-  ```
-
 - 对于 udev
 
   将 `resume` 添加到 udev 之后, 可参考以下示例中的位置
@@ -1320,18 +1316,18 @@ blacklist <module>
 
 - \>1 - bitmask of allowed sysrq functions (see below for detailed function description)
 
-    2 =   0x2 - enable control of console logging level
-    4 =   0x4 - enable control of keyboard (SAK, unraw)
-    8 =   0x8 - enable debugging dumps of processes etc.
-   16 =  0x10 - enable sync command
-   32 =  0x20 - enable remount read-only
-   64 =  0x40 - enable signalling of processes (term, kill, oom-kill)
-  128 =  0x80 - allow reboot/poweroff
+    2 =   0x2 - enable control of console logging level  
+    4 =   0x4 - enable control of keyboard (SAK, unraw)  
+    8 =   0x8 - enable debugging dumps of processes etc.  
+   16 =  0x10 - enable sync command  
+   32 =  0x20 - enable remount read-only  
+   64 =  0x40 - enable signalling of processes (term, kill, oom-kill)  
+  128 =  0x80 - allow reboot/poweroff  
   256 = 0x100 - allow nicing of all RT tasks
 
 ## pacman
 
-配置文件路径: `/etc/pacman.conf`
+配置文件路径: `/etc/pacman.conf`  
 镜像服务器列表路径: `/etc/pacman.d/mirrorlist`
 
 ### 初始化密钥环
