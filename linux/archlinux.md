@@ -37,7 +37,7 @@
       - [3.6 初始化配置](#36-初始化配置)
       - [3.7 更改 root 密码](#37-更改-root-密码)
       - [3.8 网络管理器](#38-网络管理器)
-      - [3.9 创建用户](#39-创建用户)
+      - [3.9 创建新用户](#39-创建新用户)
       - [3.10 开机引导](#310-开机引导)
         - [GRUB](#grub)
           - [安装GRUB](#安装grub)
@@ -174,20 +174,20 @@
 可以配合官网步骤食用: <https://wiki.archlinux.org/title/Installation_guide>
 
 > [!NOTE]
-> 某些特殊符号, 例如 \<xxx\> 代表根据实际情况填写的必填项, \[xxx\] 代表可选项, 请根据上下文自行判断
-> 配置文件或语言通常会出现以 `#` (常见) 或 `//` 之类的字符开头的行, 这表示这行是注释, 不会被读取, 本文需要你了解这个概念
+> 某些特殊符号, 例如 `<xxx>` 代表根据实际情况填写的必填项, `[xxx]` 代表可选项, 请根据上下文自行判断  
+> 配置文件或编程语言通常会出现以 `#` (常见) 或 `//` 之类的字符开头的行, 这表示这行是注释, 不会被读取, 本文需要你了解这个概念
 
 > [!WARNING]
-> 如果你是第一次安装 Arch, 请全程自行手动操作, 不要使用 archinstall 逃课
-> 如果你不熟悉 GNU/Linux, 建议先到其他有图形化安装的发行版 (Manjaro, Linux Mint, Ubuntu 等), 熟悉后再尝试 Arch
+> 如果你是第一次安装 Arch, 请全程自行手动操作, 不要使用 archinstall 逃课  
+> 如果你不熟悉 GNU/Linux, 建议先到其他有图形化安装的发行版 (Manjaro, Linux Mint, Ubuntu 等), 熟悉后再尝试 Arch  
 > 如果你想用 Arch 作为第一个 GNU/Linux 发行版, 建议在身边有人传教的情况下尝试
 >
-> Arch Linux 安装过程没有图形界面, 所有编辑操作都是在终端
+> Arch Linux 安装过程没有图形界面, 所有编辑操作都是在终端  
 > 本文默认你能使用任何一种终端编辑器 (如 vim, nano, msedit), 不会用请自行学习后再来 (新手可以用 msedit 或 nano)
 
 ### 视频教程
 
-BiliBili: <https://www.bilibili.com/video/BV1J34y1f74E>
+BiliBili: <https://www.bilibili.com/video/BV1J34y1f74E>  
 BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 > [!WARNING]
@@ -239,9 +239,10 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 几种主要的分区方案:
 
 - 一个EFI分区(对于UEFI引导) + 一个Linux文件系统分区 + 一个swap分区(可选)
+
 - 一个EFI分区(对于UEFI引导) + 一个home目录分区 + 一个Linux文件系统分区 + 一个swap分区(可选)
 
-如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB
+如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB  
 Windows/Linux 双系统本身已经有 EFI 分区了, 可以选择和 Windows 共用, 或者已经有了 EFI 分区, 只需要把原来的 EFI 分区扩容到推荐大小即可
 
 如果你要分配swap分区, 那么不推荐排在前面, 放后面的话如果需要修改会比较方便, 对于swap分区/文件要分多大, 可以参考这里 [swap大小建议](#swap大小建议)
@@ -267,7 +268,7 @@ Windows/Linux 双系统本身已经有 EFI 分区了, 可以选择和 Windows �
 `cfdisk` 编辑完之后记得 `Write`, 否则你的更改不会生效
 
 > [!WARNING]
-> 请勿对已经存在的分区使用 `cfdisk` 进行二次分区, 会导致分区损坏
+> 请勿对已经存在的分区使用 `cfdisk` 进行二次分区, 会导致分区损坏  
 > ntfs文件系统分区建议使用Windows自带的分区程序或PE提前分一块未分配区域
 
 ##### 格式化分区
@@ -319,7 +320,7 @@ Windows/Linux 双系统本身已经有 EFI 分区了, 可以选择和 Windows �
   ```
 
 > [!NOTE]
-> 如果你要创建swapfile, 挂载完 `/mnt` 就可以创建了, 创建到 `/mnt/swapfile`, [创建swapfile](#创建swapfile)
+> 如果你要创建swapfile, 挂载完 `/mnt` 就可以创建了, 创建到 `/mnt/swapfile`, [创建swapfile](#创建swapfile)  
 > 如果你提前创建了, `swapoff` 之后移动swapfile到 `/mnt` 下然后 `swapon` 即可
 
 ### 2. 安装
@@ -434,9 +435,7 @@ passwd
 
 `pacman` 安装 `networkmanager`, 然后 `systemctl enable NetworkManager` 设置开机启动
 
-#### 3.9 创建用户
-
-创建用户
+#### 3.9 创建新用户
 
 ```bash
 # 创建用户
@@ -445,7 +444,7 @@ useradd -m <username>
 passwd <username>
 ```
 
-然后配置让新用户可以使用 `sudo`
+然后配置 `sudo` 权限, 让新用户可以使用 `sudo`
 
 - 方法一 (首选):
 
@@ -475,7 +474,7 @@ passwd <username>
 
 ###### 安装GRUB
 
-`efibootmgr` 是 UEFI 启动方式的依赖, 如果是 BIOS 启动可以不用安装
+`efibootmgr` 是 UEFI 启动方式的依赖, 如果是 BIOS 启动可以不用安装  
 `os-prober` 是安装双系统推荐一并安装的依赖, 能够自动检测其他操作系统的 UEFI 启动项, 非双系统可以不安装
 
 ```bash
@@ -562,7 +561,7 @@ refind-install
 ```
 
 > [!WARNING]
-> 当 refind-install 运行在chroot环境下 (例如：安装Arch Linux时的live环境) /boot/refind_linux.conf 内将会添加live系统的内核选项，而不是安装它的系统。
+> 当 refind-install 运行在chroot环境下 (例如：安装Arch Linux时的live环境) /boot/refind_linux.conf 内将会添加live系统的内核选项，而不是安装它的系统。  
 > 编辑 /boot/refind_linux.conf 并确保其中的 内核参数 对于你的系统是正确的，否则下次启动可能会出现内核错误。
 
 配置:
@@ -625,11 +624,11 @@ timedatectl set-ntp true
 
 - KDE
 
-  plasma 可以选择安装 plasma-meta (元包), plasma (包组), plasma-desktop (最小安装),
-  元包可以自动安装新增/删除依赖, 但无法单独删除其中的软件包,
+  plasma 可以选择安装 plasma-meta (元包), plasma (包组), plasma-desktop (最小安装),  
+  元包可以自动安装新增/删除依赖, 但无法单独删除其中的软件包,  
   包组可自由选择需要的软件包, 如果需要包组则将下面示例的 plasma-meta 修改为 plasma
 
-  元包和包组自带了 sddm (会话管理器), 如果不喜欢也可以自行更换,
+  元包和包组包含了 sddm (会话管理器), 如果不喜欢也可以自行更换,  
   额外的软件可以参考 [KDE软件生态](#kde软件生态), 选择你需要的软件
 
   ```bash
@@ -662,8 +661,7 @@ timedatectl set-ntp true
 
   - 官方驱动
 
-    NVIDIA 官方提供了闭源和开源两种内核驱动, 分别是 `nvidia` 和 `nvidia-open`
-    nvidia-utils 中包含了 vulkan 驱动
+    NVIDIA 官方提供了闭源和开源两种内核驱动, 分别是 `nvidia` 和 `nvidia-open`  
 
     可以安装 `nvidia-open` 的显卡优先安装 `nvidia-open`, 显卡兼容情况看这里 <https://github.com/NVIDIA/open-gpu-kernel-modules?tab=readme-ov-file#compatible-gpus>
 
@@ -898,7 +896,7 @@ Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有�
 
   - 桌面环境适配
 
-    然后你应该能在桌面环境编辑 .desktop 的属性时看到使用独立显卡的选项
+    然后你应该能在桌面环境编辑 .desktop 的属性时看到使用独立显卡的选项  
     或者在 .desktop 的 [Desktop Entry] 中添加以下内容
 
     ```desktop
@@ -947,16 +945,16 @@ archwiki: <https://wiki.archlinuxcn.org/wiki/Fstab>
 - `<file system>` 文件系统, 填写 `UUID=xxx`, 或者 `/dev/xxx`
 - `<dir>` 挂载点, 对于 swap 或没有挂载点的分区, 填 `none`
 - `<type>` 分区类型
-- `<options>` 挂载选项
+- `<options>` 挂载选项  
   可选值(可多选, 用 `,` 分隔):
   - `defaults`: 默认
-- `<dump>` 备份
-  此选项广泛用于 ext2/3 文件系统和磁带备份, 如今, 由于更新的文件系统和实用程序, 它已经过时了, 填 `0` 即可
+- `<dump>` 备份  
+  此选项广泛用于 ext2/3 文件系统和磁带备份, 如今, 由于更新的文件系统和实用程序, 它已经过时了, 填 `0` 即可  
   可选值:
   - `0`: 不备份
   - `1`: 备份
-- `<pass>` 系统启动后通过`fsck`检查
-  通常给根分区设置`1`其余分区设置`2`或`0`
+- `<pass>` 系统启动后通过`fsck`检查  
+  通常给根分区设置`1`其余分区设置`2`或`0`  
   可选值:
   - `0`: 不检查
   - `1`: 检查
@@ -1063,6 +1061,7 @@ systemd 钩子可异步加载模块, 开机速度相对 udev 快一些, 可能�
 
 mkinitcpio 默认的钩子组合是以udev为主的, 如果需要更换为systemd,
 编辑 `/etc/mkinitcpio.conf`, 找到 HOOKS 配置项, 并替换为以下内容
+
 (PS: HOOKS上方应该是有注释说明 systemd 配置的示例)
 
 ```conf
@@ -1077,20 +1076,20 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole sd-enc
 
 有两种情况
 
-- 对于 udev
-
-  将 `resume` 添加到 udev 之后, 可参考以下示例中的位置
-
-  ```conf
-  HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems resume fsck)
-  ```
-
 - 对于 systemd
 
   systemd 钩子自带 resume, 不需要手动添加
 
   ```conf
   HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole sd-encrypt block filesystems fsck)
+  ```
+
+- 对于 udev
+
+  将 `resume` 添加到 udev 之后, 可参考以下示例中的位置
+
+  ```conf
+  HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems resume fsck)
   ```
 
 编辑完成后执行 `sudo mkinitcpio -P`
@@ -1150,7 +1149,7 @@ sudo systemctl enable --now linux-modules-cleanup
 
 ### zram
 
-zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存空间
+zram 在内存上创建压缩块设备, 通过压缩内存节省更多的内存空间  
 利用 zram-generator 和 systemd-zram-generator 可以轻松创建 zram
 
 - 安装
@@ -1391,6 +1390,7 @@ Include = /etc/pacman.d/mirrorlist
 ##### 安装AUR助手
 
 AUR助手帮你省去了上网站搜索AUR包, 克隆仓库手动执行命令的过程, 还能自动更新
+
 可选的 aur 助手有: [paru](#paru)、[yay](#yay),
 aur 助手兼容 pacman 命令, 日常使用时可用 aur 助手代替 pacman
 
@@ -2717,7 +2717,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 - `EFI`
 
-  EFI 分区目录, 如果你把 EFI 分区挂载到了 `/boot`, 那么你可以在 `/boot/EFI` 中找到启动项
+  EFI 分区目录, 如果你把 EFI 分区挂载到了 `/boot`, 那么你可以在 `/boot/EFI` 中找到启动项  
   如果你的 EFI 挂载点是 `/`, 那么对应的 EFI 目录则是 `/EFI`
 
 ### WINE/PROTON 运行 Windows 应用/游戏
@@ -2726,8 +2726,8 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 - Wine
 
-  - 是什么: Wine 是一个开源兼容层, 允许在类 Unix 操作系统 (如 Linux、macOS) 上运行设计为在 Microsoft Windows 上运行的应用程序 (特别是那些使用 Win32 API 的应用程序)
-    其原理是重写了 Windows 的 dll
+  - 是什么: Wine 是一个开源兼容层, 允许在类 Unix 操作系统 (如 Linux、macOS) 上运行设计为在 Microsoft Windows 上运行的应用程序 (特别是那些使用 Win32 API 的应用程序)  
+    其原理是重写了 Windows 所有的 dll, 将对 Windows 的 API 调用转换为 Linux 的 API 调用
 
 - DXVK
 
@@ -2739,7 +2739,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 - Proton
 
-  - 是什么: Proton 是 Valve 为其数字发行平台 Steam 开发的一个开源工具, 基于 Wine, 但专门为运行 Windows 游戏进行了优化
+  - 是什么: Proton 是 Valve 为其数字发行平台 Steam 开发的一个开源工具, 基于 Wine, 但专门为运行 Windows 游戏进行了优化  
     Proton 整合了 DXVK, VKD3D 等一系列工具, Valve 对 Proton 的更改都会回馈到上游 (Wine, DXVK, VKD3D 等), Proton 极大促进了 Linux 游戏/软件生态的发展
   - 与 Wine 的关系: Proton 构建于 Wine 之上, 使用 Wine 的代码库作为其核心, 并添加了 Valve 自己的补丁、优化和额外功能, 以提高游戏的兼容性和性能
 
@@ -2753,7 +2753,7 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 
 - UMU-Launcher
 
-  由于 Proton 是专门为 Steam 游戏开发的, 在 Wine9.0 之前, 一般建议用 Wine-GE 运行非 Steam 游戏/应用, Proton-GE 运行 Steam 游戏
+  由于 Proton 是专门为 Steam 游戏开发的, 在 Wine9.0 之前, 一般建议用 Wine-GE 运行非 Steam 游戏/应用, Proton-GE 运行 Steam 游戏  
   但在 9.0 之后, GE 作者不再分发 Wine-GE 版本, 转而开发了 UMU-Launcher, 用 Proton-GE 运行非 Steam 游戏/应用
 
 - GPTK (Game Porting Toolkit)
@@ -2761,8 +2761,8 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
   Apple 为 macOS 开发的基于 Wine 的游戏兼容层
 
 > [!NOTE]
-> Proton 能够以高性能运行 Windows 游戏, 主要功劳在于 DXVK 和 VKD3D
-> 各种利用 Wine 运行 Windows 游戏的启动器都默认帮你配好了 DXVK, VKD3D 等工具, 其游戏性能和 Proton 无太大区别
+> Proton 能够以高性能运行 Windows 游戏, 主要功劳在于 DXVK 和 VKD3D  
+> 各种利用 Wine 运行 Windows 游戏的启动器都默认帮你配好了 DXVK, VKD3D 等工具, 其游戏性能和 Proton 不会有太大区别
 
 #### WINE/PROTON GUI 启动器
 
