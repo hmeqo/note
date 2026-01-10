@@ -57,7 +57,7 @@
       - [Vulkan](#vulkan)
     - [视频驱动](#视频驱动)
       - [VA-API 视频加速](#va-api-视频加速)
-    - [Intel VPL](#intel-vpl)
+      - [Intel VPL](#intel-vpl)
       - [Nvidia VDPAU](#nvidia-vdpau)
       - [OpenCL](#opencl)
     - [音频驱动](#音频驱动)
@@ -175,6 +175,7 @@
 
 > [!NOTE]
 > 某些特殊符号, 例如 \<xxx\> 代表根据实际情况填写的必填项, \[xxx\] 代表可选项, 请根据上下文自行判断
+> 配置文件或语言通常会出现以 `#` (常见) 或 `//` 之类的字符开头的行, 这表示这行是注释, 不会被读取, 本文需要你了解这个概念
 
 > [!WARNING]
 > 如果你是第一次安装 Arch, 请全程自行手动操作, 不要使用 archinstall 逃课
@@ -182,7 +183,7 @@
 > 如果你想用 Arch 作为第一个 GNU/Linux 发行版, 建议在身边有人传教的情况下尝试
 >
 > Arch Linux 安装过程没有图形界面, 所有编辑操作都是在终端
-> 本文默认你能使用任何一种终端编辑器 (如 vim, nano), 不会用请自行学习后再来 (新手可以用 nano)
+> 本文默认你能使用任何一种终端编辑器 (如 vim, nano, msedit), 不会用请自行学习后再来 (新手可以用 msedit 或 nano)
 
 ### 视频教程
 
@@ -220,59 +221,60 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 `ip link` 可以查看网络设备, 确保你的网络设备有被列出
 
-`rfkill` 或者 `rfkill list` 查询网卡列表
-如果网卡被禁用(SOFT blocked)可以使用 `rfkill unblock <device>` 解锁设备
+`rfkill` 或者 `rfkill list` 查询网卡列表  
+如果网卡被禁用(SOFT blocked)可以使用 `rfkill unblock <device>` 解锁设备  
 如果 WIFI 未启用(HARD blocked), 使用 `ip link set <device> up` 启用设备
 
-通过 `iwctl` 命令进入交互式环境配对设备
-使用 `station <device> scan` 扫描可用 WIFI
-使用 `station <device> get-networks` 列出可用 WIFI
-使用 `station <device> connect <SSID>` 连接 WIFI
-完成后按 `ctrl+d` 或输入 `exit` 即可退出, `ctrl+d` 算是 linux 下 cli 的通用退出快捷键了
+通过 `iwctl` 命令进入交互式环境配对设备  
+使用 `station <device> scan` 扫描可用 WIFI  
+使用 `station <device> get-networks` 列出可用 WIFI  
+使用 `station <device> connect <SSID>` 连接 WIFI  
+完成后按 `ctrl+d` 或输入 `exit` 即可退出, `ctrl+d` 是 Linux 下 cli 的通用退出快捷键
 
-安装完系统之后, 如果装了 `networkmanager` 可以用 `nmtui`、`nmcli` 连接 WIFI, archiso环境中用的是 `iwd`, 所以命令不同
+> [!NOTE]
+> 安装完系统之后, 如果装了 `networkmanager` 可以用 `nmtui`、`nmcli` 连接 WIFI, archiso环境中用的是 `iwd`, 所以命令不同
 
 #### 分区
 
-##### 创建分区
-
-可以用 `lsblk`、`lsblk -f`、`fdisk -l` 检查电脑中可用的硬盘
-
-推荐使用 `cfdisk` 进行分区, `cfdist` 主界面可以按 h 查看帮助, 按 n 可以新建分区
-
-> [!WARNING]
-> 请勿对已经存在的分区使用 `cfdisk` 进行二次分区, 会导致分区损坏
-> ntfs文件系统分区建议使用Windows自带的分区程序或PE提前分一块未分配区域
-
 几种主要的分区方案:
 
-- 一个EFI分区(建议. 对于UEFI) + 一个Linux文件系统分区(必须) + 一个swap分区(可选)
-- 一个EFI分区(建议. 对于UEFI) + 一个Linux文件系统分区(必须) + 一个swap分区(可选) + 一个home目录分区(可选)
+- 一个EFI分区(对于UEFI引导) + 一个Linux文件系统分区 + 一个swap分区(可选)
+- 一个EFI分区(对于UEFI引导) + 一个home目录分区 + 一个Linux文件系统分区 + 一个swap分区(可选)
 
 如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB
-Windows/Linux 双系统本身已经有 EFI 分区了, 可以选择和 Windows 共用, 只需要把原来的 EFI 分区扩容到推荐大小即可
+Windows/Linux 双系统本身已经有 EFI 分区了, 可以选择和 Windows 共用, 或者已经有了 EFI 分区, 只需要把原来的 EFI 分区扩容到推荐大小即可
 
-swap分区不推荐放第一个, 放后面的话以后如果需要修改比较方便, 对于swap分区/文件要分多大, 可以参考这里 [swap大小建议](#swap大小建议)
+如果你要分配swap分区, 那么不推荐排在前面, 放后面的话如果需要修改会比较方便, 对于swap分区/文件要分多大, 可以参考这里 [swap大小建议](#swap大小建议)
 
 > [!NOTE]
-> 也可以使用swapfile而非swap分区, 这样可以动态分配swap的大小, 无需调整分区, 可以等挂载完分区后再创建, [创建swapfile](#创建swapfile)
+> 也可以使用swapfile而非swap分区, 这样可以动态分配swap的大小, 无需调整分区, 可以等挂载完分区后再创建, [创建swapfile](#创建swapfile)  
 > 在Arch安装过程中(非arch-chroot下), 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
 
-然后对照下表设置分区的类型
+##### 创建分区
 
-| 分区          | 类型             |
+如需查看当前硬盘和分区情况, 可以用 `lsblk -f` (常用) 或 `fdisk -l`
+
+推荐使用 `cfdisk` 进行分区, 例如 `cfdisk /dev/nvme0n1`, `cfdist` 主界面可以按 h 查看帮助, 按 n 可以新建分区
+
+需要确保分区类型和以下表格对应
+
+| 分区          | 类型 (Type)      |
 | ------------- | ---------------- |
-| efi           | EFI System       |
+| EFI           | EFI System       |
 | Linux文件系统 | Linux Filesystem |
 | swap          | Linux swap       |
 
 `cfdisk` 编辑完之后记得 `Write`, 否则你的更改不会生效
 
+> [!WARNING]
+> 请勿对已经存在的分区使用 `cfdisk` 进行二次分区, 会导致分区损坏
+> ntfs文件系统分区建议使用Windows自带的分区程序或PE提前分一块未分配区域
+
 ##### 格式化分区
 
 创建完分区之后, 需要格式化分区
 
-- 对于 EFI 分区 (如果是安装双系统, 选择和 Windows 共用同一个 EFI 分区, 跳过这一步)
+- 对于 EFI 分区 (如果是安装双系统, 选择和 Windows 共用同一个 EFI 分区, 或者已经有了 EFI 分区, 跳过这一步)
 
   ```bash
   mkfs.fat -F 32 /dev/efi_system_partition
@@ -360,8 +362,8 @@ pacstrap -K /mnt base base-devel linux-zen linux-zen-headers [linux-firmware] [i
   如果需要最小安装, 搜索 linux-firmware, 按需选择安装即可, 例如
 
   `linux-firmware-intel` 对于 intel 设备 (CPU, GPU)  
-  `linux-realtek` 对于 Realtek 的声卡/网卡等  
-  `linux-nvidia` nvidia 设备  
+  `linux-firmware-realtek` 对于 Realtek 的声卡/网卡等  
+  `linux-firmware-nvidia` nvidia 设备  
   etc.
 
 `ucode` 根据 CPU 选择安装对应的 CPU 微码, 这一般包含了最新的安全补丁和更好的性能, 虚拟机不需要此包
@@ -388,7 +390,7 @@ arch-chroot /mnt
 #### 3.3 设置时区
 
 ```bash
-# 复制时区文件
+# 复制时区文件, 可以用 Tab 补全查看可用的时区, 例如 `Asia/Shanghai`
 ln -sf /usr/share/zoneinfo/<Region>/<City> /etc/localtime
 # 生成 /etc/adjtime
 hwclock --systohc
@@ -396,7 +398,7 @@ hwclock --systohc
 
 #### 3.4 设置地区
 
-编辑 `/etc/locale.gen`, 取消注释需要的地区, 然后运行
+编辑 `/etc/locale.gen`, 搜索并取消注释 (删除行首的 `#`) 需要的地区, 例如 `en_US.UTF-8`, 然后运行
 
 ```bash
 locale-gen
@@ -434,7 +436,7 @@ passwd
 
 #### 3.9 创建用户
 
-创建用户, 然后一个创建文件到 `/etc/sudoers.d/`, 并添加这段配置 `<username> ALL=(ALL:ALL) ALL` 以允许新用户使用 `sudo`
+创建用户
 
 ```bash
 # 创建用户
@@ -442,6 +444,16 @@ useradd -m <username>
 # 设置密码
 passwd <username>
 ```
+
+然后配置让新用户可以使用 `sudo`
+
+- 方法一 (首选):
+
+  取消注释 `/etc/sudoers` 中的 `%wheel ALL=(ALL:ALL) ALL`, 然后添加新用户到 `wheel` 组, `usermod -aG wheel <username>`
+
+- 方法二:
+  
+  创建一个文件到 `/etc/sudoers.d/`, 并添加这段配置 `<username> ALL=(ALL:ALL) ALL`
 
 #### 3.10 开机引导
 
@@ -602,9 +614,9 @@ timedatectl set-ntp true
 
 #### 考虑启用pacman的multilib和AUR
 
-- [multilib软件仓库](#multilib软件仓库)
+- [multilib 软件仓库](#multilib-软件仓库)
 - [chaotic-aur](#chaotic-aur)
-- [archlinuxcn软件仓库](#archlinuxcn软件仓库)
+- [archlinuxcn 软件仓库](#archlinuxcn-软件仓库)
 - [安装AUR助手](#安装aur助手)
 
 #### 安装桌面环境
@@ -752,7 +764,7 @@ timedatectl set-ntp true
   pacman -S libva-nvidia-driver
   ```
 
-### Intel VPL
+#### Intel VPL
 
 ```bash
 # Tiger Lake and newer
