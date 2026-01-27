@@ -182,7 +182,7 @@
 
 > [!WARNING]
 > 如果你是第一次安装 Arch, 请全程自行手动操作, 不要使用 archinstall 或代打逃课  
-> 如果你不熟悉 GNU/Linux, 建议先到其他有图形化安装的发行版 (Manjaro, Linux Mint, Ubuntu 等), 熟悉后再尝试 Arch  
+> 如果你不熟悉 GNU/Linux, 建议先到其他有图形化安装的发行版如 Arch 系的 CachyOS, EndeavourOS, 或基于 Ubuntu 的 Linux Mint, 熟悉后再尝试原版 Arch  
 > 如果你想用 Arch 作为第一个 GNU/Linux 发行版, 建议在身边有人传教的情况下尝试
 >
 > Arch Linux 安装过程没有图形界面, 所有编辑操作都是在终端  
