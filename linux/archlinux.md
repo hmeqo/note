@@ -15,9 +15,9 @@
     - [视频教程](#视频教程)
     - [1. 准备](#1-准备)
       - [获取系统信息](#获取系统信息)
+        - [如何判断启动方式](#如何判断启动方式)
       - [硬件准备](#硬件准备)
       - [提前分配空闲分区](#提前分配空闲分区)
-        - [如何判断启动方式](#如何判断启动方式)
       - [插入U盘](#插入u盘)
       - [网络连接](#网络连接)
         - [有线网络连接](#有线网络连接)
@@ -202,6 +202,10 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 开机启动方式 (BIOS/UEFI), 分区表类型(MBR/GPT), 分区信息
 
+##### 如何判断启动方式
+
+在 archiso 环境中, 可以用 `ls /sys/firmware/efi/efivars` 判断是否是 UEFI, 如果有输出, 则是 UEFI, 否则是 BIOS / Legacy
+
 #### 硬件准备
 
 一个刻录了安装镜像的U盘, 一台电脑
@@ -209,10 +213,6 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 #### 提前分配空闲分区
 
 如果你是双系统要分一块分区给 Linux, 建议提前使用Windows自带的分区工具或进入PE分区
-
-##### 如何判断启动方式
-
-在 archiso 环境中, 可以用 `ls /sys/firmware/efi/efivars` 判断是否是 UEFI, 如果有输出, 则是 UEFI, 否则是 BIOS / Legacy
 
 #### 插入U盘
 
