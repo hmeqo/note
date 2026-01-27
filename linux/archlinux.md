@@ -14,12 +14,14 @@
   - [安装教程](#安装教程)
     - [视频教程](#视频教程)
     - [1. 准备](#1-准备)
+      - [获取系统信息](#获取系统信息)
       - [硬件准备](#硬件准备)
       - [提前分配空闲分区](#提前分配空闲分区)
-      - [获取系统信息](#获取系统信息)
         - [如何判断启动方式](#如何判断启动方式)
       - [插入U盘](#插入u盘)
-      - [WIFI 网络连接](#wifi-网络连接)
+      - [网络连接](#网络连接)
+        - [有线网络连接](#有线网络连接)
+        - [WIFI 网络连接](#wifi-网络连接)
       - [分区](#分区)
         - [创建分区](#创建分区)
         - [格式化分区](#格式化分区)
@@ -168,6 +170,7 @@
     - [WINE/PROTON 运行 Windows 应用/游戏](#wineproton-运行-windows-应用游戏)
       - [WINE 生态中的各种工具介绍](#wine-生态中的各种工具介绍)
       - [WINE/PROTON GUI 启动器](#wineproton-gui-启动器)
+    - [DKMS](#dkms)
 
 ## 安装教程
 
@@ -183,7 +186,7 @@
 > 如果你想用 Arch 作为第一个 GNU/Linux 发行版, 建议在身边有人传教的情况下尝试
 >
 > Arch Linux 安装过程没有图形界面, 所有编辑操作都是在终端  
-> 本文默认你能使用任何一种终端编辑器 (如 vim, nano, msedit), 不会用请自行学习后再来 (新手可以用 msedit 或 nano)
+> 本文默认你能使用任何一种终端编辑器 (如 vim, nano, msedit), 不会用请自行学习后再来 (新手可以用 msedit)
 
 ### 视频教程
 
@@ -195,17 +198,17 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 ### 1. 准备
 
+#### 获取系统信息
+
+开机启动方式 (BIOS/UEFI), 分区表类型(MBR/GPT), 分区信息
+
 #### 硬件准备
 
 一个刻录了安装镜像的U盘, 一台电脑
 
 #### 提前分配空闲分区
 
-强烈建议提前分区一块空闲分区, 使用Windows自带的分区工具或PE提前分一块空闲分区
-
-#### 获取系统信息
-
-判断启动方式, 分区表类型
+如果你是双系统要分一块分区给 Linux, 建议提前使用Windows自带的分区工具或进入PE分区
 
 ##### 如何判断启动方式
 
@@ -215,9 +218,13 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 重启, 在 BIOS/UEFI 界面选择通过U盘启动
 
-#### WIFI 网络连接
+#### 网络连接
 
-有线网络会自动连接, 不需要手动连接
+##### 有线网络连接
+
+有线网络会自动连接, 一般不需要不需要手动连接, 除非是没有驱动或不受支持
+
+##### WIFI 网络连接
 
 `ip link` 可以查看网络设备, 确保你的网络设备有被列出
 
@@ -448,11 +455,12 @@ passwd <username>
 
 - 方法一 (首选):
 
-  取消注释 `/etc/sudoers` 中的 `%wheel ALL=(ALL:ALL) ALL`, 然后添加新用户到 `wheel` 组, `usermod -aG wheel <username>`
+  取消注释 `/etc/sudoers` 中的 `%wheel ALL=(ALL:ALL) ALL` 行
+  然后添加新用户到 `wheel` 组, 执行 `usermod -aG wheel <username>`
 
 - 方法二:
   
-  创建一个文件到 `/etc/sudoers.d/`, 并添加这段配置 `<username> ALL=(ALL:ALL) ALL`
+  创建一个文件到 `/etc/sudoers.d/`, 并写入这段内容 `<username> ALL=(ALL:ALL) ALL`
 
 #### 3.10 开机引导
 
@@ -647,11 +655,12 @@ timedatectl set-ntp true
 
 ### 显卡驱动
 
-- Mesa
+- mesa
 
-  `mesa` - 开源 OpenGL 驱动, 支持所有主流显卡
+  `mesa` - 开源 OpenGL 驱动, linux 桌面图形渲染的基石, 支持所有主流显卡
 
   ```bash
+  # 被 x11 和 wayland 依赖, 一般无须自行安装
   pacman -S mesa mesa-utils
   # for multilib
   pacman -S lib32-mesa-utils
@@ -661,11 +670,11 @@ timedatectl set-ntp true
 
   - 官方驱动
 
-    NVIDIA 官方提供了闭源和开源两种内核驱动, 分别是 `nvidia` 和 `nvidia-open`  
+    官方仓库只提供 nvidia 开源驱动 `nvidia-open`，该驱动只支持图灵架构以及更新的显卡 (20系列以后的显卡)  
+    `nvidia-open` 的显卡兼容情况看这里 <https://github.com/NVIDIA/open-gpu-kernel-modules?tab=readme-ov-file#compatible-gpus>  
+    不受支持的显卡可以尝试 aur 中旧版 (585 及更早的版本) 或特定版本的 nvidia 驱动
 
-    可以安装 `nvidia-open` 的显卡优先安装 `nvidia-open`, 显卡兼容情况看这里 <https://github.com/NVIDIA/open-gpu-kernel-modules?tab=readme-ov-file#compatible-gpus>
-
-    **注意: 对于非标准内核 (比如linux-zen), 请安装 nvidia-dkms / nvidia-open-dkms, 而不是 nvidia / nvidia-open**
+    **注意: 官方仓库中的 nvidia 内核模块是为标准 linux 内核编译的, 对于其他内核如 linux-zen, 请安装 dkms 版本 `nvidia-open-dkms`**, [何为 dkms 介绍](#dkms)
 
     ```bash
     pacman -S nvidia-open nvidia-utils
@@ -675,7 +684,7 @@ timedatectl set-ntp true
 
   - 社区驱动
 
-    `nouveau` 已包含在内核模块中, 请不要安装官方驱动
+    `nouveau` 已包含在内核模块中, 使用此模块则不要安装官方驱动
 
 #### Vulkan
 
@@ -754,13 +763,13 @@ timedatectl set-ntp true
   pacman -S lib32-libva-intel-driver
   ```
 
-  检验 VA-API: <https://wiki.archlinuxcn.org/wiki/%E7%A1%AC%E4%BB%B6%E8%A7%86%E9%A2%91%E5%8A%A0%E9%80%9F#%E6%A3%80%E9%AA%8C_VA-API>
-
 - NVIDIA
 
   ```bash
   pacman -S libva-nvidia-driver
   ```
+
+检验 VA-API: <https://wiki.archlinuxcn.org/wiki/%E7%A1%AC%E4%BB%B6%E8%A7%86%E9%A2%91%E5%8A%A0%E9%80%9F#%E6%A3%80%E9%AA%8C_VA-API>
 
 #### Intel VPL
 
@@ -846,20 +855,6 @@ X11 默认只使用集显, 需要手动配置或使用 optimus-manager 自动配
 
 Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有只使用 iGPU 或 dGPU 的需求, 参考以下列出的软件
 
-- optimus-manager
-
-  官方说只支持 X11, 但 Wayland 似乎也能用
-
-  支持 amd, nvidia dGPU
-
-  - 安装
-
-    可选择安装图形界面 `optimus-manager-qt`
-
-    ```bash
-    paru -S optimus-manager [optimus-manager-qt]
-    ```
-
 - envycontrol (NVIDIA dGPU 推荐)
 
   - 安装
@@ -886,18 +881,26 @@ Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有�
 
 #### 指定使用独立显卡
 
-- switcheroo-control
+- switcheroo-control (通用且桌面环境集成)
 
-  记得启用服务 `sudo systemctl enable --now switcheroo-control`
+  - 安装
+
+    ```bash
+    pacman -S switcheroo-control
+    ```
+
+    启用服务 `sudo systemctl enable --now switcheroo-control`
 
   - cli
 
-    `switcherooctl launch <command>` - 用独显运行
+    `switcherooctl list` - 列出可用显卡
+
+    `switcherooctl launch <command>` - 用独显运行, 可附带 `-g <device_id>` 参数指定显卡
 
   - 桌面环境适配
 
-    然后你应该能在桌面环境编辑 .desktop 的属性时看到使用独立显卡的选项  
-    或者在 .desktop 的 [Desktop Entry] 中添加以下内容
+    目前已知集成此功能的有 KDE 和 GNONE, 可以在桌面环境编辑菜单项时看到使用独立显卡的选项  
+    或者通过在 .desktop 的 [Desktop Entry] 中添加以下内容来生效
 
     ```desktop
     PrefersNonDefaultGPU=true
@@ -980,7 +983,7 @@ Description=Data 1
 What=UUID=82072972-a34a-4c9d-8213-19fc1b722001
 Where=/mnt/data1
 Type=btrfs
-Options=defaults,autodefrag,compress=zstd
+Options=compress=zstd,autodefrag
 
 [Install]
 WantedBy=multi-user.target
@@ -2785,3 +2788,11 @@ Archwiki: <https://wiki.archlinux.org/title/Main_page>
 - CrossOver
 
   付费版 Wine
+
+### DKMS
+
+> 动态内核模块支持 （Dynamic Kernel Module Support，DKMS）是用来生成Linux的内核模块的一个框架，其源代码一般不在Linux内核源代码树。 当新的内核安装时，DKMS支持的内核设备驱动程序 到时会自动重建。 DKMS可以用在两个方向：如果一个新的内核版本安装，自动编译所有的模块，或安装新的模块（驱动程序）在现有的系统版本上，而不需要任何的手动编译或预编译软件包需要。例如，这使得新的显卡可以使用在旧的Linux系统上。 
+
+简单说，Linux 内核由于 ABI 不兼容，编译好的内核模块通常只能由特定版本的内核加载。
+想要增加额外的内核模块（如显卡驱动），要么每当内核更新时手动重新编译，要么使用 DKMS。
+DKMS 本质上是一个自动化管理系统，它利用内核头文件，在内核升级或模块安装时，通过触发器自动为系统中已安装的内核重新编译并部署对应的模块，省去了人工手动维护的麻烦。
