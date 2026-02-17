@@ -2597,10 +2597,16 @@ Device Name 可以通过 `vulkaninfo | grep deviceName` 获取
 
 - 利用 dd 和 ssh 测试网速
 
-  此方法通过 ssh 远程执行 dd 命令来测试网速, 需要能够远程执行命令
+  本地到服务器 (服务器下行)
 
   ```bash
   dd if=/dev/zero | ssh <target_myserver> dd of=/dev/null status=progress
+  ```
+
+  服务器到本地 (服务器上行)
+
+  ```bash
+  ssh <target_myserver> 'dd if=/dev/zero' | dd of=/dev/null status=progress
   ```
 
 ### 热插拔 pci 设备
