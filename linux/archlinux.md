@@ -79,7 +79,6 @@
     - [Swap](#swap)
       - [Swap大小建议](#swap大小建议)
       - [创建swapfile](#创建swapfile)
-    - [mkinitcpio的systemd钩子](#mkinitcpio的systemd钩子)
     - [休眠](#休眠)
       - [1. 添加休眠钩子](#1-添加休眠钩子)
       - [2. 添加休眠内核参数](#2-添加休眠内核参数)
@@ -89,9 +88,11 @@
     - [zswap](#zswap)
     - [性能优化](#性能优化)
       - [scx-scheds](#scx-scheds)
+      - [性能模式](#性能模式)
       - [SSD 优化](#ssd-优化)
       - [Ananicy](#ananicy)
       - [preempt=full](#preemptfull)
+      - [mkinitcpio的systemd钩子](#mkinitcpio的systemd钩子)
     - [操作文件系统](#操作文件系统)
     - [Intel xe](#intel-xe)
     - [modprobe](#modprobe)
@@ -245,18 +246,25 @@ BiliBili: <https://www.bilibili.com/video/BV1XY4y1f77S>
 
 几种主要的分区方案:
 
-- 一个EFI分区(对于UEFI引导) + 一个Linux文件系统分区 + 一个swap分区(可选)
+1. 一个EFI分区(对于UEFI引导) + 一个Linux根分区
 
-- 一个EFI分区(对于UEFI引导) + 一个home目录分区 + 一个Linux文件系统分区 + 一个swap分区(可选)
+2. 一个EFI分区(对于UEFI引导) + 一个home目录分区 + 一个Linux根分区
 
-如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, 大小推荐不小于 300MB, 如果是双系统推荐 500MB  
-Windows/Linux 双系统本身已经有 EFI 分区了, 可以选择和 Windows 共用, 或者已经有了 EFI 分区, 只需要把原来的 EFI 分区扩容到推荐大小即可
+也可以再添加一个 swap 分区, 不过对于现代 linux, 更推荐用 swap 文件 (swapfile), 这和 swap 分区没有性能差异
 
-如果你要分配swap分区, 那么不推荐排在前面, 放后面的话如果需要修改会比较方便, 对于swap分区/文件要分多大, 可以参考这里 [swap大小建议](#swap大小建议)
+- EFI 注意事项:
 
-> [!NOTE]
-> 也可以使用swapfile而非swap分区, 这样可以动态分配swap的大小, 无需调整分区, 可以等挂载完分区后再创建, [创建swapfile](#创建swapfile)  
-> 在Arch安装过程中(非arch-chroot下), 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
+  如果电脑的启动方式是 UEFI, 需要单独分一个 EFI 分区, EFI 分区一般挂载到 `/boot/efi` 或 `/boot`, 如果选择将 EFI 分区挂载到 `/boot`, 大小推荐不小于 500MB  
+  如果你要安装 Windows 和 Linux 双系统, 并且选择共用 EFI 分区, 则建议先安装 Windows 再安装 Linux, 防止 Windows 覆盖/删除 Linux 启动项
+
+- Swap 注意事项:
+
+  如果你要分配 swap 分区, 那么不推荐排在前面, 放后面的话如果需要修改会比较方便
+
+  如果你要创建 swapfile, 挂载完根分区后就可以创建了 [创建swapfile](#创建swapfile)  
+  在Arch安装过程中 (非arch-chroot下), 请注意 swapfile 的文件路径, 例如系统根分区的临时挂载点是 /mnt, 那么应该把 dd 命令的 of 参数路径改成 /mnt/swapfile 或其他 /mnt 下的路径
+
+  对于swap分区/文件要分多大, 可以参考这里 [swap大小建议](#swap大小建议)
 
 ##### 创建分区
 
@@ -327,7 +335,7 @@ Windows/Linux 双系统本身已经有 EFI 分区了, 可以选择和 Windows �
   ```
 
 > [!NOTE]
-> 如果你要创建swapfile, 挂载完 `/mnt` 就可以创建了, 创建到 `/mnt/swapfile`, [创建swapfile](#创建swapfile)  
+> 如果你要创建swapfile, 挂载完 `/mnt` 后, 创建到 `/mnt/swapfile`, 然后 `swapon`, [如何创建swapfile](#创建swapfile)  
 > 如果你提前创建了, `swapoff` 之后移动swapfile到 `/mnt` 下然后 `swapon` 即可
 
 ### 2. 安装
@@ -579,7 +587,7 @@ refind-install
   参考示例:
 
   ```conf
-  "Boot with standard options"    "root=UUID=b438fc00-becf-4a22-8d50-ead76d972028 rw quiet splash resume=UUID=b438fc00-becf-4a22-8d50-ead76d972028 resume_offset=4161536"
+  "Boot with standard options"    "root=UUID=b438fc00-becf-4a22-8d50-ead76d972028 rw quiet splash"
   "Boot with minimal options"     "ro root=UUID=b438fc00-becf-4a22-8d50-ead76d972028"
   ```
 
@@ -685,6 +693,10 @@ timedatectl set-ntp true
   - 社区驱动
 
     `nouveau` 已包含在内核模块中, 使用此模块则不要安装官方驱动
+
+- AMD
+
+  开源驱动包含在内核模块中
 
 #### Vulkan
 
@@ -915,7 +927,7 @@ Wayland 默认混合模式, 无需额外配置即可使用独显, 但如果有�
 
 ### 功耗控制和电源管理
 
-- power-profiles-daemon
+- power-profiles-daemon (推荐, 且和桌面环境集成)
 
 - tlp
 
@@ -1009,6 +1021,14 @@ WantedBy=multi-user.target
 
 #### Swap大小建议
 
+个人建议
+
+- 小内存(<=2G>) 4G
+- 不考虑休眠 4G - 8G
+- 考虑休眠则额外增加 0.5 - 1 倍内存大小的空间
+
+注意休眠时内存数据会先被压缩再存储到硬盘, 实际需要的空间会小于表面内存占用, 所以即使你分配了小于物理内存大小的内存也有可能休眠成功
+
 Gentoo 文档: <https://wiki.gentoo.org/wiki/Handbook:AMD64/Installation/Disks#What_about_swap_space.3F>
 
 #### 创建swapfile
@@ -1054,21 +1074,6 @@ swapon /swapfile
 # ...
 # Swap
 /swapfile             none        swap        defaults    0 0
-```
-
-### mkinitcpio的systemd钩子
-
-备注: 新的 arch 系统默认应该是 systemd 了
-
-systemd 钩子可异步加载模块, 开机速度相对 udev 快一些, 可能不支持老旧硬件
-
-mkinitcpio 默认的钩子组合是以udev为主的, 如果需要更换为systemd,
-编辑 `/etc/mkinitcpio.conf`, 找到 HOOKS 配置项, 并替换为以下内容
-
-(PS: HOOKS上方应该是有注释说明 systemd 配置的示例)
-
-```conf
-HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole sd-encrypt block filesystems fsck)
 ```
 
 ### 休眠
@@ -1223,8 +1228,8 @@ sudo pacman -S scx-scheds scx-tools
 编辑配置文件 `/etc/scx_loader.toml`
 
 ```toml
-default_sched = "scx_rustland"
-default_mode = "Auto" # Auto, Gaming, LowLatency, PowerSave
+default_sched = "scx_lavd"
+default_mode = "LowLatency" # Auto, Gaming, Performance, LowLatency, PowerSave
 ```
 
 最后启动服务即可 `sudo systemctl enable --now scx_loader.service`
@@ -1241,10 +1246,19 @@ cli
 
 - 设置调度器和模式
 
+  `sudo scxctl switch -s <调度器> -m <模式>`
+
+  所有可用模式 (具体看调度器支持):  auto, gaming, performance, lowlatency, powersave
+
+  示例
+
   ```bash
-  sudo scxctl switch -s <调度器> -m <模式>
-  # sudo scxctl switch -s rustland -m gaming # auto, gaming, lowlatency, powersave
+  sudo scxctl switch -s lavd -m lowlatency
   ```
+
+#### 性能模式
+
+使用 `power-profiles-daemon` 的性能模式
 
 #### SSD 优化
 
@@ -1253,6 +1267,8 @@ sudo systemctl enable --now fstrim.timer
 ```
 
 #### Ananicy
+
+PS: 不是很推荐
 
 > Ananicy是一个用于自动调节可执行程序nice值的守护进程。nice值表示了在为特定可执行程序分配CPU资源时的优先级。
 
@@ -1275,17 +1291,32 @@ sudo systemctl enable --now fstrim.timer
 
 #### preempt=full
 
-该选项较为激进, 不一定会有好的效果, 默认情况下实时抢占已开启, 但并不是所有情况都会发生抢占, 该选项会无视所有禁止抢占的声明
+PS: 6.12 开始已是默认
 
-详情看: <https://www.reddit.com/r/Fedora/comments/158fy6x/comment/l5kwhvv/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button>
+关于是否启用 preempt=full 的讨论: <https://www.reddit.com/r/Fedora/comments/158fy6x/comment/l5kwhvv/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button>
 
 在内核参数添加 `preempt=full` 然后重新启动即可启用
 
-判断实时内核是否完全启用, 可通过
+判断当前实时内核状态, 可通过
 
 ```bash
-$ sudo dmesg | grep -i preempt
-Dynamic Preempt: full
+$ sudo cat /sys/kernel/debug/sched/preempt
+none voluntary (full) lazy 
+```
+
+#### mkinitcpio的systemd钩子
+
+备注: 新的 arch 系统默认应该是 systemd 了
+
+systemd 钩子可异步加载模块, 开机速度相对 udev 快一些, 可能不支持老旧硬件
+
+mkinitcpio 默认的钩子组合是以udev为主的, 如果需要更换为systemd,
+编辑 `/etc/mkinitcpio.conf`, 找到 HOOKS 配置项, 并替换为以下内容
+
+PS: HOOKS上方应该是有注释说明 systemd 配置的示例
+
+```conf
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole sd-encrypt block filesystems fsck)
 ```
 
 ### 操作文件系统
@@ -1868,8 +1899,8 @@ pacman 使用方式和 vim 很像, 格式为一个Operator加n个Motion
 
   ```bash
   sudo pacman -S --needed base-devel
-  git clone https://aur.archlinux.org/yay-bin.git
-  cd yay-bin
+  git clone https://aur.archlinux.org/yay.git
+  cd yay
   makepkg -si
   ```
 
@@ -1879,10 +1910,12 @@ GitHub: <https://github.com/Morganamilo/paru>
 
 - 安装
 
+  按下方命令从 AUR 手动安装, 或添加 archlinuxcn/chaotic-aur 仓库然后通过 `pacman -S paru` 直接安装
+
   ```bash
   sudo pacman -S --needed base-devel git
-  git clone https://aur.archlinux.org/paru-bin.git
-  cd paru-bin
+  git clone https://aur.archlinux.org/paru.git
+  cd paru
   makepkg -si
   ```
 
